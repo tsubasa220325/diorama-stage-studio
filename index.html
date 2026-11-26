@@ -29,7 +29,8 @@
       <button id="btn-export-glb" class="accent" title="Unity URP / Godot 4 / Three.js 向けバイナリ書き出し">.glb 書き出し</button>
       <button id="btn-export-png" title="高精細プレビューPNG保存">PNG</button>
       <button id="btn-export-colab" title="Google Colab GPU用バッチJSON書き出し">Colab AI</button>
-      <button id="btn-normal-lab" title="ドット絵タイルから法線マップを即時生成">法線工房</button>
+      <button id="btn-normal-lab" title="ドット絵タイルから法線マップ生成＆3Dアトラス反映">法線・タイル工房</button>
+      <button id="btn-gcloud" title="Google Cloud Shell / Google Colab GPU をワンクリック起動">Google Cloud</button>
     </div>
   </header>
 
@@ -69,12 +70,21 @@
           <button id="btn-cam-game" class="pill active">ゲーム視点</button>
           <button id="btn-cam-orbit" class="pill">自由オービット</button>
           <button id="btn-cam-reset" class="pill" title="オービット視点リセット">リセット</button>
+          <span class="sep"></span>
+          <button id="btn-tool-move" class="pill active" title="ビューポート上でクリック選択＆ドラッグ移動">ドラッグ移動</button>
+          <button id="btn-tool-grid" class="pill" title="床をクリックして歩行可能グリッドを塗り分け">歩行グリッド塗</button>
+          <select id="snap-select" title="移動スナップ刻み">
+            <option value="0">スナップなし</option>
+            <option value="0.25" selected>Snap 0.25</option>
+            <option value="0.5">Snap 0.5</option>
+            <option value="1">Snap 1.0</option>
+          </select>
         </div>
         <div class="vp-group">
           <button id="btn-beat" class="pill active">拍同期 128 BPM</button>
           <button id="btn-enrage" class="pill">怒り演出</button>
           <button id="btn-flash" class="pill">閃光テスト</button>
-          <button id="btn-guides" class="pill">ガイド</button>
+          <button id="btn-guides" class="pill active">ガイド</button>
         </div>
       </div>
 
@@ -122,19 +132,24 @@
     </form>
   </dialog>
 
-  <!-- Browser Normal Map Lab Modal -->
+  <!-- Browser Normal Map & Live Atlas Lab Modal -->
   <dialog id="normal-modal" class="modal">
     <div class="modal-card wide">
       <h3>ブラウザ内 テクスチャ＆Sobel法線マップ工房（0 CU / Mac 0 MB）</h3>
-      <p class="hint">2D ドット絵タイル画像を読み込むと、その場で Sobel 法線マップを生成・PNG保存できます。</p>
+      <p class="hint">2D ドット絵タイル画像を読み込むと Sobel 法線マップを即時生成し、そのまま 3D ステージのタイル枠へ反映（.glb 書き出しにも埋め込み）できます。</p>
       <div class="asset-btns">
         <label class="file-btn primary">
           タイル画像を選択 (PNG / WebP)
           <input id="lab-file" type="file" accept="image/png,image/webp,image/jpeg" hidden />
         </label>
         <label class="inline-slider">強度 <input id="lab-strength" type="range" min="0.5" max="6" step="0.1" value="2.6" /> <span id="lab-strength-val">2.6</span></label>
-        <button id="lab-download" class="accent" disabled>法線マップ PNG 保存</button>
+        <button id="lab-download" class="accent" disabled>法線 PNG 保存</button>
         <button id="lab-close">閉じる</button>
+      </div>
+      <div class="asset-btns">
+        <label class="inline-slider">反映先タイル枠 <select id="lab-slot"></select></label>
+        <button id="lab-inject" class="primary" disabled>3D ステージのアトラスへ即時反映</button>
+        <button id="lab-reset-atlas">標準アトラスへ戻す</button>
       </div>
       <div class="lab-grid">
         <div>
@@ -145,6 +160,36 @@
           <div class="section-title">生成法線マップ (Tangent Normal)</div>
           <canvas id="lab-norm" width="256" height="256" class="pixel-canvas"></canvas>
         </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Google Cloud Development Launcher Modal -->
+  <dialog id="gcloud-modal" class="modal">
+    <div class="modal-card wide">
+      <h3>Google クラウド環境でゼロ容量開発（Mac SSD 0 MB）</h3>
+      <p class="hint">ブラウザからワンクリックで Google Cloud Shell（無料 5 GB 永続・VS Code 風エディタ）や Google Colab GPU（L4＋Drive 2TB）を開いて開発・素材生成を完結できます。</p>
+      <div class="card">
+        <div class="section-title">① コード開発・テスト・Webプレビュー（無料）</div>
+        <p class="hint">リポジトリを自動クローンし、日本語チュートリアル付きで Cloud Shell Editor を起動します。</p>
+        <div class="asset-btns">
+          <a class="file-btn primary" target="_blank" rel="noopener noreferrer" href="https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/tsubasa220325/diorama-stage-studio&amp;cloudshell_tutorial=cloud/cloudshell-tutorial.md">Google Cloud Shell Editor で開く ↗</a>
+          <button id="btn-copy-cs-cmd" type="button">起動コマンドをコピー</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">② 背景美術・ドットタイル＆法線マップ一括生成（Colab L4 GPU）</div>
+        <p class="hint">商用クリーン（Apache 2.0）モデルを Google Drive 2TB キャッシュで実行し、完了後に自動切断（CU 節約）します。</p>
+        <div class="asset-btns">
+          <a class="file-btn accent" target="_blank" rel="noopener noreferrer" href="https://colab.research.google.com/github/tsubasa220325/diorama-stage-studio/blob/main/colab/Diorama_Stage_Asset_Studio.ipynb">Google Colab GPU 素材スタジオを開く ↗</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">③（任意）専用 GCE Linux 開発 VM の構築</div>
+        <p class="hint">Cloud Shell 内で <code>bash cloud/gce-dev-vm.sh create</code> を実行すると、Mac に gcloud を入れずに Spot VM（Node 22 + Git + gh 導入済）を作成・停止できます。</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="gcloud-close">閉じる</button>
       </div>
     </div>
   </dialog>

@@ -85,6 +85,7 @@ button, .file-btn {
   align-items: center;
   justify-content: center;
   gap: 4px;
+  text-decoration: none;
   transition: border-color 0.15s, background 0.15s;
 }
 

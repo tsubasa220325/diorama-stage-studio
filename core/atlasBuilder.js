@@ -275,6 +275,47 @@ export function tileUvRect(tileRef) {
   return [tx * s + pad, ty * s + pad, (tx + 1) * s - pad, (ty + 1) * s - pad];
 }
 
+/**
+ * Replaces one 64x64 tile slot inside a 256x256 PBR atlas (both albedo & Sobel normal map).
+ * Nearest-neighbor resamples arbitrary source image dimensions cleanly to 64x64.
+ */
+export function patchAtlasTile(atlasData, tileRef, srcRgba, srcW, srcH, normalStrength = 2.6) {
+  const [tx, ty] = tileCoordFor(tileRef);
+  const tileAlbedo = new Uint8Array(TILE_PX * TILE_PX * 4);
+  for (let y = 0; y < TILE_PX; y++) {
+    const sy = Math.min(srcH - 1, Math.floor((y * srcH) / TILE_PX));
+    for (let x = 0; x < TILE_PX; x++) {
+      const sx = Math.min(srcW - 1, Math.floor((x * srcW) / TILE_PX));
+      const si = (sy * srcW + sx) * 4;
+      const di = (y * TILE_PX + x) * 4;
+      tileAlbedo[di] = srcRgba[si];
+      tileAlbedo[di + 1] = srcRgba[si + 1];
+      tileAlbedo[di + 2] = srcRgba[si + 2];
+      tileAlbedo[di + 3] = 255;
+    }
+  }
+  const tileNormal = generateNormalFromRgba(tileAlbedo, TILE_PX, TILE_PX, normalStrength, true);
+  const albedo = new Uint8Array(atlasData.albedo);
+  const normal = new Uint8Array(atlasData.normal);
+  const bx = tx * TILE_PX;
+  const by = ty * TILE_PX;
+  for (let y = 0; y < TILE_PX; y++) {
+    for (let x = 0; x < TILE_PX; x++) {
+      const si = (y * TILE_PX + x) * 4;
+      const di = ((by + y) * ATLAS_PX + (bx + x)) * 4;
+      albedo[di] = tileAlbedo[si];
+      albedo[di + 1] = tileAlbedo[si + 1];
+      albedo[di + 2] = tileAlbedo[si + 2];
+      albedo[di + 3] = 255;
+      normal[di] = tileNormal[si];
+      normal[di + 1] = tileNormal[si + 1];
+      normal[di + 2] = tileNormal[si + 2];
+      normal[di + 3] = 255;
+    }
+  }
+  return { width: ATLAS_PX, height: ATLAS_PX, albedo, normal };
+}
+
 // Pure-JS valid PNG encoder (uncompressed zlib stored blocks) — works in both browser and Node.js
 const CRC_TABLE = (() => {
   const table = new Uint32Array(256);

@@ -1,7 +1,7 @@
 import {
-  encodeRgbaToPng, generateNormalFromRgba, TILE_LABELS_JA, TILE_NAMES,
+  encodeRgbaToPng, generateNormalFromRgba, patchAtlasTile, TILE_LABELS_JA, TILE_NAMES,
 } from '../core/atlasBuilder.js';
-import { projectPoint } from '../core/math.js';
+import { projectPoint, unprojectRayToPlaneY } from '../core/math.js';
 import { PROP_TYPES } from '../core/meshBuilder.js';
 import { createStudioRenderer } from '../core/renderer.js';
 import { SAMPLE_SPRITE_STYLES } from '../core/sampleSprites.js';
@@ -78,11 +78,13 @@ const state = {
   redoStack: [],
   selection: { group: 'props', index: 0 },
   cameraMode: 'game', // 'game' | 'orbit'
+  toolMode: 'move',   // 'move' | 'grid'
+  snapStep: 0.25,
   orbit: { yaw: 0.32, pitch: 0.36, distance: 14.5, panX: 0, panY: 0, panZ: 0 },
   beatSync: true,
   bpm: 128,
   enraged: false,
-  showGuides: false,
+  showGuides: true,
   impactFlash: 0,
   lastRenderInfo: null,
 };
@@ -648,14 +650,36 @@ function drawGuides(cam, width, height) {
     guideCtx.stroke();
   }
 
+  // Prop pins (clickable in viewport)
+  for (let i = 0; i < (state.stage.geometry?.props?.length ?? 0); i++) {
+    const p = state.stage.geometry.props[i];
+    if (p.hidden) continue;
+    const isSel = state.selection.group === 'props' && state.selection.index === i;
+    const pt = projectPoint(vp, p.pos[0], p.pos[1] + 0.35, p.pos[2], width, height);
+    guideCtx.fillStyle = isSel ? '#38bdf8' : 'rgba(167, 139, 250, 0.85)';
+    guideCtx.strokeStyle = isSel ? '#ffffff' : 'rgba(255,255,255,0.65)';
+    guideCtx.lineWidth = isSel ? 2.5 : 1.5;
+    guideCtx.beginPath();
+    guideCtx.arc(pt.x, pt.y, isSel ? 8 : 5, 0, Math.PI * 2);
+    guideCtx.fill();
+    guideCtx.stroke();
+    if (isSel) {
+      guideCtx.fillStyle = '#e0f2fe';
+      guideCtx.font = 'bold 12px monospace';
+      guideCtx.fillText(`${p.id} [${p.pos[0].toFixed(2)}, ${p.pos[2].toFixed(2)}]`, pt.x + 11, pt.y + 4);
+    }
+  }
+
   // Light pins
-  for (const pl of state.stage.lighting?.pointLights ?? []) {
+  for (let i = 0; i < (state.stage.lighting?.pointLights?.length ?? 0); i++) {
+    const pl = state.stage.lighting.pointLights[i];
+    const isSel = state.selection.group === 'pointLights' && state.selection.index === i;
     const pt = projectPoint(vp, pl.pos[0], pl.pos[1], pl.pos[2], width, height);
     guideCtx.fillStyle = rgbToHex(pl.color);
-    guideCtx.strokeStyle = '#ffffff';
-    guideCtx.lineWidth = 2;
+    guideCtx.strokeStyle = isSel ? '#38bdf8' : '#ffffff';
+    guideCtx.lineWidth = isSel ? 3 : 2;
     guideCtx.beginPath();
-    guideCtx.arc(pt.x, pt.y, 7, 0, Math.PI * 2);
+    guideCtx.arc(pt.x, pt.y, isSel ? 9 : 7, 0, Math.PI * 2);
     guideCtx.fill();
     guideCtx.stroke();
     guideCtx.fillStyle = '#fff';
@@ -664,42 +688,145 @@ function drawGuides(cam, width, height) {
   }
 
   // Anchor markers
-  for (const a of state.stage.anchors ?? []) {
+  for (let i = 0; i < (state.stage.anchors?.length ?? 0); i++) {
+    const a = state.stage.anchors[i];
+    const isSel = state.selection.group === 'anchors' && state.selection.index === i;
     const pt = projectPoint(vp, a.pos[0], a.pos[1], a.pos[2], width, height);
-    guideCtx.strokeStyle = '#facc15';
-    guideCtx.lineWidth = 2;
-    guideCtx.strokeRect(pt.x - 6, pt.y - 6, 12, 12);
-    guideCtx.fillStyle = '#fde047';
+    guideCtx.strokeStyle = isSel ? '#38bdf8' : '#facc15';
+    guideCtx.lineWidth = isSel ? 3 : 2;
+    guideCtx.strokeRect(pt.x - 7, pt.y - 7, 14, 14);
+    guideCtx.fillStyle = isSel ? '#38bdf8' : '#fde047';
     guideCtx.font = 'bold 12px monospace';
-    guideCtx.fillText(`${a.id} (${a.role})`, pt.x + 10, pt.y - 6);
+    guideCtx.fillText(`${a.id} (${a.role})`, pt.x + 11, pt.y - 6);
   }
 
   guideCtx.restore();
 }
 
-// Orbit mouse controls
+function snapValue(v) {
+  const s = state.snapStep;
+  return s > 0 ? Math.round(v / s) * s : Math.round(v * 100) / 100;
+}
+
+function canvasPointerToNdc(e) {
+  const rect = glCanvas.getBoundingClientRect();
+  const px = ((e.clientX - rect.left) / Math.max(1, rect.width)) * glCanvas.width;
+  const py = ((e.clientY - rect.top) / Math.max(1, rect.height)) * glCanvas.height;
+  return {
+    px,
+    py,
+    ndcX: (px / glCanvas.width) * 2 - 1,
+    ndcY: 1 - (py / glCanvas.height) * 2,
+  };
+}
+
+function pickViewportHandle(px, py) {
+  if (!state.lastRenderInfo) return null;
+  const { cam, width, height } = state.lastRenderInfo;
+  const candidates = [];
+  (state.stage.anchors ?? []).forEach((a, index) => {
+    const pt = projectPoint(cam.viewProj, a.pos[0], a.pos[1] + (a.heightWorld ?? 1.6) * 0.45, a.pos[2], width, height);
+    candidates.push({ group: 'anchors', index, item: a, dist: Math.hypot(pt.x - px, pt.y - py) });
+  });
+  (state.stage.lighting?.pointLights ?? []).forEach((pl, index) => {
+    const pt = projectPoint(cam.viewProj, pl.pos[0], pl.pos[1], pl.pos[2], width, height);
+    candidates.push({ group: 'pointLights', index, item: pl, dist: Math.hypot(pt.x - px, pt.y - py) });
+  });
+  (state.stage.geometry?.props ?? []).forEach((p, index) => {
+    if (p.hidden) return;
+    const pt = projectPoint(cam.viewProj, p.pos[0], p.pos[1] + 0.35, p.pos[2], width, height);
+    candidates.push({ group: 'props', index, item: p, dist: Math.hypot(pt.x - px, pt.y - py) });
+  });
+  candidates.sort((a, b) => a.dist - b.dist);
+  return candidates[0] && candidates[0].dist <= 28 ? candidates[0] : null;
+}
+
+// Viewport pointer controls: Orbit + Direct Click/Drag Move + Walkable Grid Paint
 let dragMode = null;
+let dragTarget = null;
+let dragPlaneY = 0;
+let dragOffset = [0, 0];
 let lastMouse = [0, 0];
+
 glCanvas.addEventListener('pointerdown', e => {
+  const { px, py, ndcX, ndcY } = canvasPointerToNdc(e);
+
+  if (state.toolMode === 'grid' && state.lastRenderInfo) {
+    const hit = unprojectRayToPlaneY(state.lastRenderInfo.cam.viewProj, ndcX, ndcY, 0);
+    if (!hit) return;
+    const gs = state.stage.gameplay?.gridSize ?? 1.0;
+    const gx = Math.round(hit[0] / gs);
+    const gz = Math.round(hit[2] / gs);
+    pushUndo();
+    state.stage.gameplay = state.stage.gameplay ?? { gridSize: 1.0, walkableCells: [], triggers: [] };
+    const cells = state.stage.gameplay.walkableCells;
+    const idx = cells.findIndex(c => c.x === gx && c.z === gz);
+    if (idx >= 0) {
+      cells.splice(idx, 1);
+      setStatus(`歩行グリッド削除: (${gx}, ${gz})`);
+    } else {
+      cells.push({ x: gx, z: gz, y: 0 });
+      setStatus(`歩行グリッド追加: (${gx}, ${gz})`);
+    }
+    return;
+  }
+
+  // Click-to-select & drag handles when in move mode (unless Alt/Right-click forces orbit)
+  if (state.toolMode === 'move' && e.button === 0 && !e.altKey) {
+    const hit = pickViewportHandle(px, py);
+    if (hit && state.lastRenderInfo) {
+      state.selection = { group: hit.group, index: hit.index };
+      switchRightTab('object');
+      renderOutliner();
+      renderInspector();
+      dragMode = 'move-handle';
+      dragTarget = hit.item;
+      dragPlaneY = hit.item.pos[1];
+      const worldPt = unprojectRayToPlaneY(state.lastRenderInfo.cam.viewProj, ndcX, ndcY, dragPlaneY);
+      if (worldPt) {
+        dragOffset = [hit.item.pos[0] - worldPt[0], hit.item.pos[2] - worldPt[2]];
+        pushUndo();
+      }
+      glCanvas.setPointerCapture(e.pointerId);
+      setStatus(`選択: ${hit.item.id || hit.group} — ドラッグで X/Z 移動`);
+      return;
+    }
+  }
+
   if (state.cameraMode !== 'orbit') return;
   dragMode = e.shiftKey ? 'pan' : 'orbit';
   lastMouse = [e.clientX, e.clientY];
   glCanvas.setPointerCapture(e.pointerId);
 });
+
 glCanvas.addEventListener('pointermove', e => {
   if (!dragMode) return;
+  if (dragMode === 'move-handle' && dragTarget && state.lastRenderInfo) {
+    const { ndcX, ndcY } = canvasPointerToNdc(e);
+    const worldPt = unprojectRayToPlaneY(state.lastRenderInfo.cam.viewProj, ndcX, ndcY, dragPlaneY);
+    if (!worldPt) return;
+    dragTarget.pos[0] = snapValue(worldPt[0] + dragOffset[0]);
+    dragTarget.pos[2] = snapValue(worldPt[2] + dragOffset[1]);
+    rebuildGeometry();
+    renderInspector();
+    return;
+  }
   const dx = e.clientX - lastMouse[0];
   const dy = e.clientY - lastMouse[1];
   lastMouse = [e.clientX, e.clientY];
   if (dragMode === 'orbit') {
     state.orbit.yaw -= dx * 0.008;
     state.orbit.pitch = Math.max(0.06, Math.min(1.38, state.orbit.pitch + dy * 0.006));
-  } else {
+  } else if (dragMode === 'pan') {
     state.orbit.panX -= dx * 0.02;
     state.orbit.panY += dy * 0.02;
   }
 });
-glCanvas.addEventListener('pointerup', () => { dragMode = null; });
+
+glCanvas.addEventListener('pointerup', () => {
+  dragMode = null;
+  dragTarget = null;
+});
 glCanvas.addEventListener('wheel', e => {
   if (state.cameraMode !== 'orbit') return;
   e.preventDefault();
@@ -765,6 +892,24 @@ $('btn-cam-orbit').onclick = () => {
 };
 $('btn-cam-reset').onclick = () => {
   state.orbit = { yaw: 0.32, pitch: 0.36, distance: 14.5, panX: 0, panY: 0, panZ: 0 };
+};
+
+$('btn-tool-move').onclick = () => {
+  state.toolMode = 'move';
+  $('btn-tool-move').classList.add('active');
+  $('btn-tool-grid').classList.remove('active');
+  setStatus('ドラッグ移動モード: ビューポート上のプロップ・光源・アンカーをドラッグして移動');
+};
+$('btn-tool-grid').onclick = () => {
+  state.toolMode = 'grid';
+  state.showGuides = true;
+  $('btn-guides').classList.add('active');
+  $('btn-tool-grid').classList.add('active');
+  $('btn-tool-move').classList.remove('active');
+  setStatus('歩行グリッド塗りモード: 床をクリックして RPG / タクティカル歩行マスを追加・削除');
+};
+$('snap-select').onchange = e => {
+  state.snapStep = parseFloat(e.target.value) || 0;
 };
 
 $('btn-beat').onclick = () => {
@@ -882,8 +1027,15 @@ $('github-form').onsubmit = async e => {
   }
 };
 
-// Browser Normal Map Lab modal
+// Browser Normal Map & Live Atlas Injection Lab modal
 const normalModal = $('normal-modal');
+const labSlotSel = $('lab-slot');
+for (const name of TILE_NAMES) {
+  const opt = document.createElement('option');
+  opt.value = name;
+  opt.textContent = `${TILE_LABELS_JA[name] ?? name} (${name})`;
+  labSlotSel.appendChild(opt);
+}
 let labSourceImageData = null;
 let labNormalRgba = null;
 $('btn-normal-lab').onclick = () => normalModal.showModal();
@@ -901,6 +1053,7 @@ function recomputeLabNormal() {
   const ctx = normCanvas.getContext('2d');
   ctx.putImageData(new ImageData(new Uint8ClampedArray(labNormalRgba), width, height), 0, 0);
   $('lab-download').disabled = false;
+  $('lab-inject').disabled = false;
 }
 
 $('lab-file').onchange = e => {
@@ -924,6 +1077,40 @@ $('lab-download').onclick = () => {
   if (!labNormalRgba || !labSourceImageData) return;
   const png = encodeRgbaToPng(labNormalRgba, labSourceImageData.width, labSourceImageData.height);
   downloadBlob(new Blob([png], { type: 'image/png' }), 'tile_normal.png');
+};
+$('lab-inject').onclick = () => {
+  if (!labSourceImageData || !renderer) return;
+  const slot = labSlotSel.value;
+  const strength = parseFloat($('lab-strength').value);
+  const patched = patchAtlasTile(
+    renderer.getAtlasData(),
+    slot,
+    labSourceImageData.data,
+    labSourceImageData.width,
+    labSourceImageData.height,
+    strength,
+  );
+  renderer.updateAtlas(strength, patched.albedo, patched.normal);
+  setStatus(`カスタムタイルを 3D アトラス枠 "${slot}" へ即時反映しました（.glb 書き出し対応）`);
+  normalModal.close();
+};
+$('lab-reset-atlas').onclick = () => {
+  renderer?.updateAtlas(state.stage.atlas?.normalStrength ?? 2.2);
+  setStatus('タイルアトラスを標準プロシージャルに戻しました');
+};
+
+// Google Cloud Launcher Modal
+const gcloudModal = $('gcloud-modal');
+$('btn-gcloud').onclick = () => gcloudModal.showModal();
+$('gcloud-close').onclick = () => gcloudModal.close();
+$('btn-copy-cs-cmd').onclick = async () => {
+  const cmd = 'git clone --depth 1 https://github.com/tsubasa220325/diorama-stage-studio.git && cd diorama-stage-studio && bash cloud/cloudshell-bootstrap.sh && node cloud/dev-server.mjs';
+  try {
+    await navigator.clipboard.writeText(cmd);
+    setStatus('Google Cloud Shell 起動コマンドをクリップボードへコピーしました');
+  } catch {
+    setStatus(cmd);
+  }
 };
 
 // Boot & animation loop

@@ -1,10 +1,14 @@
 # Diorama Stage Studio
 
-**Mac 容量消費ほぼゼロ・インストール不要・GitHub Pages で即起動できる 2.5D ドット絵ジオラマ（立体ドット表現）ステージ制作スタジオ＆マルチエンジン出力ツール**です。
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/tsubasa220325/diorama-stage-studio&cloudshell_tutorial=cloud/cloudshell-tutorial.md)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tsubasa220325/diorama-stage-studio/blob/main/colab/Diorama_Stage_Asset_Studio.ipynb)
+
+**Mac 容量消費ほぼゼロ・インストール不要・GitHub Pages ＋ Google クラウド環境で完結する 2.5D ドット絵ジオラマ（立体ドット表現）ステージ制作スタジオ＆マルチエンジン出力ツール**です。
 
 - **ライブエディタ（GitHub Pages）**: https://tsubasa220325.github.io/diorama-stage-studio/
+- **Google Cloud Shell ワンクリック開発（無料 5 GB・Mac 0 MB）**: 上の「Open in Cloud Shell」ボタンをクリックするだけでリポジトリ自動クローン＋日本語チュートリアル＋Web プレビュー対応
+- **Google Colab GPU 素材スタジオ（L4＋Drive 2TB）**: 上の「Open In Colab」ボタンから背景美術・64px ドットタイル・Sobel 法線マップを一括生成＆自動切断
 - **依存ライブラリゼロ（Pure ES Modules + WebGL2）**: `node_modules` 不要、リポジトリ全体わずか数百 KB。
-- **マルチゲーム対応**: リズモディア（4:3 戦闘・ビスタ）はもちろん、16:9 RPG 探索マップ・タクティカル段差マップなど別ゲームにもそのまま使えます。
 
 > ※「HD-2D」はスクウェア・エニックス社の登録商標のため、本リポジトリおよび UI・書き出しデータでは「2.5D ドット絵ジオラマ（Diorama Stage）」として表現・設計しています。
 

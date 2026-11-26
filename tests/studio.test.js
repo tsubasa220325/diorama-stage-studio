@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  ATLAS_PX, buildDioramaAtlasData, encodeRgbaToPng, generateNormalFromRgba,
+  ATLAS_PX, buildDioramaAtlasData, encodeRgbaToPng, generateNormalFromRgba, patchAtlasTile,
 } from '../core/atlasBuilder.js';
 import {
-  buildFrameLights, neutralViewProj, projectPoint, sampleParticles, screenToWorldX, STAGE_H, STAGE_W,
+  buildFrameLights, invertMat4, neutralViewProj, projectPoint, sampleParticles,
+  screenToWorldX, STAGE_H, STAGE_W, unprojectRayToPlaneY,
 } from '../core/math.js';
 import { buildStageMesh } from '../core/meshBuilder.js';
 import { buildSampleSpriteRgba, SAMPLE_SPRITE_STYLES } from '../core/sampleSprites.js';
@@ -57,6 +58,39 @@ test('procedural 256x256 pixel PBR atlas builds valid albedo, unit normals, and 
   const customNorm = generateNormalFromRgba(atlas.albedo.subarray(0, 16 * 16 * 4), 16, 16, 2.5);
   assert.equal(customNorm.length, 16 * 16 * 4);
   assert.ok(customNorm[2] >= 128, 'tangent-space normal Z faces outward');
+
+  // Test live custom tile slot patching (for in-browser Texture & Normal Lab)
+  const redTile = new Uint8Array(16 * 16 * 4);
+  for (let i = 0; i < 16 * 16; i++) {
+    redTile[i * 4] = 240; redTile[i * 4 + 1] = 40; redTile[i * 4 + 2] = 60; redTile[i * 4 + 3] = 255;
+  }
+  const patched = patchAtlasTile(atlas, 'CAVERN_FLOOR', redTile, 16, 16, 2.6);
+  assert.equal(patched.albedo[0], 240);
+  assert.equal(patched.albedo[1], 40);
+  assert.equal(patched.albedo[2], 60);
+});
+
+test('3D viewport raycast (invertMat4 + unprojectRayToPlaneY) accurately round-trips floor picks', () => {
+  const stage = PRESETS[0];
+  const vp = neutralViewProj(stage);
+  assert.ok(invertMat4(vp) instanceof Float32Array);
+  const worldTargets = [[0, 0, 0], [-2.5, 0, -1.5], [3.2, 0.5, 1.25]];
+  for (const [wx, wy, wz] of worldTargets) {
+    const projected = projectPoint(vp, wx, wy, wz, STAGE_W, STAGE_H);
+    const hit = unprojectRayToPlaneY(vp, projected.ndcX, projected.ndcY, wy);
+    assert.ok(hit, 'ray intersects plane');
+    assert.ok(Math.abs(hit[0] - wx) < 0.002, `x roundtrip ${hit[0]} vs ${wx}`);
+    assert.ok(Math.abs(hit[2] - wz) < 0.002, `z roundtrip ${hit[2]} vs ${wz}`);
+  }
+});
+
+test('Google Cloud Shell & Colab GPU kit files exist and notebook is valid nbformat 4 JSON', () => {
+  const root = new URL('..', import.meta.url).pathname;
+  const nb = JSON.parse(readFileSync(join(root, 'colab/Diorama_Stage_Asset_Studio.ipynb'), 'utf8'));
+  assert.equal(nb.nbformat, 4);
+  assert.ok(nb.cells.length >= 4);
+  const tutorial = readFileSync(join(root, 'cloud/cloudshell-tutorial.md'), 'utf8');
+  assert.ok(tutorial.includes('node cloud/dev-server.mjs'));
 });
 
 test('pure-JS glTF 2.0 (.glb) exporter produces valid binary with NEAREST sampler, KHR_lights_punctual, and extras', () => {
