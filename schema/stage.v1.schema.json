@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tsubasa220325.github.io/diorama-stage-studio/schema/stage.v1.schema.json",
+  "title": "Diorama Stage v1",
+  "description": "Engine-agnostic 2.5D pixel-art diorama stage format for WebGL2, Unity URP, Godot 4, and Three.js.",
+  "type": "object",
+  "required": ["schemaVersion", "meta", "camera", "geometry", "lighting", "atmosphere", "postProcess"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "meta": {
+      "type": "object",
+      "required": ["id", "name", "preset", "aspect", "worldScalePpu"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "pattern": "^[a-z0-9_-]+$" },
+        "name": { "type": "string", "minLength": 1 },
+        "preset": { "type": "string", "enum": ["battle-4:3", "room-4:3", "vista-4:3", "rpg-field-16:9", "tactical-grid"] },
+        "aspect": {
+          "type": "array",
+          "items": { "type": "number", "exclusiveMinimum": 0 },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "worldScalePpu": { "type": "number", "minimum": 8, "maximum": 256 },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "required": ["pitchDeg", "distance", "target", "focusZ"],
+      "properties": {
+        "fovDeg": { "type": "number", "minimum": 10, "maximum": 90 },
+        "pitchDeg": { "type": "number", "minimum": 0, "maximum": 75 },
+        "distance": { "type": "number", "minimum": 2, "maximum": 60 },
+        "target": { "$ref": "#/$defs/vec3" },
+        "focusZ": { "type": "number" },
+        "sway": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "number", "minimum": 0 },
+            "y": { "type": "number", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "atlas": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "tileSizePx": { "type": "integer", "minimum": 16, "maximum": 256 },
+        "grid": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "normalStrength": { "type": "number", "minimum": 0, "maximum": 8 }
+      }
+    },
+    "backdrop": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["battle-stage", "room", "vista"] },
+        "imageRef": { "type": ["string", "null"] },
+        "colorTop": { "$ref": "#/$defs/rgb" },
+        "colorBottom": { "$ref": "#/$defs/rgb" },
+        "accentColor": { "$ref": "#/$defs/rgb" },
+        "floorV": { "type": "number", "minimum": 0.1, "maximum": 0.95 },
+        "wallShade": { "type": "number", "minimum": 0.1, "maximum": 2.0 },
+        "z": { "type": "number" }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "required": ["floors", "boxes", "props"],
+      "properties": {
+        "floors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "x", "y", "z", "tile"],
+            "properties": {
+              "id": { "type": "string" },
+              "x": { "$ref": "#/$defs/range2" },
+              "y": { "type": "number" },
+              "z": { "$ref": "#/$defs/range2" },
+              "tile": { "type": "string" },
+              "repeat": { "$ref": "#/$defs/range2" },
+              "gloss": { "type": "number", "minimum": 0, "maximum": 1 },
+              "receiveRings": { "type": "boolean" },
+              "hidden": { "type": "boolean" }
+            }
+          }
+        },
+        "boxes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "x", "y", "z", "sideTile"],
+            "properties": {
+              "id": { "type": "string" },
+              "x": { "$ref": "#/$defs/range2" },
+              "y": { "$ref": "#/$defs/range2" },
+              "z": { "$ref": "#/$defs/range2" },
+              "sideTile": { "type": "string" },
+              "topTile": { "type": "string" },
+              "gloss": { "type": "number", "minimum": 0, "maximum": 1 },
+              "emissive": { "type": "number", "minimum": 0, "maximum": 4 },
+              "dofTag": { "type": "number", "minimum": -1, "maximum": 1 },
+              "hidden": { "type": "boolean" }
+            }
+          }
+        },
+        "slopes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "x", "y", "z", "direction", "tile"],
+            "properties": {
+              "id": { "type": "string" },
+              "x": { "$ref": "#/$defs/range2" },
+              "y": { "$ref": "#/$defs/range2" },
+              "z": { "$ref": "#/$defs/range2" },
+              "direction": { "type": "string", "enum": ["+z", "-z", "+x", "-x"] },
+              "steps": { "type": "integer", "minimum": 1, "maximum": 16 },
+              "tile": { "type": "string" },
+              "gloss": { "type": "number", "minimum": 0, "maximum": 1 },
+              "hidden": { "type": "boolean" }
+            }
+          }
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "type", "pos"],
+            "properties": {
+              "id": { "type": "string" },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "pillar", "brazier", "crystal_cluster", "organ_pipes",
+                  "velvet_curtain", "footlight", "balustrade", "hanging_bell",
+                  "rune_glass", "lantern_post", "wooden_crate"
+                ]
+              },
+              "pos": { "$ref": "#/$defs/vec3" },
+              "scale": { "type": "number", "minimum": 0.1, "maximum": 10 },
+              "radius": { "type": "number", "minimum": 0.05, "maximum": 4 },
+              "height": { "type": "number", "minimum": 0.1, "maximum": 20 },
+              "width": { "type": "number", "minimum": 0.1, "maximum": 20 },
+              "tile": { "type": "string" },
+              "capTile": { "type": "string" },
+              "gloss": { "type": "number", "minimum": 0, "maximum": 1 },
+              "dofTag": { "type": "number", "minimum": -1, "maximum": 1 },
+              "hidden": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "lighting": {
+      "type": "object",
+      "required": ["ambient", "keyLight", "pointLights", "lightRays"],
+      "properties": {
+        "ambient": { "$ref": "#/$defs/rgb" },
+        "keyLight": {
+          "type": "object",
+          "required": ["dir", "color"],
+          "properties": {
+            "dir": { "$ref": "#/$defs/vec3" },
+            "color": { "$ref": "#/$defs/rgb" },
+            "shadowSkew": { "$ref": "#/$defs/range2" }
+          }
+        },
+        "floorGloss": { "type": "number", "minimum": 0, "maximum": 1 },
+        "floorSpecTint": { "$ref": "#/$defs/rgb" },
+        "pillarTint": { "$ref": "#/$defs/rgb" },
+        "curbTint": { "$ref": "#/$defs/rgb" },
+        "sconceColor": { "$ref": "#/$defs/rgb" },
+        "pointLights": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "required": ["id", "pos", "color", "intensity", "radius"],
+            "properties": {
+              "id": { "type": "string" },
+              "pos": { "$ref": "#/$defs/vec3" },
+              "color": { "$ref": "#/$defs/rgb" },
+              "intensity": { "type": "number", "minimum": 0, "maximum": 10 },
+              "radius": { "type": "number", "minimum": 0.5, "maximum": 30 },
+              "flicker": { "type": "number", "minimum": 0, "maximum": 1 },
+              "phase": { "type": "number" }
+            }
+          }
+        },
+        "lightRays": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["top", "bot", "z", "width", "color", "alpha"],
+            "properties": {
+              "id": { "type": "string" },
+              "top": { "$ref": "#/$defs/range2" },
+              "bot": { "$ref": "#/$defs/range2" },
+              "z": { "type": "number" },
+              "width": { "type": "number", "minimum": 0.1, "maximum": 10 },
+              "color": { "$ref": "#/$defs/rgb" },
+              "alpha": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "atmosphere": {
+      "type": "object",
+      "required": ["fogColor", "fogDensity", "particles"],
+      "properties": {
+        "fogColor": { "$ref": "#/$defs/rgb" },
+        "fogDensity": { "type": "number", "minimum": 0, "maximum": 0.5 },
+        "particles": {
+          "type": "object",
+          "required": ["primary", "secondary", "rise", "count"],
+          "properties": {
+            "primary": { "$ref": "#/$defs/rgb" },
+            "secondary": { "$ref": "#/$defs/rgb" },
+            "rise": { "type": "number", "minimum": -2, "maximum": 2 },
+            "count": { "type": "integer", "minimum": 0, "maximum": 120 }
+          }
+        }
+      }
+    },
+    "postProcess": {
+      "type": "object",
+      "required": ["bloomStrength", "dofStrength", "vignette", "grade"],
+      "properties": {
+        "bloomStrength": { "type": "number", "minimum": 0, "maximum": 2 },
+        "dofStrength": { "type": "number", "minimum": 0, "maximum": 1.5 },
+        "vignette": { "type": "number", "minimum": 0, "maximum": 1.5 },
+        "grade": { "$ref": "#/$defs/rgb" }
+      }
+    },
+    "anchors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "role", "pos"],
+        "properties": {
+          "id": { "type": "string" },
+          "role": { "type": "string", "enum": ["player", "enemy", "npc", "prop_billboard", "chest", "trigger"] },
+          "pos": { "$ref": "#/$defs/vec3" },
+          "widthWorld": { "type": "number", "minimum": 0.2, "maximum": 8 },
+          "heightWorld": { "type": "number", "minimum": 0.2, "maximum": 8 },
+          "spriteStyle": { "type": "string" },
+          "ringColor": { "$ref": "#/$defs/rgb" }
+        }
+      }
+    },
+    "gameplay": {
+      "type": "object",
+      "properties": {
+        "gridSize": { "type": "number", "minimum": 0.25, "maximum": 4 },
+        "walkableCells": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["x", "z"],
+            "properties": {
+              "x": { "type": "integer" },
+              "z": { "type": "integer" },
+              "y": { "type": "number" },
+              "tag": { "type": "string" }
+            }
+          }
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "pos", "radius", "event"],
+            "properties": {
+              "id": { "type": "string" },
+              "pos": { "$ref": "#/$defs/vec3" },
+              "radius": { "type": "number", "minimum": 0.1 },
+              "event": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "rgb": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 0, "maximum": 2 },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "vec3": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "range2": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}
