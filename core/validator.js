@@ -73,6 +73,7 @@ export function normalizeStage(raw) {
   s.geometry.boxes = s.geometry.boxes ?? [];
   s.geometry.slopes = s.geometry.slopes ?? [];
   s.geometry.props = s.geometry.props ?? [];
+  s.geometry.externalModels = s.geometry.externalModels ?? [];
   s.lighting = s.lighting ?? {};
   s.lighting.pointLights = (s.lighting.pointLights ?? []).slice(0, 8);
   s.lighting.lightRays = s.lighting.lightRays ?? [];

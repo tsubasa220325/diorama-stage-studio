@@ -1,0 +1,618 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "clockwork_hall",
+    "name": "6. 金色メトロノームの間（タワー中ボス）",
+    "preset": "battle-4:3",
+    "aspect": [
+      4,
+      3
+    ],
+    "worldScalePpu": 64,
+    "tags": [
+      "rhysmodia",
+      "battle",
+      "4:3"
+    ]
+  },
+  "camera": {
+    "fovDeg": 30.698299428963676,
+    "pitchDeg": 14.5,
+    "distance": 13.5,
+    "target": [
+      0,
+      0.6455626951235535,
+      0
+    ],
+    "focusZ": 0,
+    "sway": {
+      "x": 0.52,
+      "y": 0.08
+    }
+  },
+  "atlas": {
+    "source": "builtin-v1",
+    "tileSizePx": 64,
+    "grid": [
+      4,
+      4
+    ],
+    "normalStrength": 2.2
+  },
+  "backdrop": {
+    "mode": "battle-stage",
+    "imageRef": null,
+    "floorV": 0.66,
+    "wallShade": 0.74,
+    "z": -6.8,
+    "colorTop": [
+      0.06,
+      0.08,
+      0.22
+    ],
+    "colorBottom": [
+      0.22,
+      0.18,
+      0.36
+    ],
+    "accentColor": [
+      1,
+      0.86,
+      0.46
+    ]
+  },
+  "geometry": {
+    "floors": [
+      {
+        "id": "trench_floor",
+        "x": [
+          -8.4,
+          8.4
+        ],
+        "y": -0.22,
+        "z": [
+          -6.6,
+          6.8
+        ],
+        "tile": "WATER_TRENCH",
+        "repeat": [
+          6,
+          4
+        ],
+        "gloss": 0.86,
+        "receiveRings": false
+      },
+      {
+        "id": "arena_deck",
+        "x": [
+          -5.8,
+          5.8
+        ],
+        "y": 0,
+        "z": [
+          -2.35,
+          2.55
+        ],
+        "tile": "MARBLE_FLOOR",
+        "repeat": [
+          6,
+          3
+        ],
+        "gloss": 0.84,
+        "receiveRings": true
+      },
+      {
+        "id": "carpet_runner",
+        "x": [
+          -4.4,
+          4.4
+        ],
+        "y": 0.006,
+        "z": [
+          -0.88,
+          0.88
+        ],
+        "tile": "CARPET_RUNNER",
+        "repeat": [
+          4,
+          1
+        ],
+        "gloss": 0.2,
+        "receiveRings": true
+      }
+    ],
+    "boxes": [
+      {
+        "id": "front_curb",
+        "x": [
+          -5.95,
+          5.95
+        ],
+        "y": [
+          -0.22,
+          0
+        ],
+        "z": [
+          2.55,
+          2.82
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.28
+      },
+      {
+        "id": "left_curb",
+        "x": [
+          -5.95,
+          -5.65
+        ],
+        "y": [
+          -0.22,
+          0.14
+        ],
+        "z": [
+          -2.45,
+          2.82
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.26
+      },
+      {
+        "id": "right_curb",
+        "x": [
+          5.65,
+          5.95
+        ],
+        "y": [
+          -0.22,
+          0.14
+        ],
+        "z": [
+          -2.45,
+          2.82
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.26
+      },
+      {
+        "id": "front_step",
+        "x": [
+          -1.65,
+          1.65
+        ],
+        "y": [
+          -0.22,
+          -0.09
+        ],
+        "z": [
+          2.82,
+          3.18
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "MARBLE_FLOOR",
+        "gloss": 0.28
+      },
+      {
+        "id": "mid_tier",
+        "x": [
+          -6.4,
+          6.4
+        ],
+        "y": [
+          -0.22,
+          0.26
+        ],
+        "z": [
+          -3.55,
+          -2.35
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "MARBLE_FLOOR",
+        "gloss": 0.546
+      },
+      {
+        "id": "back_tier",
+        "x": [
+          -6.8,
+          6.8
+        ],
+        "y": [
+          -0.22,
+          0.56
+        ],
+        "z": [
+          -4.85,
+          -3.55
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.26
+      },
+      {
+        "id": "back_lintel",
+        "x": [
+          -5.6,
+          5.6
+        ],
+        "y": [
+          5.2,
+          5.68
+        ],
+        "z": [
+          -4.65,
+          -3.85
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.2
+      },
+      {
+        "id": "fore_frame_l",
+        "x": [
+          -5.77,
+          -4.73
+        ],
+        "y": [
+          -0.22,
+          0.86
+        ],
+        "z": [
+          3.05,
+          3.95
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.15,
+        "dofTag": 1
+      },
+      {
+        "id": "fore_frame_r",
+        "x": [
+          4.73,
+          5.77
+        ],
+        "y": [
+          -0.22,
+          0.86
+        ],
+        "z": [
+          3.05,
+          3.95
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.15,
+        "dofTag": 1
+      }
+    ],
+    "slopes": [],
+    "props": [
+      {
+        "id": "pillar_fl",
+        "type": "pillar",
+        "pos": [
+          -4.75,
+          0,
+          -2.75
+        ],
+        "radius": 0.44,
+        "height": 5.6,
+        "tile": "MARBLE_PILLAR",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.34
+      },
+      {
+        "id": "pillar_fr",
+        "type": "pillar",
+        "pos": [
+          4.75,
+          0,
+          -2.75
+        ],
+        "radius": 0.44,
+        "height": 5.6,
+        "tile": "MARBLE_PILLAR",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.34
+      },
+      {
+        "id": "pillar_bl",
+        "type": "pillar",
+        "pos": [
+          -2.85,
+          0,
+          -4.25
+        ],
+        "radius": 0.36,
+        "height": 5.9,
+        "tile": "MARBLE_PILLAR",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.3
+      },
+      {
+        "id": "pillar_br",
+        "type": "pillar",
+        "pos": [
+          2.85,
+          0,
+          -4.25
+        ],
+        "radius": 0.36,
+        "height": 5.9,
+        "tile": "MARBLE_PILLAR",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.3
+      },
+      {
+        "id": "balustrade",
+        "type": "balustrade",
+        "pos": [
+          0,
+          0.26,
+          -3.28
+        ],
+        "width": 8
+      },
+      {
+        "id": "brazier_l",
+        "type": "brazier",
+        "pos": [
+          -3.85,
+          0.26,
+          -2.65
+        ],
+        "height": 1.42
+      },
+      {
+        "id": "brazier_r",
+        "type": "brazier",
+        "pos": [
+          3.85,
+          0.26,
+          -2.65
+        ],
+        "height": 1.42
+      },
+      {
+        "id": "rune_window",
+        "type": "rune_glass",
+        "pos": [
+          0,
+          1.35,
+          -4.68
+        ],
+        "width": 2,
+        "height": 2.9
+      }
+    ]
+  },
+  "lighting": {
+    "floorGloss": 0.84,
+    "ambient": [
+      0.18,
+      0.2,
+      0.36
+    ],
+    "keyLight": {
+      "dir": [
+        0.12,
+        0.82,
+        0.55
+      ],
+      "color": [
+        1,
+        0.82,
+        0.46
+      ],
+      "shadowSkew": [
+        -0.22,
+        -0.6
+      ]
+    },
+    "floorSpecTint": [
+      0.92,
+      0.82,
+      0.52
+    ],
+    "pillarTint": [
+      0.46,
+      0.44,
+      0.62
+    ],
+    "curbTint": [
+      0.54,
+      0.5,
+      0.68
+    ],
+    "sconceColor": [
+      1,
+      0.78,
+      0.32
+    ],
+    "pointLights": [
+      {
+        "id": "clock_gold",
+        "pos": [
+          0,
+          3.6,
+          -3.6
+        ],
+        "color": [
+          1,
+          0.82,
+          0.44
+        ],
+        "intensity": 2.1,
+        "radius": 10,
+        "flicker": 0.04,
+        "phase": 0
+      },
+      {
+        "id": "cyan_rim",
+        "pos": [
+          0,
+          1.2,
+          -3.2
+        ],
+        "color": [
+          0.44,
+          0.84,
+          1
+        ],
+        "intensity": 1.5,
+        "radius": 7.4,
+        "flicker": 0.06,
+        "phase": 1.4
+      },
+      {
+        "id": "sconce_l",
+        "pos": [
+          -4.2,
+          1.65,
+          -2
+        ],
+        "color": [
+          1,
+          0.74,
+          0.3
+        ],
+        "intensity": 1.5,
+        "radius": 6.4,
+        "flicker": 0.12,
+        "phase": 2.4
+      },
+      {
+        "id": "sconce_r",
+        "pos": [
+          4.2,
+          1.65,
+          -2
+        ],
+        "color": [
+          1,
+          0.74,
+          0.3
+        ],
+        "intensity": 1.5,
+        "radius": 6.4,
+        "flicker": 0.12,
+        "phase": 4
+      }
+    ],
+    "lightRays": [
+      {
+        "id": "ray_1",
+        "top": [
+          0,
+          5.8
+        ],
+        "bot": [
+          0,
+          0
+        ],
+        "z": -2.9,
+        "width": 2.1,
+        "color": [
+          1,
+          0.86,
+          0.46
+        ],
+        "alpha": 0.15
+      },
+      {
+        "id": "ray_2",
+        "top": [
+          -1.6,
+          5.6
+        ],
+        "bot": [
+          -2.4,
+          0
+        ],
+        "z": -2.1,
+        "width": 1.1,
+        "color": [
+          0.48,
+          0.86,
+          1
+        ],
+        "alpha": 0.1
+      }
+    ]
+  },
+  "atmosphere": {
+    "fogColor": [
+      0.06,
+      0.08,
+      0.22
+    ],
+    "fogDensity": 0.056,
+    "particles": {
+      "primary": [
+        1,
+        0.86,
+        0.44
+      ],
+      "secondary": [
+        0.48,
+        0.86,
+        1
+      ],
+      "rise": 0.18,
+      "count": 48
+    }
+  },
+  "postProcess": {
+    "bloomStrength": 0.42,
+    "dofStrength": 0.84,
+    "vignette": 0.46,
+    "grade": [
+      1.02,
+      1.01,
+      1.05
+    ]
+  },
+  "anchors": [
+    {
+      "id": "hero",
+      "role": "player",
+      "pos": [
+        -2.0625,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 1.75,
+      "spriteStyle": "adventurer",
+      "ringColor": [
+        0.36,
+        0.96,
+        0.66
+      ]
+    },
+    {
+      "id": "enemy",
+      "role": "enemy",
+      "pos": [
+        2.28125,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 2,
+      "spriteStyle": "golem_knight",
+      "ringColor": [
+        0.74,
+        0.56,
+        1
+      ]
+    }
+  ],
+  "gameplay": {
+    "gridSize": 1,
+    "walkableCells": [],
+    "triggers": []
+  }
+}

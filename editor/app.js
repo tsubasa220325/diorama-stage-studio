@@ -1,6 +1,7 @@
 import {
   encodeRgbaToPng, generateNormalFromRgba, patchAtlasTile, TILE_LABELS_JA, TILE_NAMES,
 } from '../core/atlasBuilder.js';
+import { parseGlb } from '../core/glbImporter.js';
 import { projectPoint, unprojectRayToPlaneY } from '../core/math.js';
 import { PROP_TYPES } from '../core/meshBuilder.js';
 import { createStudioRenderer } from '../core/renderer.js';
@@ -152,6 +153,7 @@ function getCollection(group) {
   if (group === 'boxes') return state.stage.geometry.boxes;
   if (group === 'slopes') return state.stage.geometry.slopes;
   if (group === 'props') return state.stage.geometry.props;
+  if (group === 'externalModels') return state.stage.geometry.externalModels;
   if (group === 'pointLights') return state.stage.lighting.pointLights;
   if (group === 'lightRays') return state.stage.lighting.lightRays;
   if (group === 'anchors') return state.stage.anchors;
@@ -170,6 +172,9 @@ function addItem(group) {
     list.push({ id: `stairs_${n}`, x: [-1, 1], y: [0, 1], z: [-2, -0.5], direction: '-z', steps: 5, tile: 'ASHLAR_BLOCK', gloss: 0.3 });
   } else if (group === 'props') {
     list.push({ id: `prop_${n}`, type: 'brazier', pos: [0, 0, -2.2], scale: 1, height: 1.3, radius: 0.4, width: 1.5, tile: 'STONE_PILLAR', capTile: 'ASHLAR_BLOCK' });
+  } else if (group === 'externalModels') {
+    $('input-glb-model').click();
+    return;
   } else if (group === 'pointLights') {
     if (list.length >= 8) {
       setStatus('ポイントライトは WebGL2 上限の 8 灯までです');
@@ -196,6 +201,7 @@ function renderOutliner() {
     { key: 'boxes', title: 'ブロック / 段差 (Boxes)' },
     { key: 'slopes', title: '階段 / スロープ (Slopes)' },
     { key: 'props', title: '建築プロップ (Props)' },
+    { key: 'externalModels', title: '外部 .glb モデル (Blockbench等)' },
     { key: 'pointLights', title: 'ポイントライト (最大8)' },
     { key: 'lightRays', title: 'ゴッドレイ光柱 (Rays)' },
     { key: 'anchors', title: 'キャラ・配置点 (Anchors)' },
@@ -465,6 +471,22 @@ function renderInspector() {
       numField('幅 / 半径', item.width ?? item.radius ?? 0.5, 0.1, v => { item.width = v; item.radius = v; }),
     );
     card.append(typeWrap, rP, rS, tileSelect('主タイル', item.tile ?? 'STONE_PILLAR', v => item.tile = v));
+  } else if (group === 'externalModels') {
+    const rP = document.createElement('div'); rP.className = 'row-3';
+    rP.append(
+      numField('位置 X', item.pos[0], 0.25, v => item.pos[0] = v),
+      numField('位置 Y', item.pos[1], 0.1, v => item.pos[1] = v),
+      numField('位置 Z', item.pos[2], 0.25, v => item.pos[2] = v),
+    );
+    const rT = document.createElement('div'); rT.className = 'row-2';
+    rT.append(
+      numField('倍率 (Scale)', item.scale ?? 1, 0.1, v => item.scale = Math.max(0.05, v)),
+      numField('Y軸回転 (deg)', item.rotYDeg ?? 0, 15, v => item.rotYDeg = v),
+    );
+    card.append(
+      rP, rT,
+      sliderField('光沢 (Gloss)', item.gloss ?? 0.32, 0, 1, 0.02, v => item.gloss = v),
+    );
   } else if (group === 'pointLights') {
     const rP = document.createElement('div'); rP.className = 'row-3';
     rP.append(
@@ -737,6 +759,11 @@ function pickViewportHandle(px, py) {
     const pt = projectPoint(cam.viewProj, p.pos[0], p.pos[1] + 0.35, p.pos[2], width, height);
     candidates.push({ group: 'props', index, item: p, dist: Math.hypot(pt.x - px, pt.y - py) });
   });
+  (state.stage.geometry?.externalModels ?? []).forEach((m, index) => {
+    if (m.hidden) return;
+    const pt = projectPoint(cam.viewProj, m.pos[0], m.pos[1] + 0.5, m.pos[2], width, height);
+    candidates.push({ group: 'externalModels', index, item: m, dist: Math.hypot(pt.x - px, pt.y - py) });
+  });
   candidates.sort((a, b) => a.dist - b.dist);
   return candidates[0] && candidates[0].dist <= 28 ? candidates[0] : null;
 }
@@ -995,6 +1022,46 @@ $('input-sprite-img').onchange = e => {
     setStatus(`アンカー "${anchor.id}" にローカル画像を適用: ${file.name}`);
   };
   img.src = URL.createObjectURL(file);
+};
+
+$('input-glb-model').onchange = async e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    const buf = await file.arrayBuffer();
+    const assetId = file.name.replace(/\.glb$/i, '').replace(/[^a-zA-Z0-9_-]/g, '_') || 'model';
+    const parsed = parseGlb(buf, assetId);
+    let texImg = null;
+    if (parsed.embeddedImage) {
+      const blob = new Blob([parsed.embeddedImage.bytes], { type: parsed.embeddedImage.mimeType });
+      texImg = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = URL.createObjectURL(blob);
+      });
+    }
+    renderer?.registerExternalModelAsset(assetId, parsed, texImg);
+    pushUndo();
+    state.stage.geometry.externalModels = state.stage.geometry.externalModels ?? [];
+    state.stage.geometry.externalModels.push({
+      id: `${assetId}_${state.stage.geometry.externalModels.length + 1}`,
+      assetId,
+      fileName: file.name,
+      pos: [0, 0, -1.6],
+      scale: 1,
+      rotYDeg: 0,
+      gloss: 0.32,
+    });
+    state.selection = { group: 'externalModels', index: state.stage.geometry.externalModels.length - 1 };
+    rebuildGeometry();
+    renderOutliner();
+    renderInspector();
+    setStatus(`.glb 3Dモデル読込完了: ${file.name} (${parsed.vertexCount} verts)`);
+  } catch (err) {
+    setStatus(`.glb 読込エラー: ${err.message}`);
+  }
+  e.target.value = '';
 };
 
 // GitHub direct commit modal

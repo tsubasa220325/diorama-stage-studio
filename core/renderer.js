@@ -1,4 +1,5 @@
 import { buildDioramaAtlasData } from './atlasBuilder.js';
+import { buildExternalModelVertices } from './glbImporter.js';
 import {
   buildFrameLights, computeLightViewProj, computeStageCamera,
   neutralViewProj, sampleParticles, STAGE_H, STAGE_W,
@@ -643,7 +644,12 @@ export function createStudioRenderer(canvas) {
   let atlasAlbedo = uploadRgbaTex(gl, atlasData.width, atlasData.height, atlasData.albedo, true);
   let atlasNormal = uploadRgbaTex(gl, atlasData.width, atlasData.height, atlasData.normal, false);
   const dummyBg = uploadRgbaTex(gl, 2, 2, new Uint8Array(16).fill(255), false);
+  const flatNormal = uploadRgbaTex(gl, 2, 2, new Uint8Array([
+    128, 128, 255, 255, 128, 128, 255, 255, 128, 128, 255, 255, 128, 128, 255, 255,
+  ]), false);
   let customBg = null;
+  const externalAssets = new Map();
+  let externalDrawList = [];
 
   const sampleSprites = new Map();
   for (const style of SAMPLE_SPRITE_STYLES) {
@@ -720,11 +726,65 @@ export function createStudioRenderer(canvas) {
   const lightPosArr = new Float32Array(MAX_LIGHTS * 4);
   const lightColArr = new Float32Array(MAX_LIGHTS * 4);
 
+  function registerExternalModelAsset(assetId, parsedGlb, img = null) {
+    const prev = externalAssets.get(assetId);
+    if (prev?.tex) gl.deleteTexture(prev.tex);
+    let texEntry;
+    if (img) {
+      const tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      texEntry = { tex, w: img.naturalWidth || img.width, h: img.naturalHeight || img.height };
+    } else {
+      const c = parsedGlb.baseColorFactor ?? [0.85, 0.85, 0.9, 1];
+      const rgba = new Uint8Array(16);
+      for (let i = 0; i < 4; i++) {
+        rgba[i * 4] = Math.round(c[0] * 255);
+        rgba[i * 4 + 1] = Math.round(c[1] * 255);
+        rgba[i * 4 + 2] = Math.round(c[2] * 255);
+        rgba[i * 4 + 3] = 255;
+      }
+      texEntry = uploadRgbaTex(gl, 2, 2, rgba, false);
+    }
+    externalAssets.set(assetId, { parsed: parsedGlb, tex: texEntry.tex });
+  }
+
+  function rebuildExternalDraws(stage) {
+    for (const item of externalDrawList) {
+      gl.deleteVertexArray(item.vao);
+      gl.deleteBuffer(item.vbo);
+    }
+    externalDrawList = [];
+    for (const placement of stage.geometry?.externalModels ?? []) {
+      if (placement.hidden) continue;
+      const asset = externalAssets.get(placement.assetId);
+      if (!asset || !asset.parsed.vertexCount) continue;
+      const verts = buildExternalModelVertices(asset.parsed, placement);
+      const vao = gl.createVertexArray();
+      const vbo = gl.createBuffer();
+      gl.bindVertexArray(vao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 48, 0);
+      gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 48, 12);
+      gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 48, 24);
+      gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 48, 32);
+      gl.bindVertexArray(null);
+      externalDrawList.push({ vao, vbo, count: asset.parsed.vertexCount, tex: asset.tex });
+    }
+  }
+
   function uploadStageGeometry(stage) {
     const built = buildStageMesh(stage);
     gl.bindBuffer(gl.ARRAY_BUFFER, meshVbo);
     gl.bufferData(gl.ARRAY_BUFFER, built.data, gl.DYNAMIC_DRAW);
     meshVertexCount = built.vertexCount;
+    rebuildExternalDraws(stage);
     return built;
   }
 
@@ -837,6 +897,10 @@ export function createStudioRenderer(canvas) {
       gl.uniformMatrix4fv(shadowMeshLoc.uLightVP, false, lightVP);
       gl.bindVertexArray(meshVao);
       gl.drawArrays(gl.TRIANGLES, 0, meshVertexCount);
+      for (const ext of externalDrawList) {
+        gl.bindVertexArray(ext.vao);
+        gl.drawArrays(gl.TRIANGLES, 0, ext.count);
+      }
 
       gl.useProgram(shadowSpriteProg);
       gl.uniformMatrix4fv(shadowSpriteLoc.uLightVP, false, lightVP);
@@ -929,6 +993,20 @@ export function createStudioRenderer(canvas) {
     gl.uniform1i(stageLoc.uLightCount, lightCount);
     gl.bindVertexArray(meshVao);
     gl.drawArrays(gl.TRIANGLES, 0, meshVertexCount);
+    if (externalDrawList.length > 0) {
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, flatNormal.tex);
+      for (const ext of externalDrawList) {
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, ext.tex);
+        gl.bindVertexArray(ext.vao);
+        gl.drawArrays(gl.TRIANGLES, 0, ext.count);
+      }
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, atlasAlbedo.tex);
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, atlasNormal.tex);
+    }
 
     // 3. Contact shadows
     gl.enable(gl.BLEND);
@@ -1111,6 +1189,7 @@ export function createStudioRenderer(canvas) {
   return {
     render,
     uploadStageGeometry,
+    registerExternalModelAsset,
     updateAtlas,
     setBackdropImage,
     setAnchorSpriteImage,

@@ -1,0 +1,637 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "cavern_arena",
+    "name": "1. 紫水晶の洞窟（スライム戦）",
+    "preset": "battle-4:3",
+    "aspect": [
+      4,
+      3
+    ],
+    "worldScalePpu": 64,
+    "tags": [
+      "rhysmodia",
+      "battle",
+      "4:3"
+    ]
+  },
+  "camera": {
+    "fovDeg": 30.698299428963676,
+    "pitchDeg": 14.5,
+    "distance": 13.5,
+    "target": [
+      0,
+      0.6455626951235535,
+      0
+    ],
+    "focusZ": 0,
+    "sway": {
+      "x": 0.52,
+      "y": 0.08
+    }
+  },
+  "atlas": {
+    "source": "builtin-v1",
+    "tileSizePx": 64,
+    "grid": [
+      4,
+      4
+    ],
+    "normalStrength": 2.2
+  },
+  "backdrop": {
+    "mode": "battle-stage",
+    "imageRef": null,
+    "floorV": 0.642,
+    "wallShade": 0.72,
+    "z": -6.8,
+    "colorTop": [
+      0.06,
+      0.04,
+      0.16
+    ],
+    "colorBottom": [
+      0.22,
+      0.12,
+      0.34
+    ],
+    "accentColor": [
+      0.85,
+      0.58,
+      1
+    ]
+  },
+  "geometry": {
+    "floors": [
+      {
+        "id": "trench_floor",
+        "x": [
+          -8.4,
+          8.4
+        ],
+        "y": -0.22,
+        "z": [
+          -6.6,
+          6.8
+        ],
+        "tile": "WATER_TRENCH",
+        "repeat": [
+          6,
+          4
+        ],
+        "gloss": 0.88,
+        "receiveRings": false
+      },
+      {
+        "id": "arena_deck",
+        "x": [
+          -5.8,
+          5.8
+        ],
+        "y": 0,
+        "z": [
+          -2.35,
+          2.55
+        ],
+        "tile": "CAVERN_FLOOR",
+        "repeat": [
+          6,
+          3
+        ],
+        "gloss": 0.34,
+        "receiveRings": true
+      }
+    ],
+    "boxes": [
+      {
+        "id": "front_curb",
+        "x": [
+          -5.95,
+          5.95
+        ],
+        "y": [
+          -0.22,
+          0
+        ],
+        "z": [
+          2.55,
+          2.82
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.28
+      },
+      {
+        "id": "left_curb",
+        "x": [
+          -5.95,
+          -5.65
+        ],
+        "y": [
+          -0.22,
+          0.14
+        ],
+        "z": [
+          -2.45,
+          2.82
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.26
+      },
+      {
+        "id": "right_curb",
+        "x": [
+          5.65,
+          5.95
+        ],
+        "y": [
+          -0.22,
+          0.14
+        ],
+        "z": [
+          -2.45,
+          2.82
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.26
+      },
+      {
+        "id": "front_step",
+        "x": [
+          -1.65,
+          1.65
+        ],
+        "y": [
+          -0.22,
+          -0.09
+        ],
+        "z": [
+          2.82,
+          3.18
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "CAVERN_FLOOR",
+        "gloss": 0.28
+      },
+      {
+        "id": "mid_tier",
+        "x": [
+          -6.4,
+          6.4
+        ],
+        "y": [
+          -0.22,
+          0.26
+        ],
+        "z": [
+          -3.55,
+          -2.35
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "CAVERN_FLOOR",
+        "gloss": 0.22100000000000003
+      },
+      {
+        "id": "back_tier",
+        "x": [
+          -6.8,
+          6.8
+        ],
+        "y": [
+          -0.22,
+          0.56
+        ],
+        "z": [
+          -4.85,
+          -3.55
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.26
+      },
+      {
+        "id": "back_lintel",
+        "x": [
+          -5.6,
+          5.6
+        ],
+        "y": [
+          5.2,
+          5.68
+        ],
+        "z": [
+          -4.65,
+          -3.85
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.2
+      },
+      {
+        "id": "fore_frame_l",
+        "x": [
+          -5.77,
+          -4.73
+        ],
+        "y": [
+          -0.22,
+          0.86
+        ],
+        "z": [
+          3.05,
+          3.95
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.15,
+        "dofTag": 1
+      },
+      {
+        "id": "fore_frame_r",
+        "x": [
+          4.73,
+          5.77
+        ],
+        "y": [
+          -0.22,
+          0.86
+        ],
+        "z": [
+          3.05,
+          3.95
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.15,
+        "dofTag": 1
+      }
+    ],
+    "slopes": [],
+    "props": [
+      {
+        "id": "pillar_fl",
+        "type": "pillar",
+        "pos": [
+          -4.75,
+          0,
+          -2.75
+        ],
+        "radius": 0.44,
+        "height": 5.6,
+        "tile": "STONE_PILLAR",
+        "capTile": "ASHLAR_BLOCK",
+        "gloss": 0.34
+      },
+      {
+        "id": "pillar_fr",
+        "type": "pillar",
+        "pos": [
+          4.75,
+          0,
+          -2.75
+        ],
+        "radius": 0.44,
+        "height": 5.6,
+        "tile": "STONE_PILLAR",
+        "capTile": "ASHLAR_BLOCK",
+        "gloss": 0.34
+      },
+      {
+        "id": "pillar_bl",
+        "type": "pillar",
+        "pos": [
+          -2.85,
+          0,
+          -4.25
+        ],
+        "radius": 0.36,
+        "height": 5.9,
+        "tile": "STONE_PILLAR",
+        "capTile": "ASHLAR_BLOCK",
+        "gloss": 0.3
+      },
+      {
+        "id": "pillar_br",
+        "type": "pillar",
+        "pos": [
+          2.85,
+          0,
+          -4.25
+        ],
+        "radius": 0.36,
+        "height": 5.9,
+        "tile": "STONE_PILLAR",
+        "capTile": "ASHLAR_BLOCK",
+        "gloss": 0.3
+      },
+      {
+        "id": "brazier_l",
+        "type": "brazier",
+        "pos": [
+          -3.75,
+          0.26,
+          -2.65
+        ],
+        "height": 1.18
+      },
+      {
+        "id": "brazier_r",
+        "type": "brazier",
+        "pos": [
+          3.75,
+          0.26,
+          -2.65
+        ],
+        "height": 1.18
+      },
+      {
+        "id": "crystal_bl",
+        "type": "crystal_cluster",
+        "pos": [
+          -1.75,
+          0.56,
+          -4.15
+        ],
+        "scale": 0.95
+      },
+      {
+        "id": "crystal_br",
+        "type": "crystal_cluster",
+        "pos": [
+          1.85,
+          0.56,
+          -4.25
+        ],
+        "scale": 1.08
+      },
+      {
+        "id": "crystal_fl",
+        "type": "crystal_cluster",
+        "pos": [
+          -5.35,
+          0,
+          0.85
+        ],
+        "scale": 0.72
+      },
+      {
+        "id": "crystal_fr",
+        "type": "crystal_cluster",
+        "pos": [
+          5.35,
+          0,
+          0.95
+        ],
+        "scale": 0.76
+      }
+    ]
+  },
+  "lighting": {
+    "floorGloss": 0.34,
+    "ambient": [
+      0.24,
+      0.18,
+      0.34
+    ],
+    "keyLight": {
+      "dir": [
+        0.22,
+        0.8,
+        0.56
+      ],
+      "color": [
+        1,
+        0.76,
+        0.46
+      ],
+      "shadowSkew": [
+        -0.32,
+        -0.62
+      ]
+    },
+    "floorSpecTint": [
+      1,
+      0.7,
+      0.42
+    ],
+    "pillarTint": [
+      0.42,
+      0.3,
+      0.58
+    ],
+    "curbTint": [
+      0.52,
+      0.38,
+      0.68
+    ],
+    "sconceColor": [
+      1,
+      0.64,
+      0.22
+    ],
+    "pointLights": [
+      {
+        "id": "torch_l",
+        "pos": [
+          -1.65,
+          1.45,
+          -3.5
+        ],
+        "color": [
+          1,
+          0.54,
+          0.18
+        ],
+        "intensity": 2,
+        "radius": 7.2,
+        "flicker": 0.16,
+        "phase": 0.2
+      },
+      {
+        "id": "torch_r",
+        "pos": [
+          1.65,
+          1.45,
+          -3.5
+        ],
+        "color": [
+          1,
+          0.54,
+          0.18
+        ],
+        "intensity": 2,
+        "radius": 7.2,
+        "flicker": 0.16,
+        "phase": 2.1
+      },
+      {
+        "id": "crystal_glow",
+        "pos": [
+          0,
+          2.4,
+          -4
+        ],
+        "color": [
+          0.64,
+          0.3,
+          1
+        ],
+        "intensity": 1.45,
+        "radius": 8.5,
+        "flicker": 0.08,
+        "phase": 4
+      },
+      {
+        "id": "side_warm",
+        "pos": [
+          -4.35,
+          1.65,
+          -2
+        ],
+        "color": [
+          1,
+          0.66,
+          0.26
+        ],
+        "intensity": 1.45,
+        "radius": 6.4,
+        "flicker": 0.14,
+        "phase": 1.4
+      }
+    ],
+    "lightRays": [
+      {
+        "id": "ray_1",
+        "top": [
+          -0.2,
+          5.5
+        ],
+        "bot": [
+          -1.2,
+          0
+        ],
+        "z": -3.1,
+        "width": 1.5,
+        "color": [
+          0.82,
+          0.52,
+          1
+        ],
+        "alpha": 0.12
+      },
+      {
+        "id": "ray_2",
+        "top": [
+          0.3,
+          5.4
+        ],
+        "bot": [
+          1.1,
+          0
+        ],
+        "z": -2.9,
+        "width": 1.3,
+        "color": [
+          1,
+          0.68,
+          0.32
+        ],
+        "alpha": 0.11
+      },
+      {
+        "id": "ray_3",
+        "top": [
+          -3.2,
+          4.8
+        ],
+        "bot": [
+          -2,
+          0
+        ],
+        "z": -1.7,
+        "width": 1.1,
+        "color": [
+          1,
+          0.64,
+          0.28
+        ],
+        "alpha": 0.09
+      }
+    ]
+  },
+  "atmosphere": {
+    "fogColor": [
+      0.1,
+      0.05,
+      0.18
+    ],
+    "fogDensity": 0.068,
+    "particles": {
+      "primary": [
+        1,
+        0.78,
+        0.36
+      ],
+      "secondary": [
+        0.78,
+        0.46,
+        1
+      ],
+      "rise": 0.24,
+      "count": 48
+    }
+  },
+  "postProcess": {
+    "bloomStrength": 0.42,
+    "dofStrength": 0.86,
+    "vignette": 0.48,
+    "grade": [
+      1.03,
+      0.99,
+      1.03
+    ]
+  },
+  "anchors": [
+    {
+      "id": "hero",
+      "role": "player",
+      "pos": [
+        -2.0625,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 1.75,
+      "spriteStyle": "adventurer",
+      "ringColor": [
+        0.36,
+        0.96,
+        0.66
+      ]
+    },
+    {
+      "id": "enemy",
+      "role": "enemy",
+      "pos": [
+        2.28125,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 2,
+      "spriteStyle": "slime_orb",
+      "ringColor": [
+        0.74,
+        0.56,
+        1
+      ]
+    }
+  ],
+  "gameplay": {
+    "gridSize": 1,
+    "walkableCells": [],
+    "triggers": []
+  }
+}

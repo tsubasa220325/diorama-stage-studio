@@ -15,6 +15,7 @@ import { validateStage } from '../core/validator.js';
 import { buildColabStageJob } from '../exporters/colabJobExporter.js';
 import { exportStageToGlb } from '../exporters/glbExporter.js';
 import { toRhysmodiaRuntime } from '../exporters/rhysmodiaAdapter.js';
+import { buildExternalModelVertices, parseGlb } from '../core/glbImporter.js';
 import { PRESETS } from '../presets/index.js';
 
 test('all built-in presets pass schema validation and compile to valid 3D meshes', () => {
@@ -113,6 +114,25 @@ test('pure-JS glTF 2.0 (.glb) exporter produces valid binary with NEAREST sample
   assert.equal(doc.samplers[0].minFilter, 9728, 'NEAREST minFilter for pixel art');
   assert.equal(doc.scenes[0].extras.dioramaStage.meta.id, 'rpg_village_square');
   assert.ok(doc.scenes[0].extras.dioramaStage.gameplay.walkableCells.length > 0);
+
+  // Round-trip: parse exported .glb back via pure-JS glbImporter (Blockbench/glTF prop pipeline)
+  const parsed = parseGlb(glb, 'roundtrip_stage');
+  assert.ok(parsed.vertexCount >= 100);
+  assert.ok(parsed.embeddedImage && parsed.embeddedImage.mimeType === 'image/png');
+  const placed = buildExternalModelVertices(parsed, { pos: [1, 0, -2], scale: 0.5, rotYDeg: 90, gloss: 0.4 });
+  assert.equal(placed.length, parsed.vertexCount * 12);
+  assert.ok([...placed].every(Number.isFinite));
+});
+
+test('static presets/json/*.diorama.json files are exported and match schema v1', () => {
+  const root = new URL('..', import.meta.url).pathname;
+  const manifest = JSON.parse(readFileSync(join(root, 'presets/json/manifest.json'), 'utf8'));
+  assert.equal(manifest.stages.length, PRESETS.length);
+  for (const entry of manifest.stages) {
+    const raw = JSON.parse(readFileSync(join(root, 'presets/json', entry.file), 'utf8'));
+    const check = validateStage(raw);
+    assert.equal(check.valid, true, `${entry.file}: ${check.errors.join(', ')}`);
+  }
 });
 
 test('Rhysmodia runtime adapter and Colab GPU job exporter produce valid outputs', () => {

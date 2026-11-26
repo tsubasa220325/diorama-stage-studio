@@ -1,0 +1,674 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "rpg_village_square",
+    "name": "8. [他ゲーム汎用] 16:9 RPG 夕暮れの石畳広場",
+    "preset": "rpg-field-16:9",
+    "aspect": [
+      16,
+      9
+    ],
+    "worldScalePpu": 64,
+    "tags": [
+      "rpg",
+      "field",
+      "16:9",
+      "generic"
+    ]
+  },
+  "camera": {
+    "fovDeg": 32,
+    "pitchDeg": 26,
+    "distance": 15.2,
+    "target": [
+      0,
+      0.85,
+      -0.4
+    ],
+    "focusZ": 0,
+    "sway": {
+      "x": 0.22,
+      "y": 0.04
+    }
+  },
+  "atlas": {
+    "source": "builtin-v1",
+    "tileSizePx": 64,
+    "grid": [
+      4,
+      4
+    ],
+    "normalStrength": 2.2
+  },
+  "backdrop": {
+    "mode": "vista",
+    "imageRef": null,
+    "colorTop": [
+      0.14,
+      0.14,
+      0.34
+    ],
+    "colorBottom": [
+      0.68,
+      0.34,
+      0.22
+    ],
+    "accentColor": [
+      1,
+      0.82,
+      0.46
+    ],
+    "floorV": 0.72,
+    "wallShade": 0.9,
+    "z": -8.5
+  },
+  "geometry": {
+    "floors": [
+      {
+        "id": "canal",
+        "x": [
+          -10,
+          10
+        ],
+        "y": -0.35,
+        "z": [
+          -7.5,
+          6.5
+        ],
+        "tile": "WATER_TRENCH",
+        "repeat": [
+          8,
+          5
+        ],
+        "gloss": 0.88,
+        "receiveRings": false
+      },
+      {
+        "id": "lower_plaza",
+        "x": [
+          -6.5,
+          6.5
+        ],
+        "y": 0,
+        "z": [
+          -2,
+          3.2
+        ],
+        "tile": "CRYPT_COBBLE",
+        "repeat": [
+          7,
+          3
+        ],
+        "gloss": 0.34,
+        "receiveRings": true
+      },
+      {
+        "id": "upper_terrace",
+        "x": [
+          -6.5,
+          6.5
+        ],
+        "y": 1,
+        "z": [
+          -5.8,
+          -2
+        ],
+        "tile": "CATHEDRAL_FLOOR",
+        "repeat": [
+          7,
+          2
+        ],
+        "gloss": 0.42,
+        "receiveRings": false
+      }
+    ],
+    "boxes": [
+      {
+        "id": "terrace_wall_l",
+        "x": [
+          -6.5,
+          -1.2
+        ],
+        "y": [
+          -0.35,
+          1
+        ],
+        "z": [
+          -2.4,
+          -2
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.24
+      },
+      {
+        "id": "terrace_wall_r",
+        "x": [
+          1.2,
+          6.5
+        ],
+        "y": [
+          -0.35,
+          1
+        ],
+        "z": [
+          -2.4,
+          -2
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.24
+      },
+      {
+        "id": "inn_building",
+        "x": [
+          -6.2,
+          -2.2
+        ],
+        "y": [
+          1,
+          3.8
+        ],
+        "z": [
+          -5.6,
+          -3.2
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.22
+      },
+      {
+        "id": "inn_window",
+        "x": [
+          -5.2,
+          -3.2
+        ],
+        "y": [
+          1.8,
+          2.7
+        ],
+        "z": [
+          -3.22,
+          -3.14
+        ],
+        "sideTile": "FLAME_CORE",
+        "topTile": "FLAME_CORE",
+        "gloss": 0.2,
+        "emissive": 1.2
+      },
+      {
+        "id": "tower_building",
+        "x": [
+          2.6,
+          6
+        ],
+        "y": [
+          1,
+          4.6
+        ],
+        "z": [
+          -5.6,
+          -3.2
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.28
+      },
+      {
+        "id": "tower_glass",
+        "x": [
+          3.6,
+          5
+        ],
+        "y": [
+          2.2,
+          3.8
+        ],
+        "z": [
+          -3.22,
+          -3.14
+        ],
+        "sideTile": "RUNE_GLASS",
+        "topTile": "RUNE_GLASS",
+        "gloss": 0.7,
+        "emissive": 0.9
+      },
+      {
+        "id": "bridge_deck",
+        "x": [
+          -1.4,
+          1.4
+        ],
+        "y": [
+          -0.12,
+          0
+        ],
+        "z": [
+          3.2,
+          5.6
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "OAK_STAGE",
+        "gloss": 0.32
+      }
+    ],
+    "slopes": [
+      {
+        "id": "center_stairs",
+        "x": [
+          -1.2,
+          1.2
+        ],
+        "y": [
+          0,
+          1
+        ],
+        "z": [
+          -2.4,
+          -1
+        ],
+        "direction": "-z",
+        "steps": 5,
+        "tile": "ASHLAR_BLOCK",
+        "gloss": 0.26
+      }
+    ],
+    "props": [
+      {
+        "id": "lantern_l",
+        "type": "lantern_post",
+        "pos": [
+          -1.8,
+          0,
+          2.5
+        ],
+        "height": 2
+      },
+      {
+        "id": "lantern_r",
+        "type": "lantern_post",
+        "pos": [
+          1.8,
+          0,
+          2.5
+        ],
+        "height": 2
+      },
+      {
+        "id": "lantern_up",
+        "type": "lantern_post",
+        "pos": [
+          -1.6,
+          1,
+          -2.6
+        ],
+        "height": 1.8
+      },
+      {
+        "id": "crate_1",
+        "type": "wooden_crate",
+        "pos": [
+          4.8,
+          0,
+          1.6
+        ],
+        "scale": 0.9
+      },
+      {
+        "id": "crate_2",
+        "type": "wooden_crate",
+        "pos": [
+          5.5,
+          0,
+          1.2
+        ],
+        "scale": 0.75
+      },
+      {
+        "id": "balustrade_l",
+        "type": "balustrade",
+        "pos": [
+          -3.8,
+          1,
+          -2.1
+        ],
+        "width": 4.8
+      },
+      {
+        "id": "balustrade_r",
+        "type": "balustrade",
+        "pos": [
+          3.8,
+          1,
+          -2.1
+        ],
+        "width": 4.8
+      }
+    ]
+  },
+  "lighting": {
+    "ambient": [
+      0.28,
+      0.22,
+      0.3
+    ],
+    "keyLight": {
+      "dir": [
+        -0.52,
+        0.68,
+        0.52
+      ],
+      "color": [
+        1,
+        0.72,
+        0.42
+      ],
+      "shadowSkew": [
+        0.55,
+        -0.52
+      ]
+    },
+    "floorGloss": 0.4,
+    "floorSpecTint": [
+      1,
+      0.72,
+      0.38
+    ],
+    "pillarTint": [
+      0.56,
+      0.44,
+      0.38
+    ],
+    "curbTint": [
+      0.58,
+      0.48,
+      0.44
+    ],
+    "sconceColor": [
+      1,
+      0.74,
+      0.3
+    ],
+    "pointLights": [
+      {
+        "id": "pl_l",
+        "pos": [
+          -1.8,
+          2.2,
+          2.5
+        ],
+        "color": [
+          1,
+          0.68,
+          0.28
+        ],
+        "intensity": 2,
+        "radius": 6.5,
+        "flicker": 0.12,
+        "phase": 0.4
+      },
+      {
+        "id": "pl_r",
+        "pos": [
+          1.8,
+          2.2,
+          2.5
+        ],
+        "color": [
+          1,
+          0.68,
+          0.28
+        ],
+        "intensity": 2,
+        "radius": 6.5,
+        "flicker": 0.12,
+        "phase": 2.2
+      },
+      {
+        "id": "inn_glow",
+        "pos": [
+          -4.2,
+          2.4,
+          -2.6
+        ],
+        "color": [
+          1,
+          0.6,
+          0.22
+        ],
+        "intensity": 2.1,
+        "radius": 7.2,
+        "flicker": 0.08,
+        "phase": 1.1
+      },
+      {
+        "id": "tower_blue",
+        "pos": [
+          4.3,
+          3,
+          -2.6
+        ],
+        "color": [
+          0.48,
+          0.82,
+          1
+        ],
+        "intensity": 1.5,
+        "radius": 7,
+        "flicker": 0.04,
+        "phase": 3.1
+      }
+    ],
+    "lightRays": [
+      {
+        "id": "sun_1",
+        "top": [
+          -4.5,
+          6.2
+        ],
+        "bot": [
+          -1,
+          0
+        ],
+        "z": -3,
+        "width": 2.4,
+        "color": [
+          1,
+          0.72,
+          0.38
+        ],
+        "alpha": 0.14
+      },
+      {
+        "id": "sun_2",
+        "top": [
+          -2,
+          6
+        ],
+        "bot": [
+          1.5,
+          0
+        ],
+        "z": -1.8,
+        "width": 1.8,
+        "color": [
+          1,
+          0.66,
+          0.34
+        ],
+        "alpha": 0.1
+      }
+    ]
+  },
+  "atmosphere": {
+    "fogColor": [
+      0.22,
+      0.13,
+      0.18
+    ],
+    "fogDensity": 0.046,
+    "particles": {
+      "primary": [
+        1,
+        0.84,
+        0.46
+      ],
+      "secondary": [
+        1,
+        0.62,
+        0.36
+      ],
+      "rise": 0.14,
+      "count": 40
+    }
+  },
+  "postProcess": {
+    "bloomStrength": 0.44,
+    "dofStrength": 0.76,
+    "vignette": 0.42,
+    "grade": [
+      1.06,
+      1,
+      0.94
+    ]
+  },
+  "anchors": [
+    {
+      "id": "hero",
+      "role": "player",
+      "pos": [
+        0,
+        0,
+        0.8
+      ],
+      "widthWorld": 1.5,
+      "heightWorld": 1.5,
+      "spriteStyle": "adventurer",
+      "ringColor": [
+        0.36,
+        0.96,
+        0.66
+      ]
+    },
+    {
+      "id": "npc_1",
+      "role": "npc",
+      "pos": [
+        -2.8,
+        0,
+        0.2
+      ],
+      "widthWorld": 1.45,
+      "heightWorld": 1.45,
+      "spriteStyle": "npc_villager",
+      "ringColor": [
+        0.56,
+        0.82,
+        1
+      ]
+    },
+    {
+      "id": "tree_1",
+      "role": "prop_billboard",
+      "pos": [
+        -5.6,
+        0,
+        1.8
+      ],
+      "widthWorld": 2.2,
+      "heightWorld": 2.6,
+      "spriteStyle": "pine_tree"
+    },
+    {
+      "id": "tree_2",
+      "role": "prop_billboard",
+      "pos": [
+        5.6,
+        1,
+        -2.8
+      ],
+      "widthWorld": 2.2,
+      "heightWorld": 2.6,
+      "spriteStyle": "pine_tree"
+    }
+  ],
+  "gameplay": {
+    "gridSize": 1,
+    "walkableCells": [
+      {
+        "x": -2,
+        "z": 0,
+        "y": 0
+      },
+      {
+        "x": -1,
+        "z": 0,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "z": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "z": 0,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "z": 0,
+        "y": 0
+      },
+      {
+        "x": -2,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": -1,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "z": -1,
+        "y": 0.5,
+        "tag": "stairs"
+      },
+      {
+        "x": 0,
+        "z": -2,
+        "y": 1,
+        "tag": "terrace"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "enter_inn",
+        "pos": [
+          -4.2,
+          1,
+          -3
+        ],
+        "radius": 1.1,
+        "event": "LOAD_SCENE_INN"
+      }
+    ]
+  }
+}

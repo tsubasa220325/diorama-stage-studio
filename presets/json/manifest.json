@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "stages": [
+    {
+      "id": "cavern_arena",
+      "name": "1. 紫水晶の洞窟（スライム戦）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "cavern_arena.diorama.json"
+    },
+    {
+      "id": "theater_stage",
+      "name": "2. 月光の古い劇場（ゴースト戦）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "theater_stage.diorama.json"
+    },
+    {
+      "id": "crypt_chapel",
+      "name": "3. 翠霧の地下礼拝堂（ゾンビ戦）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "crypt_chapel.diorama.json"
+    },
+    {
+      "id": "marble_ballroom",
+      "name": "4. 大理石の舞踏室（ワルツの魔女戦）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "marble_ballroom.diorama.json"
+    },
+    {
+      "id": "grand_cathedral",
+      "name": "5. 黄金オルガンの大聖堂（ボス戦）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "grand_cathedral.diorama.json"
+    },
+    {
+      "id": "clockwork_hall",
+      "name": "6. 金色メトロノームの間（タワー中ボス）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "clockwork_hall.diorama.json"
+    },
+    {
+      "id": "starlight_sanctum",
+      "name": "7. 星奏マエストロ聖域（変拍子・頂上）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "starlight_sanctum.diorama.json"
+    },
+    {
+      "id": "rpg_village_square",
+      "name": "8. [他ゲーム汎用] 16:9 RPG 夕暮れの石畳広場",
+      "preset": "rpg-field-16:9",
+      "aspect": [
+        16,
+        9
+      ],
+      "file": "rpg_village_square.diorama.json"
+    },
+    {
+      "id": "tactical_ruins",
+      "name": "9. [他ゲーム汎用] 16:9 タクティカル遺跡段差マップ",
+      "preset": "tactical-grid",
+      "aspect": [
+        16,
+        9
+      ],
+      "file": "tactical_ruins.diorama.json"
+    },
+    {
+      "id": "moonlit_vista",
+      "name": "10. 月夜の展望テラス（タイトル・ビスタ背景）",
+      "preset": "vista-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "moonlit_vista.diorama.json"
+    }
+  ]
+}

@@ -1,0 +1,334 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "moonlit_vista",
+    "name": "10. 月夜の展望テラス（タイトル・ビスタ背景）",
+    "preset": "vista-4:3",
+    "aspect": [
+      4,
+      3
+    ],
+    "worldScalePpu": 64,
+    "tags": [
+      "rhysmodia",
+      "title",
+      "vista",
+      "4:3"
+    ]
+  },
+  "camera": {
+    "fovDeg": 30.698299428963676,
+    "pitchDeg": 12,
+    "distance": 13.8,
+    "target": [
+      0,
+      1.1,
+      0
+    ],
+    "focusZ": -2.2,
+    "sway": {
+      "x": 0.3,
+      "y": 0.06
+    }
+  },
+  "atlas": {
+    "source": "builtin-v1",
+    "tileSizePx": 64,
+    "grid": [
+      4,
+      4
+    ],
+    "normalStrength": 2
+  },
+  "backdrop": {
+    "mode": "vista",
+    "imageRef": null,
+    "colorTop": [
+      0.05,
+      0.04,
+      0.16
+    ],
+    "colorBottom": [
+      0.18,
+      0.14,
+      0.38
+    ],
+    "accentColor": [
+      0.96,
+      0.9,
+      1
+    ],
+    "floorV": 0.855,
+    "wallShade": 0.94,
+    "z": -7.5
+  },
+  "geometry": {
+    "floors": [
+      {
+        "id": "terrace",
+        "x": [
+          -6.4,
+          6.4
+        ],
+        "y": 0,
+        "z": [
+          -2.8,
+          3.6
+        ],
+        "tile": "CATHEDRAL_FLOOR",
+        "repeat": [
+          6,
+          3
+        ],
+        "gloss": 0.38,
+        "receiveRings": false
+      }
+    ],
+    "boxes": [
+      {
+        "id": "terrace_edge",
+        "x": [
+          -6.6,
+          6.6
+        ],
+        "y": [
+          -0.4,
+          0
+        ],
+        "z": [
+          -3.1,
+          -2.8
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.25
+      }
+    ],
+    "slopes": [],
+    "props": [
+      {
+        "id": "balustrade",
+        "type": "balustrade",
+        "pos": [
+          0,
+          0,
+          -2.85
+        ],
+        "width": 11.2
+      },
+      {
+        "id": "lantern_l",
+        "type": "lantern_post",
+        "pos": [
+          -4.4,
+          0,
+          -2.4
+        ],
+        "height": 2.3
+      },
+      {
+        "id": "lantern_r",
+        "type": "lantern_post",
+        "pos": [
+          4.4,
+          0,
+          -2.4
+        ],
+        "height": 2.3
+      }
+    ]
+  },
+  "lighting": {
+    "ambient": [
+      0.22,
+      0.2,
+      0.38
+    ],
+    "keyLight": {
+      "dir": [
+        0.52,
+        0.68,
+        0.52
+      ],
+      "color": [
+        0.92,
+        0.88,
+        1
+      ],
+      "shadowSkew": [
+        -0.4,
+        -0.5
+      ]
+    },
+    "floorGloss": 0.38,
+    "floorSpecTint": [
+      0.84,
+      0.8,
+      1
+    ],
+    "pillarTint": [
+      0.38,
+      0.34,
+      0.58
+    ],
+    "curbTint": [
+      0.46,
+      0.4,
+      0.66
+    ],
+    "sconceColor": [
+      1,
+      0.84,
+      0.48
+    ],
+    "pointLights": [
+      {
+        "id": "moon",
+        "pos": [
+          3.4,
+          4.1,
+          -3.6
+        ],
+        "color": [
+          0.96,
+          0.9,
+          1
+        ],
+        "intensity": 2.35,
+        "radius": 11.5,
+        "flicker": 0.03,
+        "phase": 0
+      },
+      {
+        "id": "lamp_l",
+        "pos": [
+          -4.4,
+          2.5,
+          -2.4
+        ],
+        "color": [
+          1,
+          0.72,
+          0.28
+        ],
+        "intensity": 1.8,
+        "radius": 6.4,
+        "flicker": 0.12,
+        "phase": 1.2
+      },
+      {
+        "id": "lamp_r",
+        "pos": [
+          4.4,
+          2.5,
+          -2.4
+        ],
+        "color": [
+          1,
+          0.72,
+          0.28
+        ],
+        "intensity": 1.8,
+        "radius": 6.4,
+        "flicker": 0.12,
+        "phase": 2.9
+      }
+    ],
+    "lightRays": [
+      {
+        "id": "moon_ray",
+        "top": [
+          3.8,
+          6
+        ],
+        "bot": [
+          1.4,
+          0
+        ],
+        "z": -3.2,
+        "width": 2.4,
+        "color": [
+          0.9,
+          0.86,
+          1
+        ],
+        "alpha": 0.16
+      },
+      {
+        "id": "moon_ray2",
+        "top": [
+          2.9,
+          5.8
+        ],
+        "bot": [
+          -0.2,
+          0
+        ],
+        "z": -2.7,
+        "width": 1.7,
+        "color": [
+          0.76,
+          0.72,
+          1
+        ],
+        "alpha": 0.11
+      }
+    ]
+  },
+  "atmosphere": {
+    "fogColor": [
+      0.09,
+      0.06,
+      0.2
+    ],
+    "fogDensity": 0.036,
+    "particles": {
+      "primary": [
+        1,
+        0.9,
+        0.56
+      ],
+      "secondary": [
+        0.74,
+        0.82,
+        1
+      ],
+      "rise": 0.16,
+      "count": 44
+    }
+  },
+  "postProcess": {
+    "bloomStrength": 0.48,
+    "dofStrength": 0.42,
+    "vignette": 0.36,
+    "grade": [
+      1.03,
+      1,
+      1.06
+    ]
+  },
+  "anchors": [
+    {
+      "id": "hero_title",
+      "role": "player",
+      "pos": [
+        -1.2,
+        0,
+        -0.4
+      ],
+      "widthWorld": 1.7,
+      "heightWorld": 1.7,
+      "spriteStyle": "adventurer",
+      "ringColor": [
+        0.42,
+        0.94,
+        0.68
+      ]
+    }
+  ],
+  "gameplay": {
+    "gridSize": 1,
+    "walkableCells": [],
+    "triggers": []
+  }
+}

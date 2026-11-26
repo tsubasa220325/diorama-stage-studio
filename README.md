@@ -31,8 +31,9 @@
    - **ブラウザ内 Sobel 法線マップ工房**: 2D タイル画像から法線マップ PNG を即時生成（0 CU）
    - **Google Colab GPU 連携**: 商用安全モデル（Apache-2.0 `FLUX.2-klein-4B` 等）用 `colab_jobs.json` 書き出し
 4. **マルチエンジン書き出し＆導入アダプタ**
-   - **`stage.diorama.json`（v1）**: リズモディア Web 版へそのまま読込可能（`adapters/rhysmodia-web/`）
-   - **バイナリ glTF 2.0（`.glb`）**: ブラウザ内で直接生成。`NEAREST` サンプラ、`KHR_lights_punctual` 光源、`extras.dioramaStage`（DoF・ブルーム・霧・アンカー・歩行グリッド）を完全埋め込み
+   - **`stage.diorama.json`（v1）＆ 静的プリセット URL**: 全 10 プリセットを `https://tsubasa220325.github.io/diorama-stage-studio/presets/json/<id>.diorama.json` として配信。リズモディア Web 版は `?stage=sample_arena` または `?stage=https://...` でそのまま読み込めます。
+   - **Blockbench Web `.glb` 外部プロップ読込**: 依存ゼロの純 JS `.glb` インポータで、Blockbench Web 製 3D 小物をステージ内へ直接配置（影投影・動的ライト・DoF 対応）。
+   - **バイナリ glTF 2.0（`.glb`）書き出し**: ブラウザ内で直接生成。`NEAREST` サンプラ、`KHR_lights_punctual` 光源、`extras.dioramaStage`（DoF・ブルーム・霧・アンカー・歩行グリッド）を完全埋め込み
    - **Unity 6 URP 用 UPM パッケージ**: `https://github.com/tsubasa220325/diorama-stage-studio.git?path=adapters/unity-urp` から直接導入（`glTFast >= 6.21.0` 対応、`FilterMode.Point` & `anisoLevel = 0` 自動強制）
    - **Godot 4 / Three.js アダプタ**: `adapters/godot4/`・`adapters/threejs/`
 
