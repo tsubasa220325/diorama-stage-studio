@@ -5,28 +5,53 @@
   <title>Diorama Stage Render</title>
   <style>
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    canvas { width: 100vw; height: 100vh; object-fit: contain; display: block; }
+    .wrap { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+    canvas { max-width: 100vw; max-height: 100vh; width: 100%; height: 100%; object-fit: contain; display: block; }
+    #hud-canvas { position: absolute; inset: 0; pointer-events: none; }
   </style>
 </head>
 <body>
-  <canvas id="gl-canvas" width="1280" height="960"></canvas>
+  <div class="wrap">
+    <canvas id="gl-canvas" width="1280" height="960"></canvas>
+    <canvas id="hud-canvas" width="1280" height="960"></canvas>
+  </div>
   <script type="module">
     import { createStudioRenderer } from './core/renderer.js';
     import { normalizeStage } from './core/validator.js';
     import { presetById } from './presets/index.js';
 
     const params = new URLSearchParams(location.search);
-    const id = params.get('stage') || 'sunset_harbor_pier';
+    const id = params.get('stage') || 'clocktower_pendulum_forge';
     const time = Number(params.get('t') ?? 1.8);
+    const showHud = params.get('hud') === '1';
     const stage = normalizeStage(presetById(id));
     const canvas = document.getElementById('gl-canvas');
+    const hudCanvas = document.getElementById('hud-canvas');
     const [aw, ah] = stage.meta.aspect || [4, 3];
     canvas.width = 1280;
     canvas.height = Math.round((1280 * ah) / aw);
+    hudCanvas.width = canvas.width;
+    hudCanvas.height = canvas.height;
     const renderer = createStudioRenderer(canvas);
     renderer.updateAtlas(stage.atlas?.normalStrength ?? 2.2);
     renderer.uploadStageGeometry(stage);
     renderer.render(stage, { time, beats: time * 2, beatSync: true, swayEnabled: false });
+
+    if (showHud && aw === 4 && ah === 3) {
+      const ctx = hudCanvas.getContext('2d');
+      const sx = canvas.width / 640;
+      const sy = canvas.height / 480;
+      ctx.fillStyle = 'rgba(12, 10, 24, 0.42)';
+      ctx.fillRect(0, 336 * sy, canvas.width, 144 * sy);
+      ctx.strokeStyle = 'rgba(250, 204, 21, 0.9)';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(18 * sx, 336 * sy, 604 * sx, 138 * sy);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
+      ctx.strokeRect(36 * sx, 20 * sy, 240 * sx, 32 * sy);
+      ctx.strokeStyle = 'rgba(248, 113, 113, 0.9)';
+      ctx.strokeRect(292 * sx, 40 * sy, 296 * sx, 84 * sy);
+    }
+
     window.__RENDER_INFO__ = { id: stage.meta.id, width: canvas.width, height: canvas.height };
     window.__RENDER_READY__ = true;
     document.title = 'RENDERED:' + stage.meta.id;

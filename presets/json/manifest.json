@@ -102,34 +102,34 @@
       "file": "moonlit_vista.diorama.json"
     },
     {
-      "id": "sunset_harbor_pier",
-      "name": "11. 黄昏の石造り港町・桟橋アリーナ（夕暮れ×海）",
+      "id": "clocktower_pendulum_forge",
+      "name": "11. [リズモディア10F] 大振子の時計塔・溶岩工房（メトロノームナイト戦）",
       "preset": "battle-4:3",
       "aspect": [
         4,
         3
       ],
-      "file": "sunset_harbor_pier.diorama.json"
+      "file": "clocktower_pendulum_forge.diorama.json"
     },
     {
-      "id": "sunken_ice_sanctuary",
-      "name": "12. 氷結の沈没神殿・鏡面クリスタル回廊（極寒×降雪）",
+      "id": "sunken_symphony_sanctuary",
+      "name": "12. [リズモディア20F] 氷結の沈没楽堂・鏡面クリスタル神殿（シンフォニーメイデン戦）",
       "preset": "battle-4:3",
       "aspect": [
         4,
         3
       ],
-      "file": "sunken_ice_sanctuary.diorama.json"
+      "file": "sunken_symphony_sanctuary.diorama.json"
     },
     {
-      "id": "crimson_clocktower_forge",
-      "name": "13. 深紅の時計塔・溶岩パイプ工房（16:9 ワイド多層ジオラマ）",
-      "preset": "rpg-field-16:9",
+      "id": "sunset_grand_amphitheater",
+      "name": "13. [リズモディア30F] 黄昏の天空港・大楽章音楽堂（グランドマエストロ戦）",
+      "preset": "battle-4:3",
       "aspect": [
-        16,
-        9
+        4,
+        3
       ],
-      "file": "crimson_clocktower_forge.diorama.json"
+      "file": "sunset_grand_amphitheater.diorama.json"
     }
   ]
 }

@@ -86,6 +86,7 @@ const state = {
   bpm: 128,
   enraged: false,
   showGuides: true,
+  showRhysmodiaHud: false,
   impactFlash: 0,
   lastRenderInfo: null,
 };
@@ -413,7 +414,15 @@ function renderInspector() {
       numField('繰返 X', item.repeat?.[0] ?? 4, 1, v => { item.repeat = [Math.max(1, v), item.repeat?.[1] ?? 2]; }),
       numField('繰返 Z', item.repeat?.[1] ?? 2, 1, v => { item.repeat = [item.repeat?.[0] ?? 4, Math.max(1, v)]; }),
     );
-    card.append(rX, rZ, rRep, tileSelect('床タイル', item.tile, v => item.tile = v), sliderField('床光沢 (Gloss)', item.gloss ?? 0.35, 0, 1, 0.02, v => item.gloss = v));
+    const surfWrap = document.createElement('label'); surfWrap.className = 'field'; surfWrap.textContent = '特殊サーフェス';
+    const surfSel = document.createElement('select');
+    for (const [val, lbl] of [['', '標準 (タイルPBR)'], ['water', '水面アニメーション (Water)'], ['lava', '溶岩アニメーション (Lava)']]) {
+      const o = document.createElement('option'); o.value = val; o.textContent = lbl; if ((item.surface ?? '') === val) o.selected = true;
+      surfSel.appendChild(o);
+    }
+    surfSel.onchange = () => { pushUndo(); item.surface = surfSel.value || undefined; rebuildGeometry(); };
+    surfWrap.appendChild(surfSel);
+    card.append(rX, rZ, rRep, tileSelect('床タイル', item.tile, v => item.tile = v), surfWrap, sliderField('床光沢 (Gloss)', item.gloss ?? 0.35, 0, 1, 0.02, v => item.gloss = v));
   } else if (group === 'boxes') {
     const rX = document.createElement('div'); rX.className = 'row-2';
     rX.append(numField('X 最小', item.x[0], 0.2, v => item.x[0] = v), numField('X 最大', item.x[1], 0.2, v => item.x[1] = v));
@@ -598,9 +607,21 @@ function renderEnvInspector() {
     colorField('遠景・空(上)', s.backdrop.colorTop ?? [0.06, 0.05, 0.16], rgb => s.backdrop.colorTop = rgb),
     colorField('遠景・地平(下)', s.backdrop.colorBottom ?? [0.18, 0.12, 0.3], rgb => s.backdrop.colorBottom = rgb),
   );
+  const vistaWrap = document.createElement('label');
+  vistaWrap.className = 'field';
+  vistaWrap.textContent = 'プロシージャル遠景スタイル';
+  const vistaSel = document.createElement('select');
+  for (const [val, lbl] of [['default', '標準 (月夜ゴシック)'], ['sunset', '夕暮れ海・水平線 (Sunset)'], ['aurora', '極光オーロラ雪山 (Aurora)'], ['clocktower', '時計塔・大歯車 (Clocktower)']]) {
+    const o = document.createElement('option'); o.value = val; o.textContent = lbl;
+    if ((s.backdrop.vistaStyle ?? 'default') === val) o.selected = true;
+    vistaSel.appendChild(o);
+  }
+  vistaSel.onchange = () => { pushUndo(); s.backdrop.vistaStyle = vistaSel.value; };
+  vistaWrap.appendChild(vistaSel);
   lightCard.append(
     colRow,
     bgRow,
+    vistaWrap,
     sliderField('選択的ブルーム強度', s.postProcess.bloomStrength ?? 0.42, 0, 1.2, 0.02, v => s.postProcess.bloomStrength = v),
     sliderField('ビネット (周辺減光)', s.postProcess.vignette ?? 0.48, 0, 1.0, 0.02, v => s.postProcess.vignette = v),
     sliderField('霧の密度 (Fog)', s.atmosphere.fogDensity ?? 0.06, 0, 0.18, 0.002, v => s.atmosphere.fogDensity = v),
@@ -626,10 +647,50 @@ function drawGuides(cam, width, height) {
   guideCanvas.width = width;
   guideCanvas.height = height;
   guideCtx.clearRect(0, 0, width, height);
-  if (!state.showGuides) return;
+  if (!state.showGuides && !state.showRhysmodiaHud) return;
 
   const vp = cam.viewProj;
   guideCtx.save();
+
+  if (state.showRhysmodiaHud) {
+    const sx = width / 640;
+    const sy = height / 480;
+    guideCtx.fillStyle = 'rgba(10, 8, 22, 0.44)';
+    guideCtx.fillRect(0, 336 * sy, width, 144 * sy);
+    guideCtx.strokeStyle = 'rgba(250, 204, 21, 0.92)';
+    guideCtx.lineWidth = 2.5;
+    guideCtx.strokeRect(18 * sx, 336 * sy, 604 * sx, 138 * sy);
+    guideCtx.fillStyle = '#fde047';
+    guideCtx.font = 'bold 14px monospace';
+    guideCtx.fillText('RHYSMODIA 5-CARD HAND TRAY (y: 336-480 / 下部UI遮蔽域)', 28 * sx, 358 * sy);
+
+    guideCtx.strokeStyle = 'rgba(56, 189, 248, 0.92)';
+    guideCtx.strokeRect(36 * sx, 20 * sy, 240 * sx, 32 * sy);
+    guideCtx.fillStyle = '#7dd3fc';
+    guideCtx.fillText('HERO HP PLINTH', 44 * sx, 40 * sy);
+
+    guideCtx.fillStyle = 'rgba(248, 113, 113, 0.14)';
+    guideCtx.fillRect(292 * sx, 38 * sy, 296 * sx, 86 * sy);
+    guideCtx.strokeStyle = 'rgba(248, 113, 113, 0.92)';
+    guideCtx.strokeRect(292 * sx, 38 * sy, 296 * sx, 86 * sy);
+    guideCtx.fillStyle = '#fca5a5';
+    guideCtx.fillText('ENEMY CUE & HP ZONE (背景暗め推奨)', 302 * sx, 58 * sy);
+
+    guideCtx.strokeStyle = 'rgba(52, 211, 153, 0.72)';
+    guideCtx.setLineDash([6, 6]);
+    guideCtx.beginPath();
+    guideCtx.moveTo(0, 280 * sy);
+    guideCtx.lineTo(width, 280 * sy);
+    guideCtx.stroke();
+    guideCtx.setLineDash([]);
+    guideCtx.fillStyle = '#6ee7b7';
+    guideCtx.fillText('GROUND y=280', 12 * sx, 274 * sy);
+  }
+
+  if (!state.showGuides) {
+    guideCtx.restore();
+    return;
+  }
 
   // Focus plane line (Z = focusZ)
   const fz = state.stage.camera?.focusZ ?? 0;
@@ -948,6 +1009,10 @@ $('btn-enrage').onclick = () => {
   $('btn-enrage').classList.toggle('active', state.enraged);
 };
 $('btn-flash').onclick = () => { state.impactFlash = 1.0; };
+$('btn-rhysmodia-hud').onclick = () => {
+  state.showRhysmodiaHud = !state.showRhysmodiaHud;
+  $('btn-rhysmodia-hud').classList.toggle('active', state.showRhysmodiaHud);
+};
 $('btn-guides').onclick = () => {
   state.showGuides = !state.showGuides;
   $('btn-guides').classList.toggle('active', state.showGuides);

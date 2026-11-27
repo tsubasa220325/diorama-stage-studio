@@ -15,7 +15,7 @@ layout(location = 0) in vec3 aPos;
 layout(location = 3) in vec4 aMat;
 uniform mat4 uLightVP;
 void main() {
-  if ((aMat.x > 1.5 && aMat.x < 2.5) || aMat.w > 0.5) {
+  if ((aMat.x > 1.5 && aMat.x < 2.5) || aMat.x > 3.5 || aMat.w > 0.5) {
     gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
     return;
   }
@@ -87,6 +87,7 @@ uniform vec2 uBgSize;
 uniform vec3 uBgTop;
 uniform vec3 uBgBottom;
 uniform vec3 uBgAccent;
+uniform float uVistaStyle;
 uniform float uUseShadows;
 uniform float uShadowTexel;
 uniform float uTime;
@@ -145,17 +146,65 @@ float sampleShadow(vec3 fn) {
 vec3 proceduralVista(vec2 uv) {
   float h = clamp(1.0 - uv.y, 0.0, 1.0);
   vec3 sky = mix(uBgBottom, uBgTop, pow(h, 0.72));
-  // Subtle gothic/cathedral arch silhouette + distant mountains + moon glow
+  if (uVistaStyle > 0.5 && uVistaStyle < 1.5) {
+    // Sunset coastal amphitheater horizon
+    float cloudBand = sin(uv.x * 11.0 + sin(uv.y * 18.0) * 0.9 + uTime * 0.08) * 0.5 + 0.5;
+    float cloudMask = smoothstep(0.32, 0.72, cloudBand) * smoothstep(0.18, 0.42, h) * (1.0 - smoothstep(0.58, 0.86, h));
+    sky = mix(sky, mix(uBgBottom, uBgAccent, 0.42), cloudMask * 0.34);
+    float headland = 0.22 + 0.06 * sin(uv.x * 6.5 + 1.2) + 0.03 * sin(uv.x * 17.0);
+    float seaHorizon = smoothstep(0.20, 0.17, h);
+    float ridge = smoothstep(headland + 0.012, headland - 0.012, h) * (1.0 - seaHorizon);
+    sky = mix(sky, uBgTop * 0.55 + vec3(0.08, 0.04, 0.07), ridge * 0.78);
+    sky = mix(sky, mix(uBgTop * 0.45, uBgBottom * 0.65, 0.5 + 0.3 * sin(uv.x * 38.0 + uTime * 1.4)), seaHorizon * 0.75);
+    float sunD = length((uv - vec2(0.36, 0.56)) * vec2(1.35, 1.0));
+    sky += uBgAccent * (exp(-sunD * sunD * 18.0) * 0.58 + smoothstep(0.082, 0.070, sunD) * 0.75);
+    float sunReflect = exp(-abs(uv.x - 0.36) * 14.0) * seaHorizon;
+    sky += uBgAccent * sunReflect * (0.45 + 0.25 * sin(uv.y * 90.0 - uTime * 3.0));
+    return sky;
+  }
+  if (uVistaStyle > 1.5 && uVistaStyle < 2.5) {
+    // Glacial aurora borealis sanctuary
+    float wave1 = sin(uv.x * 7.5 + uTime * 0.35 + sin(uv.x * 3.2) * 1.4);
+    float curtain = exp(-pow((h - (0.58 + wave1 * 0.12)) * 4.4, 2.0));
+    float streaks = 0.6 + 0.4 * sin(uv.x * 46.0 + wave1 * 3.0 + uTime * 0.5);
+    vec3 auroraCol = mix(vec3(0.24, 0.96, 0.88), vec3(0.56, 0.52, 1.0), clamp(uv.x * 1.1, 0.0, 1.0));
+    sky += auroraCol * curtain * streaks * 0.52;
+    float peak = 0.28 + 0.11 * abs(sin(uv.x * 6.8 + 0.6)) + 0.05 * sin(uv.x * 19.0);
+    float mountain = smoothstep(peak + 0.012, peak - 0.012, h);
+    sky = mix(sky, mix(uBgTop * 0.62, uBgBottom * 0.72, smoothstep(peak - 0.14, peak, h)), mountain * 0.82);
+    vec2 sg = floor(uv * vec2(128.0, 72.0));
+    float starH = fract(sin(dot(sg, vec2(127.1, 311.7))) * 43758.5453);
+    if (starH > 0.988 && h > 0.34) {
+      float tw = 0.55 + 0.45 * sin(uTime * 2.8 + starH * 80.0);
+      sky += uBgAccent * tw * 0.92;
+    }
+    return sky;
+  }
+  if (uVistaStyle > 2.5) {
+    // Crimson clocktower giant gear vault
+    vec2 gc = (uv - vec2(0.50, 0.46)) * vec2(1.33, 1.0);
+    float r = length(gc);
+    float ang = atan(gc.y, gc.x) + uTime * 0.12;
+    float teeth = 0.5 + 0.5 * cos(ang * 16.0);
+    float gearRim = smoothstep(0.36, 0.34, r) * smoothstep(0.25, 0.27, r);
+    float gearTeeth = smoothstep(0.41, 0.39, r) * smoothstep(0.34, 0.35, r) * smoothstep(0.45, 0.65, teeth);
+    float spokes = smoothstep(0.34, 0.32, r) * smoothstep(0.06, 0.08, r) * smoothstep(0.86, 0.94, abs(cos(ang * 4.0)));
+    float gearMask = clamp(gearRim + gearTeeth + spokes, 0.0, 1.0);
+    float hearthGlow = exp(-pow(h * 2.6, 2.0)) * 0.62 + exp(-r * r * 6.5) * 0.45;
+    sky += uBgAccent * hearthGlow * 0.52;
+    sky = mix(sky, vec3(0.05, 0.015, 0.025), gearMask * 0.72);
+    float archX = abs(fract(uv.x * 4.0) - 0.5) * 2.0;
+    sky = mix(sky, sky * 0.58, smoothstep(0.76, 0.84, archX) * 0.55);
+    return sky;
+  }
   float archX = abs(fract(uv.x * 5.0) - 0.5) * 2.0;
   float archMask = smoothstep(0.68, 0.74, archX) * smoothstep(0.08, 0.78, h);
   float peak = 0.26 + 0.10 * sin(uv.x * 9.0 + 0.4) + 0.06 * sin(uv.x * 21.0);
   float mountain = smoothstep(peak + 0.015, peak - 0.015, h);
   sky = mix(sky, uBgBottom * 0.58, mountain * 0.65);
   sky = mix(sky, sky * 0.76, archMask * 0.42);
-  // Soft moon / luminous crest
   float moonD = length((uv - vec2(0.52, 0.24)) * vec2(1.4, 1.0));
   sky += uBgAccent * (exp(-moonD * moonD * 22.0) * 0.55 + smoothstep(0.095, 0.082, moonD) * 0.72);
-  // Subtle pixel-snapped twinkling stars
   vec2 sg = floor(uv * vec2(120.0, 68.0));
   float starH = fract(sin(dot(sg, vec2(127.1, 311.7))) * 43758.5453);
   if (starH > 0.992 && h > 0.36) {
@@ -186,7 +235,26 @@ void main() {
   }
 
   vec3 albedo = sampleSharp(uAtlasAlbedo, vUv, vec2(256.0));
-  if (matType > 2.5) {
+  if (matType > 4.5) {
+    vec2 p = vWorld.xz * 0.95;
+    float w1 = sin(p.x * 2.1 + uTime * 0.85 + sin(p.y * 1.9 - uTime * 0.6) * 1.5);
+    float w2 = cos(p.y * 2.4 - uTime * 0.65 + sin(p.x * 2.2 + uTime * 0.5) * 1.4);
+    float flow = (w1 + w2) * 0.25 + 0.5;
+    float vein = smoothstep(0.42, 0.84, flow);
+    float core = smoothstep(0.74, 0.96, flow);
+    vec3 crust = vec3(0.08, 0.03, 0.035) * (0.65 + 0.5 * luma(albedo));
+    vec3 magma = mix(crust, vec3(1.18, 0.17, 0.03), vein);
+    magma = mix(magma, vec3(1.78, 0.64, 0.09), core);
+    magma *= 0.92 + 0.12 * sin(uTime * 3.4 + vWorld.x * 1.4 + vWorld.z);
+    float fogDistL = max(0.0, -vWorld.z - 1.1);
+    float fogAmtL = 1.0 - exp(-fogDistL * uFogDensity * 1.8);
+    magma = mix(magma, fogCol, clamp(fogAmtL * 0.65, 0.0, 0.48));
+    float cocL = smoothstep(0.95, 4.4, abs(vWorld.z - uFocusZ)) * uDofStrength;
+    fragColor = vec4(magma, clamp(cocL, 0.0, 1.0));
+    return;
+  }
+
+  if (matType > 2.5 && matType < 3.5) {
     float pulse = 0.90 + 0.14 * sin(uTime * 5.8 + vWorld.x * 2.1 + vWorld.z);
     vec3 em = albedo * vMat.z * pulse;
     if (uEnraged > 0.5) em = mix(em, em * vec3(1.22, 0.72, 0.78), 0.35);
@@ -196,29 +264,41 @@ void main() {
     return;
   }
 
+  bool isWater = matType > 3.5 && matType < 4.5;
   vec3 fn = normalize(vNorm);
-  vec3 tn = texture(uAtlasNormal, vUv).rgb * 2.0 - 1.0;
-  vec3 T = abs(fn.y) > 0.5 ? vec3(1.0, 0.0, 0.0) : (abs(fn.z) > 0.5 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 0.0, -sign(fn.x)));
-  vec3 B = abs(fn.y) > 0.5 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, -1.0, 0.0);
-  vec3 N = normalize(T * tn.x * 0.72 + B * tn.y * 0.72 + fn * tn.z);
-
-  if (matType < 0.5) {
-    albedo = mix(albedo, albedo * (0.70 + uCurbTint * 0.78), 0.30);
+  vec3 N;
+  float ao = 1.0;
+  if (isWater) {
+    vec2 wp = vWorld.xz;
+    float rx = cos(wp.x * 3.2 + uTime * 1.5 + sin(wp.y * 2.3 - uTime * 1.1) * 1.4) * 0.16;
+    float rz = sin(wp.y * 3.8 - uTime * 1.25 + cos(wp.x * 2.5 + uTime * 0.9) * 1.3) * 0.16;
+    N = normalize(vec3(rx, 1.0, rz));
+    float caustic = pow(clamp(0.5 + 0.5 * sin(wp.x * 4.2 - uTime * 1.6) * cos(wp.y * 4.6 + uTime * 1.3), 0.0, 1.0), 3.0);
+    albedo = mix(vec3(0.05, 0.14, 0.24), albedo * 0.72 + vec3(0.05, 0.12, 0.18), 0.55) + uFloorSpecTint * caustic * 0.14;
   } else {
-    albedo = mix(albedo, albedo * (0.62 + uPillarTint * 0.96), 0.38);
+    vec3 tn = texture(uAtlasNormal, vUv).rgb * 2.0 - 1.0;
+    vec3 T = abs(fn.y) > 0.5 ? vec3(1.0, 0.0, 0.0) : (abs(fn.z) > 0.5 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 0.0, -sign(fn.x)));
+    vec3 B = abs(fn.y) > 0.5 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, -1.0, 0.0);
+    N = normalize(T * tn.x * 0.72 + B * tn.y * 0.72 + fn * tn.z);
+    ao = vMat.z > 0.01 ? vMat.z : 1.0;
+    if (matType < 0.5) {
+      albedo = mix(albedo, albedo * (0.70 + uCurbTint * 0.78), 0.30);
+    } else {
+      albedo = mix(albedo, albedo * (0.62 + uPillarTint * 0.96), 0.38);
+    }
   }
 
   vec3 V = normalize(uCamPos - vWorld);
   vec3 Lkey = normalize(uKeyDir);
-  float shadow = sampleShadow(fn);
+  float shadow = isWater ? 1.0 : sampleShadow(fn);
   float keyDiff = max(dot(N, Lkey), 0.0);
-  vec3 lightSum = uAmbient * 0.92 + uKeyColor * (0.16 + 0.68 * keyDiff * shadow);
+  vec3 lightSum = uAmbient * 0.92 * ao + uKeyColor * (0.16 * ao + 0.68 * keyDiff * shadow * mix(0.55, 1.0, ao));
   vec3 specSum = vec3(0.0);
-  float gloss = vMat.y;
+  float gloss = isWater ? max(0.88, vMat.y) : vMat.y;
   if (gloss > 0.08 && keyDiff > 0.0) {
     vec3 Hk = normalize(Lkey + V);
-    float spk = pow(max(dot(N, Hk), 0.0), 16.0 + gloss * 40.0);
-    specSum += uKeyColor * spk * gloss * 0.42 * shadow;
+    float spk = pow(max(dot(N, Hk), 0.0), (isWater ? 42.0 : 16.0) + gloss * 40.0);
+    specSum += uKeyColor * spk * gloss * (isWater ? 0.95 : 0.42) * shadow;
   }
 
   for (int i = 0; i < ${MAX_LIGHTS}; i++) {
@@ -230,15 +310,21 @@ void main() {
     att = att * att / (1.0 + 0.14 * dist * dist);
     vec3 L = toL / max(0.001, dist);
     float ndl = max(dot(N, L), 0.0);
-    lightSum += uLightCol[i].rgb * uLightCol[i].a * att * (0.20 + 0.80 * ndl);
+    lightSum += uLightCol[i].rgb * uLightCol[i].a * att * (0.20 + 0.80 * ndl) * mix(0.72, 1.0, ao);
     if (gloss > 0.05) {
       vec3 H = normalize(L + V);
-      float sp = pow(max(dot(N, H), 0.0), 18.0 + gloss * 42.0);
-      specSum += uLightCol[i].rgb * uLightCol[i].a * att * sp * gloss;
+      float sp = pow(max(dot(N, H), 0.0), (isWater ? 34.0 : 18.0) + gloss * 42.0);
+      specSum += uLightCol[i].rgb * uLightCol[i].a * att * sp * gloss * (isWater ? 1.35 : 1.0);
     }
   }
 
-  vec3 lit = albedo * lightSum + specSum * uFloorSpecTint * (0.28 + 0.72 * luma(albedo));
+  vec3 lit = albedo * lightSum + specSum * uFloorSpecTint * (isWater ? 0.85 : (0.28 + 0.72 * luma(albedo)));
+  if (isWater) {
+    float fresnel = pow(1.0 - max(dot(N, V), 0.0), 2.8);
+    lit = mix(lit, mix(uBgBottom, uKeyColor, 0.35) * 0.72, fresnel * 0.56);
+    float foam = exp(-pow((vWorld.z - 2.68) * 5.2, 2.0)) * 0.24 + exp(-pow((vWorld.z + 2.38) * 5.2, 2.0)) * 0.18;
+    lit += mix(uBgAccent, vec3(0.95, 0.98, 1.0), 0.5) * foam * (0.7 + 0.3 * sin(vWorld.x * 5.0 + uTime * 2.2));
+  }
 
   if (matType < 0.5 && vMat.w < -0.5) {
     if (uHeroRing.w > 0.01) {
@@ -605,7 +691,7 @@ export function createStudioRenderer(canvas) {
 
   const stageLoc = Object.fromEntries([
     'uViewProj', 'uLightVP', 'uBgTex', 'uAtlasAlbedo', 'uAtlasNormal', 'uShadowMap',
-    'uHasBgTex', 'uBgSize', 'uBgTop', 'uBgBottom', 'uBgAccent',
+    'uHasBgTex', 'uBgSize', 'uBgTop', 'uBgBottom', 'uBgAccent', 'uVistaStyle',
     'uUseShadows', 'uShadowTexel', 'uTime', 'uFloorV', 'uCamPos', 'uAmbient', 'uKeyDir',
     'uKeyColor', 'uFloorSpecTint', 'uWallShade', 'uFogColor', 'uFogDensity', 'uPillarTint',
     'uCurbTint', 'uEnraged', 'uDofStrength', 'uFocusZ', 'uHeroRing', 'uHeroRingCol',
@@ -951,6 +1037,8 @@ export function createStudioRenderer(canvas) {
     gl.uniform3fv(stageLoc.uBgTop, stage.backdrop?.colorTop ?? [0.06, 0.05, 0.16]);
     gl.uniform3fv(stageLoc.uBgBottom, stage.backdrop?.colorBottom ?? [0.16, 0.10, 0.28]);
     gl.uniform3fv(stageLoc.uBgAccent, stage.backdrop?.accentColor ?? [0.95, 0.85, 1.0]);
+    const vistaStyleMap = { default: 0, sunset: 1, aurora: 2, clocktower: 3 };
+    gl.uniform1f(stageLoc.uVistaStyle, vistaStyleMap[stage.backdrop?.vistaStyle] ?? 0);
     gl.uniform1f(stageLoc.uUseShadows, shadowTarget.ok ? 1 : 0);
     gl.uniform1f(stageLoc.uShadowTexel, 1 / shadowTarget.size);
     gl.uniform1f(stageLoc.uTime, state.time ?? 0);

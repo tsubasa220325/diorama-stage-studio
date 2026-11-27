@@ -1,0 +1,738 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "sunset_grand_amphitheater",
+    "name": "13. [リズモディア30F] 黄昏の天空港・大楽章音楽堂（グランドマエストロ戦）",
+    "preset": "battle-4:3",
+    "aspect": [
+      4,
+      3
+    ],
+    "worldScalePpu": 64,
+    "tags": [
+      "rhysmodia",
+      "tower_maestro",
+      "harbor",
+      "sunset",
+      "amphitheater",
+      "water",
+      "4:3"
+    ]
+  },
+  "camera": {
+    "fovDeg": 30.698299428963676,
+    "pitchDeg": 14.5,
+    "distance": 13.5,
+    "target": [
+      0,
+      0.6455626951235535,
+      0
+    ],
+    "focusZ": 0,
+    "sway": {
+      "x": 0.46,
+      "y": 0.06
+    }
+  },
+  "atlas": {
+    "source": "builtin-v1",
+    "tileSizePx": 64,
+    "grid": [
+      4,
+      4
+    ],
+    "normalStrength": 2.4
+  },
+  "backdrop": {
+    "mode": "vista",
+    "vistaStyle": "sunset",
+    "imageRef": null,
+    "colorTop": [
+      0.09,
+      0.11,
+      0.3
+    ],
+    "colorBottom": [
+      0.94,
+      0.44,
+      0.18
+    ],
+    "accentColor": [
+      1,
+      0.86,
+      0.44
+    ],
+    "floorV": 0.66,
+    "wallShade": 1,
+    "z": -7.8
+  },
+  "geometry": {
+    "floors": [
+      {
+        "id": "sunset_ocean",
+        "x": [
+          -11,
+          11
+        ],
+        "y": -0.32,
+        "z": [
+          -7.4,
+          7
+        ],
+        "tile": "WATER_TRENCH",
+        "surface": "water",
+        "repeat": [
+          9,
+          6
+        ],
+        "gloss": 0.95,
+        "receiveRings": false
+      },
+      {
+        "id": "oak_amphitheater",
+        "x": [
+          -4.1,
+          4.1
+        ],
+        "y": 0,
+        "z": [
+          -1.85,
+          2.55
+        ],
+        "tile": "OAK_STAGE",
+        "repeat": [
+          5,
+          3
+        ],
+        "gloss": 0.46,
+        "receiveRings": true
+      },
+      {
+        "id": "stage_stone_inlay",
+        "x": [
+          -1.4,
+          1.4
+        ],
+        "y": 0.008,
+        "z": [
+          -1.85,
+          2.35
+        ],
+        "tile": "CATHEDRAL_FLOOR",
+        "repeat": [
+          2,
+          3
+        ],
+        "gloss": 0.56,
+        "receiveRings": true
+      },
+      {
+        "id": "quay_terrace",
+        "x": [
+          -6.8,
+          6.8
+        ],
+        "y": 0.72,
+        "z": [
+          -5.3,
+          -2.95
+        ],
+        "tile": "CRYPT_COBBLE",
+        "repeat": [
+          7,
+          2
+        ],
+        "gloss": 0.34,
+        "receiveRings": false
+      }
+    ],
+    "boxes": [
+      {
+        "id": "pier_edge_f",
+        "x": [
+          -4.26,
+          4.26
+        ],
+        "y": [
+          -0.32,
+          0.03
+        ],
+        "z": [
+          2.5,
+          2.78
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "DARK_IRON",
+        "gloss": 0.3
+      },
+      {
+        "id": "pier_edge_l",
+        "x": [
+          -4.26,
+          -4.08
+        ],
+        "y": [
+          -0.32,
+          0.1
+        ],
+        "z": [
+          -1.95,
+          2.78
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "DARK_IRON",
+        "gloss": 0.3
+      },
+      {
+        "id": "pier_edge_r",
+        "x": [
+          4.08,
+          4.26
+        ],
+        "y": [
+          -0.32,
+          0.1
+        ],
+        "z": [
+          -1.95,
+          2.78
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "DARK_IRON",
+        "gloss": 0.3
+      },
+      {
+        "id": "pier_piling_l",
+        "x": [
+          -4.24,
+          -3.94
+        ],
+        "y": [
+          -0.32,
+          0.48
+        ],
+        "z": [
+          1.55,
+          1.85
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "DARK_IRON",
+        "gloss": 0.32
+      },
+      {
+        "id": "pier_piling_r",
+        "x": [
+          3.94,
+          4.24
+        ],
+        "y": [
+          -0.32,
+          0.48
+        ],
+        "z": [
+          1.55,
+          1.85
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "DARK_IRON",
+        "gloss": 0.32
+      },
+      {
+        "id": "quay_wall_l",
+        "x": [
+          -6.8,
+          -1.25
+        ],
+        "y": [
+          -0.32,
+          0.72
+        ],
+        "z": [
+          -3.15,
+          -2.75
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.28
+      },
+      {
+        "id": "quay_wall_r",
+        "x": [
+          1.25,
+          6.8
+        ],
+        "y": [
+          -0.32,
+          0.72
+        ],
+        "z": [
+          -3.15,
+          -2.75
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.28
+      },
+      {
+        "id": "organ_pedestal",
+        "x": [
+          -1.85,
+          1.85
+        ],
+        "y": [
+          0.72,
+          1.02
+        ],
+        "z": [
+          -4.85,
+          -3.55
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "CATHEDRAL_FLOOR",
+        "gloss": 0.44
+      },
+      {
+        "id": "fore_bollard_l",
+        "x": [
+          -5.5,
+          -4.6
+        ],
+        "y": [
+          -0.32,
+          0.86
+        ],
+        "z": [
+          3.15,
+          3.95
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.35,
+        "dofTag": 1
+      },
+      {
+        "id": "fore_bollard_r",
+        "x": [
+          4.6,
+          5.5
+        ],
+        "y": [
+          -0.32,
+          0.86
+        ],
+        "z": [
+          3.15,
+          3.95
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.35,
+        "dofTag": 1
+      }
+    ],
+    "slopes": [
+      {
+        "id": "harbor_stairs",
+        "x": [
+          -1.25,
+          1.25
+        ],
+        "y": [
+          0,
+          0.72
+        ],
+        "z": [
+          -3.05,
+          -1.85
+        ],
+        "direction": "-z",
+        "steps": 5,
+        "tile": "ASHLAR_BLOCK",
+        "gloss": 0.32
+      }
+    ],
+    "props": [
+      {
+        "id": "symphony_arch",
+        "type": "arch_gate",
+        "pos": [
+          0,
+          0.72,
+          -4.45
+        ],
+        "width": 3.3,
+        "height": 3.12,
+        "depth": 0.4,
+        "tile": "ASHLAR_BLOCK",
+        "capTile": "MARBLE_PILLAR",
+        "gloss": 0.46
+      },
+      {
+        "id": "maestro_organ",
+        "type": "organ_pipes",
+        "pos": [
+          0,
+          1.02,
+          -4.55
+        ],
+        "scale": 0.64
+      },
+      {
+        "id": "harbor_pavilion",
+        "type": "gable_pavilion",
+        "pos": [
+          -5.05,
+          0.72,
+          -4.25
+        ],
+        "width": 2.35,
+        "height": 1.72,
+        "depth": 1.6,
+        "tile": "ASHLAR_BLOCK",
+        "capTile": "DARK_IRON"
+      },
+      {
+        "id": "harbor_lighthouse",
+        "type": "lighthouse_tower",
+        "pos": [
+          -2.42,
+          0.72,
+          -4.55
+        ],
+        "radius": 0.44,
+        "height": 2.48
+      },
+      {
+        "id": "balustrade_l",
+        "type": "balustrade",
+        "pos": [
+          -3.95,
+          0.72,
+          -2.88
+        ],
+        "width": 5
+      },
+      {
+        "id": "balustrade_r",
+        "type": "balustrade",
+        "pos": [
+          3.95,
+          0.72,
+          -2.88
+        ],
+        "width": 5
+      },
+      {
+        "id": "lantern_bl",
+        "type": "lantern_post",
+        "pos": [
+          -1.52,
+          0.72,
+          -2.95
+        ],
+        "height": 1.56
+      },
+      {
+        "id": "lantern_br",
+        "type": "lantern_post",
+        "pos": [
+          1.52,
+          0.72,
+          -2.95
+        ],
+        "height": 1.56
+      },
+      {
+        "id": "lantern_r_low",
+        "type": "lantern_post",
+        "pos": [
+          4.45,
+          0.72,
+          -3.15
+        ],
+        "height": 1.18
+      },
+      {
+        "id": "crate_1",
+        "type": "wooden_crate",
+        "pos": [
+          -3.65,
+          0,
+          -1.25
+        ],
+        "scale": 0.74
+      },
+      {
+        "id": "crate_2",
+        "type": "wooden_crate",
+        "pos": [
+          3.65,
+          0,
+          -1.25
+        ],
+        "scale": 0.72
+      }
+    ]
+  },
+  "lighting": {
+    "ambient": [
+      0.3,
+      0.2,
+      0.28
+    ],
+    "keyLight": {
+      "dir": [
+        -0.56,
+        0.56,
+        0.61
+      ],
+      "color": [
+        1,
+        0.7,
+        0.36
+      ],
+      "shadowSkew": [
+        0.58,
+        -0.5
+      ]
+    },
+    "floorGloss": 0.54,
+    "floorSpecTint": [
+      1,
+      0.74,
+      0.38
+    ],
+    "pillarTint": [
+      0.62,
+      0.48,
+      0.44
+    ],
+    "curbTint": [
+      0.6,
+      0.46,
+      0.4
+    ],
+    "sconceColor": [
+      1,
+      0.78,
+      0.34
+    ],
+    "pointLights": [
+      {
+        "id": "lighthouse_beam",
+        "pos": [
+          -2.42,
+          2.9,
+          -4.15
+        ],
+        "color": [
+          1,
+          0.8,
+          0.36
+        ],
+        "intensity": 2.25,
+        "radius": 10,
+        "flicker": 0.05,
+        "phase": 0
+      },
+      {
+        "id": "organ_gold",
+        "pos": [
+          0,
+          2.35,
+          -3.65
+        ],
+        "color": [
+          1,
+          0.74,
+          0.34
+        ],
+        "intensity": 2.05,
+        "radius": 9.2,
+        "flicker": 0.06,
+        "phase": 1.1
+      },
+      {
+        "id": "lamp_bl",
+        "pos": [
+          -1.52,
+          2.4,
+          -2.9
+        ],
+        "color": [
+          1,
+          0.7,
+          0.28
+        ],
+        "intensity": 1.65,
+        "radius": 6.8,
+        "flicker": 0.11,
+        "phase": 1.8
+      },
+      {
+        "id": "lamp_br",
+        "pos": [
+          1.52,
+          2.4,
+          -2.9
+        ],
+        "color": [
+          1,
+          0.7,
+          0.28
+        ],
+        "intensity": 1.45,
+        "radius": 6.4,
+        "flicker": 0.11,
+        "phase": 3.4
+      },
+      {
+        "id": "sea_sunset",
+        "pos": [
+          -4.6,
+          0.9,
+          0.2
+        ],
+        "color": [
+          1,
+          0.54,
+          0.26
+        ],
+        "intensity": 1.65,
+        "radius": 7.8,
+        "flicker": 0.04,
+        "phase": 0.5
+      },
+      {
+        "id": "sea_dusk_r",
+        "pos": [
+          4.8,
+          0.9,
+          0.2
+        ],
+        "color": [
+          0.8,
+          0.48,
+          0.62
+        ],
+        "intensity": 1.3,
+        "radius": 7.4,
+        "flicker": 0.04,
+        "phase": 2.6
+      }
+    ],
+    "lightRays": [
+      {
+        "id": "sunset_1",
+        "top": [
+          -4.2,
+          5.8
+        ],
+        "bot": [
+          -0.8,
+          0
+        ],
+        "z": -2.8,
+        "width": 2.4,
+        "color": [
+          1,
+          0.72,
+          0.34
+        ],
+        "alpha": 0.15
+      },
+      {
+        "id": "sunset_2",
+        "top": [
+          -1.8,
+          5.6
+        ],
+        "bot": [
+          1.4,
+          0
+        ],
+        "z": -2.4,
+        "width": 1.8,
+        "color": [
+          1,
+          0.58,
+          0.3
+        ],
+        "alpha": 0.11
+      }
+    ]
+  },
+  "atmosphere": {
+    "fogColor": [
+      0.22,
+      0.12,
+      0.2
+    ],
+    "fogDensity": 0.036,
+    "particles": {
+      "primary": [
+        1,
+        0.86,
+        0.46
+      ],
+      "secondary": [
+        1,
+        0.58,
+        0.34
+      ],
+      "rise": 0.14,
+      "count": 48
+    }
+  },
+  "postProcess": {
+    "bloomStrength": 0.44,
+    "dofStrength": 0.62,
+    "vignette": 0.42,
+    "grade": [
+      1.06,
+      0.99,
+      0.94
+    ]
+  },
+  "anchors": [
+    {
+      "id": "hero",
+      "role": "player",
+      "pos": [
+        -2.0625,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 1.75,
+      "spriteStyle": "adventurer",
+      "ringColor": [
+        0.36,
+        0.96,
+        0.66
+      ]
+    },
+    {
+      "id": "enemy",
+      "role": "enemy",
+      "pos": [
+        2.28125,
+        0,
+        0
+      ],
+      "widthWorld": 2.35,
+      "heightWorld": 2.35,
+      "spriteStyle": "golem_knight",
+      "ringColor": [
+        1,
+        0.76,
+        0.36
+      ]
+    }
+  ],
+  "gameplay": {
+    "gridSize": 1,
+    "walkableCells": [],
+    "triggers": []
+  }
+}
