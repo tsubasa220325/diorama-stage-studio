@@ -199,6 +199,16 @@ test('v0.7.0 Art-First concave bay mesh, 2.5D cutouts schema, and Rhysmodia adap
   assert.equal(rt.cutouts.length, 1);
   assert.equal(rt.cutouts[0].beatAnim, 'pendulum');
   assert.deepEqual(rt.cutouts[0].pivotUv, [0.5, 0.06]);
+
+  const root = new URL('..', import.meta.url).pathname;
+  const unityApplier = readFileSync(join(root, 'adapters/unity-urp/Runtime/DioramaStageApplier.cs'), 'utf8');
+  const unityCutout = readFileSync(join(root, 'adapters/unity-urp/Runtime/DioramaCutoutAnimator.cs'), 'utf8');
+  const godotImport = readFileSync(join(root, 'adapters/godot4/diorama_stage_import.gd'), 'utf8');
+  const threeLoader = readFileSync(join(root, 'adapters/threejs/loadDioramaStage.js'), 'utf8');
+  assert.ok(unityApplier.includes('dualBloomScatter') && unityApplier.includes('SetBeats'));
+  assert.ok(unityCutout.includes('CutoutBeatMotion.Pendulum') && unityCutout.includes('ApplyBeat'));
+  assert.ok(godotImport.includes('DioramaCutouts') && godotImport.includes('Sprite3D'));
+  assert.ok(threeLoader.includes('loadDioramaCutouts') && threeLoader.includes('updateDioramaCutouts'));
 });
 
 test('public code and UI contain no standalone trademarked "HD-2D" / "HD2D" strings', () => {

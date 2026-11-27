@@ -1,9 +1,9 @@
 {
   "name": "com.tsubasa220325.diorama-stage-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "Diorama Stage Kit (URP)",
   "unity": "6000.0",
-  "description": "Imports 2.5D pixel-art diorama stages (.glb + stage.diorama.json) from Diorama Stage Studio into Unity URP with Point filtering, dynamic lighting, and DoF/Bloom setup.",
+  "description": "Imports 2.5D pixel-art diorama stages (.glb + stage.diorama.json v0.7.0) from Diorama Stage Studio into Unity URP with Point filtering, dual-scale bloom scatter, chromatic ambient bounce, and beat-synced 2.5D cutout animation.",
   "dependencies": {
     "com.unity.render-pipelines.universal": "17.0.0",
     "com.unity.cloud.gltfast": "6.21.0"
