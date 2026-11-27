@@ -27,12 +27,12 @@ INTRO_MD = """# 2.5D Diorama Stage Asset Studio (Google Colab GPU × Google Driv
 
 **Diorama Stage Studio**（https://tsubasa220325.github.io/diorama-stage-studio/）と連携し、**Mac の SSD を 1 MB も消費せず**に背景美術・シームレス床タイル・Sobel 法線マップをクラウド GPU で一括生成する専用ノートブックです。
 
-### 特徴
+### 特徴（v0.7.2）
 1. **商用クリーン標準**：`FLUX.2-klein-4B`（Apache 2.0・4 ステップ高速）および `Z-Image-Turbo`（Apache 2.0）を採用。
 2. **Drive 共有キャッシュ**：`MyDrive/AI_Studio/hf_cache` にモデルをキャッシュし、2 回目以降の再取得を不要化。
-3. **ドット絵 PBR 自動後処理**：生成したタイル画像をニアレスト縮小（64×64 / 256×256）＋ **Sobel タンジェント法線マップ（`*_normal.png`）** 同時出力。
-4. **商用証跡台帳**：生成物ごとにモデル ID・ライセンス・Seed を `asset_ledger.csv` と `.json` に自動記録。
-5. **CU 節約自動切断**：バッチ完了後に `runtime.unassign()` を自動実行可能。
+3. **ゼロフリンジ 2.5D 切り抜き小物抽出（`kind: "cutout"`）**：四隅クロマ自動サンプル → 4 連結境界フラッドフィル → 2px 境界色滲みデスピル → 回転軸（`top`/`bottom`）揃えの自動トリムで透過 WebP を生成。
+4. **ドット絵 PBR 自動後処理**：生成したタイル画像をニアレスト縮小（64×64 / 256×256）＋ **Sobel タンジェント法線マップ（`*_normal.png`）** 同時出力。
+5. **商用証跡台帳＆CU 節約自動切断**：生成物ごとにモデル ID・ライセンス・Seed を `asset_ledger.csv` / `.provenance.json` に自動記録し、完了後に `runtime.unassign()` を自動実行可能。
 
 > **推奨ランタイム**：メニュー「ランタイム」→「ランタイムのタイプを変更」→ **L4 GPU**（T4 でも CPU オフロードで動作）。
 """
@@ -174,6 +174,85 @@ def generate_sobel_normal(img: Image.Image, strength: float = 2.6) -> Image.Imag
     return Image.fromarray(np.stack([nx, ny, nz, alpha], axis=-1), mode="RGBA")
 
 
+def extract_zero_fringe_cutout(
+    img: Image.Image,
+    target_w: int,
+    target_h: int,
+    chroma: str = "green",
+    pivot_align: str = "bottom",
+) -> Image.Image:
+    from collections import deque
+
+    arr = np.asarray(img.convert("RGBA"), dtype=np.int16).copy()
+    h, w, _ = arr.shape
+    patch = max(2, min(8, min(w, h) // 16))
+    corners = [arr[:patch, :patch, :3], arr[:patch, -patch:, :3], arr[-patch:, :patch, :3], arr[-patch:, -patch:, :3]]
+    key_rgb = np.mean(np.concatenate([c.reshape(-1, 3) for c in corners], axis=0), axis=0)
+
+    r, g, b, a = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2], arr[:, :, 3]
+    dist = np.sqrt((r - key_rgb[0]) ** 2 + (g - key_rgb[1]) ** 2 + (b - key_rgb[2]) ** 2)
+    dom = (np.minimum(r, b) - g) if chroma == "magenta" else (g - np.maximum(r, b))
+    cand = (a < 24) | ((dist < 105) & (dom > 22)) | ((dom > 52) & (dist < 165))
+
+    bg = np.zeros((h, w), dtype=bool)
+    q = deque()
+    for x in range(w):
+        if cand[0, x] and not bg[0, x]:
+            bg[0, x] = True; q.append((0, x))
+        if cand[h - 1, x] and not bg[h - 1, x]:
+            bg[h - 1, x] = True; q.append((h - 1, x))
+    for y in range(1, h - 1):
+        if cand[y, 0] and not bg[y, 0]:
+            bg[y, 0] = True; q.append((y, 0))
+        if cand[y, w - 1] and not bg[y, w - 1]:
+            bg[y, w - 1] = True; q.append((y, w - 1))
+    while q:
+        cy, cx = q.popleft()
+        for ny, nx in ((cy - 1, cx), (cy + 1, cx), (cy, cx - 1), (cy, cx + 1)):
+            if 0 <= ny < h and 0 <= nx < w and not bg[ny, nx] and cand[ny, nx]:
+                bg[ny, nx] = True
+                q.append((ny, nx))
+
+    arr[bg] = 0
+    trans = arr[:, :, 3] < 24
+    ring1 = (~trans) & (
+        np.roll(trans, 1, 0) | np.roll(trans, -1, 0) | np.roll(trans, 1, 1) | np.roll(trans, -1, 1)
+    )
+    arr[ring1 & (dom > 34)] = 0
+    trans = arr[:, :, 3] < 24
+    ring1 = (~trans) & (
+        np.roll(trans, 1, 0) | np.roll(trans, -1, 0) | np.roll(trans, 1, 1) | np.roll(trans, -1, 1)
+    )
+    ring2 = (~trans) & (
+        ring1 | np.roll(ring1, 1, 0) | np.roll(ring1, -1, 0) | np.roll(ring1, 1, 1) | np.roll(ring1, -1, 1)
+    )
+    despill = ring2 & (dom > 6)
+    if chroma == "magenta":
+        cap = np.minimum(255, arr[:, :, 2 - 1] + 4)
+        spill = np.maximum(0, np.minimum(arr[:, :, 0], arr[:, :, 2]) - cap)
+        arr[:, :, 0] = np.where(despill, np.maximum(0, arr[:, :, 0] - spill), arr[:, :, 0])
+        arr[:, :, 2] = np.where(despill, np.maximum(0, arr[:, :, 2] - spill), arr[:, :, 2])
+    else:
+        limit = np.maximum(arr[:, :, 0], arr[:, :, 2]) + 2
+        arr[:, :, 1] = np.where(despill, np.minimum(arr[:, :, 1], limit), arr[:, :, 1])
+
+    rgba = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), mode="RGBA")
+    bbox = rgba.getbbox()
+    if not bbox:
+        return Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
+    cropped = rgba.crop(bbox)
+    margin = 4
+    scale = min((target_w - margin * 2) / max(1, cropped.width), (target_h - margin * 2) / max(1, cropped.height))
+    sw = max(1, round(cropped.width * scale))
+    sh = max(1, round(cropped.height * scale))
+    scaled = cropped.resize((sw, sh), Image.Resampling.NEAREST)
+    out = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
+    ox = (target_w - sw) // 2
+    oy = margin if pivot_align == "top" else ((target_h - sh) // 2 if pivot_align == "center" else max(0, target_h - margin - sh))
+    out.paste(scaled, (ox, oy), scaled)
+    return out
+
+
 def record_provenance(out_dir: Path, row: dict):
     ledger = out_dir / "asset_ledger.csv"
     exists = ledger.exists()
@@ -263,7 +342,18 @@ for job in batch["jobs"]:
 
     out_name = job.get("output_filename", f"{job['id']}.png")
     out_path = batch_out / out_name
-    if out_path.suffix.lower() == ".webp":
+    kind = job.get("kind", "")
+    if kind == "cutout" or out_name.startswith("prop_"):
+        tw = int(job.get("target_width", 192))
+        th = int(job.get("target_height", 256))
+        img = extract_zero_fringe_cutout(
+            img, tw, th,
+            chroma=job.get("chroma", "green"),
+            pivot_align=job.get("pivot_align", "bottom"),
+        )
+        img.save(out_path, format="WEBP" if out_path.suffix.lower() == ".webp" else "PNG", quality=92, method=6)
+        print(f"  -> Zero-fringe cutout: {out_path.name} ({tw}x{th})")
+    elif out_path.suffix.lower() == ".webp":
         img.save(out_path, format="WEBP", quality=90, method=6)
     else:
         img.save(out_path)

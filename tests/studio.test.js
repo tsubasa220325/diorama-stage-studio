@@ -93,9 +93,11 @@ test('3D viewport raycast (invertMat4 + unprojectRayToPlaneY) accurately round-t
 
 test('Google Cloud Shell & Colab GPU kit files exist and notebook is valid nbformat 4 JSON', () => {
   const root = new URL('..', import.meta.url).pathname;
-  const nb = JSON.parse(readFileSync(join(root, 'colab/Diorama_Stage_Asset_Studio.ipynb'), 'utf8'));
+  const nbText = readFileSync(join(root, 'colab/Diorama_Stage_Asset_Studio.ipynb'), 'utf8');
+  const nb = JSON.parse(nbText);
   assert.equal(nb.nbformat, 4);
   assert.ok(nb.cells.length >= 4);
+  assert.ok(nbText.includes('extract_zero_fringe_cutout'), 'v0.7.2 zero-fringe cutout extractor synced in Colab notebook');
   const tutorial = readFileSync(join(root, 'cloud/cloudshell-tutorial.md'), 'utf8');
   assert.ok(tutorial.includes('node cloud/dev-server.mjs'));
 });
