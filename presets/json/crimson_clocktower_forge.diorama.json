@@ -1,0 +1,1312 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "crimson_clocktower_forge",
+    "name": "13. 深紅の時計塔・溶岩パイプ工房（16:9 ワイド多層ジオラマ）",
+    "preset": "rpg-field-16:9",
+    "aspect": [
+      16,
+      9
+    ],
+    "worldScalePpu": 64,
+    "tags": [
+      "generic",
+      "forge",
+      "volcanic",
+      "clocktower",
+      "16:9"
+    ]
+  },
+  "camera": {
+    "fovDeg": 31,
+    "pitchDeg": 25,
+    "distance": 15.6,
+    "target": [
+      0,
+      0.95,
+      -0.5
+    ],
+    "focusZ": -0.2,
+    "sway": {
+      "x": 0.24,
+      "y": 0.04
+    }
+  },
+  "atlas": {
+    "source": "builtin-v1",
+    "tileSizePx": 64,
+    "grid": [
+      4,
+      4
+    ],
+    "normalStrength": 2.6
+  },
+  "backdrop": {
+    "mode": "vista",
+    "imageRef": null,
+    "colorTop": [
+      0.12,
+      0.02,
+      0.05
+    ],
+    "colorBottom": [
+      0.54,
+      0.12,
+      0.06
+    ],
+    "accentColor": [
+      1,
+      0.56,
+      0.18
+    ],
+    "floorV": 0.7,
+    "wallShade": 0.8,
+    "z": -8.6
+  },
+  "geometry": {
+    "floors": [
+      {
+        "id": "basalt_pit",
+        "x": [
+          -11,
+          11
+        ],
+        "y": -0.45,
+        "z": [
+          -7.5,
+          6.8
+        ],
+        "tile": "DARK_IRON",
+        "repeat": [
+          10,
+          7
+        ],
+        "gloss": 0.72,
+        "receiveRings": false
+      },
+      {
+        "id": "forge_deck",
+        "x": [
+          -5.8,
+          5.8
+        ],
+        "y": 0,
+        "z": [
+          -2,
+          2.8
+        ],
+        "tile": "CRYPT_COBBLE",
+        "repeat": [
+          6,
+          3
+        ],
+        "gloss": 0.4,
+        "receiveRings": true
+      },
+      {
+        "id": "carpet_center",
+        "x": [
+          -1.4,
+          1.4
+        ],
+        "y": 0.008,
+        "z": [
+          -2,
+          2.6
+        ],
+        "tile": "CARPET_RUNNER",
+        "repeat": [
+          1,
+          3
+        ],
+        "gloss": 0.16,
+        "receiveRings": true
+      },
+      {
+        "id": "furnace_deck",
+        "x": [
+          -6.6,
+          6.6
+        ],
+        "y": 1.25,
+        "z": [
+          -5.8,
+          -2.5
+        ],
+        "tile": "CATHEDRAL_FLOOR",
+        "repeat": [
+          7,
+          2
+        ],
+        "gloss": 0.56,
+        "receiveRings": false
+      }
+    ],
+    "boxes": [
+      {
+        "id": "magma_crust_l",
+        "x": [
+          -9.8,
+          -6.05
+        ],
+        "y": [
+          -0.45,
+          -0.32
+        ],
+        "z": [
+          -5.8,
+          4.8
+        ],
+        "sideTile": "CRYPT_COBBLE",
+        "topTile": "CRYPT_COBBLE",
+        "gloss": 0.82
+      },
+      {
+        "id": "magma_rim_l",
+        "x": [
+          -7.85,
+          -6.85
+        ],
+        "y": [
+          -0.32,
+          -0.28
+        ],
+        "z": [
+          -5.6,
+          4.5
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.45,
+        "emissive": 0.68
+      },
+      {
+        "id": "magma_vein_l",
+        "x": [
+          -7.52,
+          -7.18
+        ],
+        "y": [
+          -0.28,
+          -0.24
+        ],
+        "z": [
+          -5.5,
+          4.4
+        ],
+        "sideTile": "FLAME_CORE",
+        "topTile": "FLAME_CORE",
+        "gloss": 0.3,
+        "emissive": 1.02
+      },
+      {
+        "id": "magma_crust_r",
+        "x": [
+          6.05,
+          9.8
+        ],
+        "y": [
+          -0.45,
+          -0.32
+        ],
+        "z": [
+          -5.8,
+          4.8
+        ],
+        "sideTile": "CRYPT_COBBLE",
+        "topTile": "CRYPT_COBBLE",
+        "gloss": 0.82
+      },
+      {
+        "id": "magma_rim_r",
+        "x": [
+          6.85,
+          7.85
+        ],
+        "y": [
+          -0.32,
+          -0.28
+        ],
+        "z": [
+          -5.6,
+          4.5
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.45,
+        "emissive": 0.68
+      },
+      {
+        "id": "magma_vein_r",
+        "x": [
+          7.18,
+          7.52
+        ],
+        "y": [
+          -0.28,
+          -0.24
+        ],
+        "z": [
+          -5.5,
+          4.4
+        ],
+        "sideTile": "FLAME_CORE",
+        "topTile": "FLAME_CORE",
+        "gloss": 0.3,
+        "emissive": 1.02
+      },
+      {
+        "id": "magma_crust_f",
+        "x": [
+          -6.05,
+          6.05
+        ],
+        "y": [
+          -0.45,
+          -0.32
+        ],
+        "z": [
+          3.02,
+          4.75
+        ],
+        "sideTile": "CRYPT_COBBLE",
+        "topTile": "CRYPT_COBBLE",
+        "gloss": 0.82
+      },
+      {
+        "id": "magma_rim_f",
+        "x": [
+          -6.1,
+          6.1
+        ],
+        "y": [
+          -0.32,
+          -0.28
+        ],
+        "z": [
+          3.38,
+          4.18
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.45,
+        "emissive": 0.64
+      },
+      {
+        "id": "magma_vein_f",
+        "x": [
+          -5.9,
+          5.9
+        ],
+        "y": [
+          -0.28,
+          -0.24
+        ],
+        "z": [
+          3.62,
+          3.94
+        ],
+        "sideTile": "FLAME_CORE",
+        "topTile": "FLAME_CORE",
+        "gloss": 0.3,
+        "emissive": 0.96
+      },
+      {
+        "id": "strut_l1",
+        "x": [
+          -9.8,
+          -5.85
+        ],
+        "y": [
+          -0.32,
+          -0.1
+        ],
+        "z": [
+          -1.15,
+          -0.75
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "strut_l2",
+        "x": [
+          -9.8,
+          -5.85
+        ],
+        "y": [
+          -0.32,
+          -0.1
+        ],
+        "z": [
+          1.15,
+          1.55
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "strut_r1",
+        "x": [
+          5.85,
+          9.8
+        ],
+        "y": [
+          -0.32,
+          -0.1
+        ],
+        "z": [
+          -1.15,
+          -0.75
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "strut_r2",
+        "x": [
+          5.85,
+          9.8
+        ],
+        "y": [
+          -0.32,
+          -0.1
+        ],
+        "z": [
+          1.15,
+          1.55
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "strut_f1",
+        "x": [
+          -3.4,
+          -2.9
+        ],
+        "y": [
+          -0.32,
+          -0.06
+        ],
+        "z": [
+          2.85,
+          4.7
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "strut_f2",
+        "x": [
+          2.9,
+          3.4
+        ],
+        "y": [
+          -0.32,
+          -0.06
+        ],
+        "z": [
+          2.85,
+          4.7
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "iron_border_f",
+        "x": [
+          -6,
+          6
+        ],
+        "y": [
+          -0.35,
+          0.05
+        ],
+        "z": [
+          2.6,
+          2.95
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.42
+      },
+      {
+        "id": "iron_border_l",
+        "x": [
+          -6.05,
+          -5.8
+        ],
+        "y": [
+          -0.35,
+          0.05
+        ],
+        "z": [
+          -2.1,
+          2.95
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.42
+      },
+      {
+        "id": "iron_border_r",
+        "x": [
+          5.8,
+          6.05
+        ],
+        "y": [
+          -0.35,
+          0.05
+        ],
+        "z": [
+          -2.1,
+          2.95
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.42
+      },
+      {
+        "id": "furnace_wall_c",
+        "x": [
+          -2.4,
+          2.4
+        ],
+        "y": [
+          -0.4,
+          1.25
+        ],
+        "z": [
+          -2.75,
+          -2.2
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.52
+      },
+      {
+        "id": "furnace_wall_l",
+        "x": [
+          -6.8,
+          -4.4
+        ],
+        "y": [
+          -0.4,
+          1.25
+        ],
+        "z": [
+          -2.75,
+          -2.2
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.38
+      },
+      {
+        "id": "furnace_wall_r",
+        "x": [
+          4.4,
+          6.8
+        ],
+        "y": [
+          -0.4,
+          1.25
+        ],
+        "z": [
+          -2.75,
+          -2.2
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.38
+      },
+      {
+        "id": "furnace_hearth",
+        "x": [
+          -1.55,
+          1.55
+        ],
+        "y": [
+          0.18,
+          0.96
+        ],
+        "z": [
+          -2.24,
+          -2.16
+        ],
+        "sideTile": "GOLD_PIPES",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.3,
+        "emissive": 0.72
+      },
+      {
+        "id": "furnace_ember_slit",
+        "x": [
+          -1.35,
+          1.35
+        ],
+        "y": [
+          0.22,
+          0.48
+        ],
+        "z": [
+          -2.18,
+          -2.12
+        ],
+        "sideTile": "FLAME_CORE",
+        "topTile": "FLAME_CORE",
+        "gloss": 0.2,
+        "emissive": 1.06
+      },
+      {
+        "id": "grate_bar_1",
+        "x": [
+          -1.18,
+          -1.04
+        ],
+        "y": [
+          0.14,
+          1
+        ],
+        "z": [
+          -2.14,
+          -2.04
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "grate_bar_2",
+        "x": [
+          -0.62,
+          -0.48
+        ],
+        "y": [
+          0.14,
+          1
+        ],
+        "z": [
+          -2.14,
+          -2.04
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "grate_bar_3",
+        "x": [
+          -0.07,
+          0.07
+        ],
+        "y": [
+          0.14,
+          1
+        ],
+        "z": [
+          -2.14,
+          -2.04
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "grate_bar_4",
+        "x": [
+          0.48,
+          0.62
+        ],
+        "y": [
+          0.14,
+          1
+        ],
+        "z": [
+          -2.14,
+          -2.04
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "grate_bar_5",
+        "x": [
+          1.04,
+          1.18
+        ],
+        "y": [
+          0.14,
+          1
+        ],
+        "z": [
+          -2.14,
+          -2.04
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "DARK_IRON",
+        "gloss": 0.45
+      },
+      {
+        "id": "grate_lintel",
+        "x": [
+          -1.68,
+          1.68
+        ],
+        "y": [
+          0.94,
+          1.08
+        ],
+        "z": [
+          -2.22,
+          -2.02
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.5
+      },
+      {
+        "id": "overhead_beam",
+        "x": [
+          -6.8,
+          6.8
+        ],
+        "y": [
+          5.35,
+          5.9
+        ],
+        "z": [
+          -4.9,
+          -4
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.55
+      }
+    ],
+    "slopes": [
+      {
+        "id": "forge_stairs_l",
+        "x": [
+          -4.4,
+          -2.4
+        ],
+        "y": [
+          0,
+          1.25
+        ],
+        "z": [
+          -2.75,
+          -1.25
+        ],
+        "direction": "-z",
+        "steps": 6,
+        "tile": "DARK_IRON",
+        "gloss": 0.38
+      },
+      {
+        "id": "forge_stairs_r",
+        "x": [
+          2.4,
+          4.4
+        ],
+        "y": [
+          0,
+          1.25
+        ],
+        "z": [
+          -2.75,
+          -1.25
+        ],
+        "direction": "-z",
+        "steps": 6,
+        "tile": "DARK_IRON",
+        "gloss": 0.38
+      }
+    ],
+    "props": [
+      {
+        "id": "iron_pillar_fl",
+        "type": "pillar",
+        "pos": [
+          -5.6,
+          0,
+          -1.9
+        ],
+        "radius": 0.44,
+        "height": 5.8,
+        "tile": "DARK_IRON",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.46
+      },
+      {
+        "id": "iron_pillar_fr",
+        "type": "pillar",
+        "pos": [
+          5.6,
+          0,
+          -1.9
+        ],
+        "radius": 0.44,
+        "height": 5.8,
+        "tile": "DARK_IRON",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.46
+      },
+      {
+        "id": "iron_pillar_bl",
+        "type": "pillar",
+        "pos": [
+          -4.2,
+          1.25,
+          -4.6
+        ],
+        "radius": 0.38,
+        "height": 4.6,
+        "tile": "DARK_IRON",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.48
+      },
+      {
+        "id": "iron_pillar_br",
+        "type": "pillar",
+        "pos": [
+          4.2,
+          1.25,
+          -4.6
+        ],
+        "radius": 0.38,
+        "height": 4.6,
+        "tile": "DARK_IRON",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.48
+      },
+      {
+        "id": "mega_organ",
+        "type": "organ_pipes",
+        "pos": [
+          0,
+          1.25,
+          -4.95
+        ],
+        "scale": 1.25
+      },
+      {
+        "id": "bell_l",
+        "type": "hanging_bell",
+        "pos": [
+          -2.6,
+          3.25,
+          -4.35
+        ],
+        "scale": 1.1
+      },
+      {
+        "id": "bell_r",
+        "type": "hanging_bell",
+        "pos": [
+          2.6,
+          3.25,
+          -4.35
+        ],
+        "scale": 1.1
+      },
+      {
+        "id": "curtain_l",
+        "type": "velvet_curtain",
+        "pos": [
+          -6.4,
+          1.25,
+          -3.2
+        ],
+        "width": 1.1,
+        "height": 4.3
+      },
+      {
+        "id": "curtain_r",
+        "type": "velvet_curtain",
+        "pos": [
+          6.4,
+          1.25,
+          -3.2
+        ],
+        "width": 1.1,
+        "height": 4.3
+      },
+      {
+        "id": "brazier_fl",
+        "type": "brazier",
+        "pos": [
+          -5,
+          0,
+          2
+        ],
+        "height": 1.38
+      },
+      {
+        "id": "brazier_fr",
+        "type": "brazier",
+        "pos": [
+          5,
+          0,
+          2
+        ],
+        "height": 1.38
+      },
+      {
+        "id": "brazier_ul",
+        "type": "brazier",
+        "pos": [
+          -5.3,
+          1.25,
+          -2.9
+        ],
+        "height": 1.32
+      },
+      {
+        "id": "brazier_ur",
+        "type": "brazier",
+        "pos": [
+          5.3,
+          1.25,
+          -2.9
+        ],
+        "height": 1.32
+      },
+      {
+        "id": "fl_1",
+        "type": "footlight",
+        "pos": [
+          -3.2,
+          0,
+          2.55
+        ]
+      },
+      {
+        "id": "fl_2",
+        "type": "footlight",
+        "pos": [
+          -1.6,
+          0,
+          2.55
+        ]
+      },
+      {
+        "id": "fl_3",
+        "type": "footlight",
+        "pos": [
+          0,
+          0,
+          2.55
+        ]
+      },
+      {
+        "id": "fl_4",
+        "type": "footlight",
+        "pos": [
+          1.6,
+          0,
+          2.55
+        ]
+      },
+      {
+        "id": "fl_5",
+        "type": "footlight",
+        "pos": [
+          3.2,
+          0,
+          2.55
+        ]
+      }
+    ]
+  },
+  "lighting": {
+    "ambient": [
+      0.24,
+      0.1,
+      0.14
+    ],
+    "keyLight": {
+      "dir": [
+        -0.32,
+        0.78,
+        0.54
+      ],
+      "color": [
+        1,
+        0.62,
+        0.26
+      ],
+      "shadowSkew": [
+        0.38,
+        -0.56
+      ]
+    },
+    "floorGloss": 0.56,
+    "floorSpecTint": [
+      1,
+      0.54,
+      0.22
+    ],
+    "pillarTint": [
+      0.54,
+      0.24,
+      0.22
+    ],
+    "curbTint": [
+      0.58,
+      0.28,
+      0.22
+    ],
+    "sconceColor": [
+      1,
+      0.56,
+      0.16
+    ],
+    "pointLights": [
+      {
+        "id": "furnace_heart",
+        "pos": [
+          0,
+          0.9,
+          -1.8
+        ],
+        "color": [
+          1,
+          0.36,
+          0.1
+        ],
+        "intensity": 2.8,
+        "radius": 9.5,
+        "flicker": 0.18,
+        "phase": 0.2
+      },
+      {
+        "id": "organ_gold",
+        "pos": [
+          0,
+          3.6,
+          -4.1
+        ],
+        "color": [
+          1,
+          0.72,
+          0.28
+        ],
+        "intensity": 2.35,
+        "radius": 10.5,
+        "flicker": 0.08,
+        "phase": 1.4
+      },
+      {
+        "id": "lava_l",
+        "pos": [
+          -6.8,
+          0.8,
+          0.6
+        ],
+        "color": [
+          1,
+          0.26,
+          0.08
+        ],
+        "intensity": 2.4,
+        "radius": 8.4,
+        "flicker": 0.16,
+        "phase": 0.9
+      },
+      {
+        "id": "lava_r",
+        "pos": [
+          6.8,
+          0.8,
+          0.6
+        ],
+        "color": [
+          1,
+          0.26,
+          0.08
+        ],
+        "intensity": 2.4,
+        "radius": 8.4,
+        "flicker": 0.16,
+        "phase": 2.7
+      },
+      {
+        "id": "forge_fl",
+        "pos": [
+          -5,
+          1.9,
+          2
+        ],
+        "color": [
+          1,
+          0.62,
+          0.22
+        ],
+        "intensity": 1.75,
+        "radius": 6.4,
+        "flicker": 0.14,
+        "phase": 3.5
+      },
+      {
+        "id": "forge_fr",
+        "pos": [
+          5,
+          1.9,
+          2
+        ],
+        "color": [
+          1,
+          0.62,
+          0.22
+        ],
+        "intensity": 1.75,
+        "radius": 6.4,
+        "flicker": 0.14,
+        "phase": 4.8
+      }
+    ],
+    "lightRays": [
+      {
+        "id": "forge_ray_1",
+        "top": [
+          -3.6,
+          6.4
+        ],
+        "bot": [
+          -0.8,
+          0
+        ],
+        "z": -2.4,
+        "width": 2.2,
+        "color": [
+          1,
+          0.54,
+          0.22
+        ],
+        "alpha": 0.17
+      },
+      {
+        "id": "forge_ray_2",
+        "top": [
+          0,
+          6.4
+        ],
+        "bot": [
+          0,
+          1.2
+        ],
+        "z": -3.6,
+        "width": 2.5,
+        "color": [
+          1,
+          0.72,
+          0.3
+        ],
+        "alpha": 0.16
+      },
+      {
+        "id": "forge_ray_3",
+        "top": [
+          3.6,
+          6.4
+        ],
+        "bot": [
+          1.2,
+          0
+        ],
+        "z": -2.4,
+        "width": 2,
+        "color": [
+          1,
+          0.36,
+          0.28
+        ],
+        "alpha": 0.14
+      }
+    ]
+  },
+  "atmosphere": {
+    "fogColor": [
+      0.15,
+      0.03,
+      0.06
+    ],
+    "fogDensity": 0.052,
+    "particles": {
+      "primary": [
+        1,
+        0.76,
+        0.26
+      ],
+      "secondary": [
+        1,
+        0.32,
+        0.18
+      ],
+      "rise": 0.48,
+      "count": 68
+    }
+  },
+  "postProcess": {
+    "bloomStrength": 0.48,
+    "dofStrength": 0.72,
+    "vignette": 0.5,
+    "grade": [
+      1.08,
+      0.96,
+      0.92
+    ]
+  },
+  "anchors": [
+    {
+      "id": "hero",
+      "role": "player",
+      "pos": [
+        0,
+        0,
+        1.1
+      ],
+      "widthWorld": 1.65,
+      "heightWorld": 1.65,
+      "spriteStyle": "adventurer",
+      "ringColor": [
+        0.36,
+        0.96,
+        0.66
+      ]
+    },
+    {
+      "id": "boss_forge",
+      "role": "enemy",
+      "pos": [
+        0,
+        1.25,
+        -3.5
+      ],
+      "widthWorld": 2.35,
+      "heightWorld": 2.35,
+      "spriteStyle": "golem_knight",
+      "ringColor": [
+        1,
+        0.34,
+        0.24
+      ]
+    },
+    {
+      "id": "guard_l",
+      "role": "enemy",
+      "pos": [
+        -3.4,
+        0,
+        0.2
+      ],
+      "widthWorld": 1.5,
+      "heightWorld": 1.5,
+      "spriteStyle": "slime_orb",
+      "ringColor": [
+        1,
+        0.56,
+        0.24
+      ]
+    },
+    {
+      "id": "guard_r",
+      "role": "enemy",
+      "pos": [
+        3.4,
+        0,
+        0.2
+      ],
+      "widthWorld": 1.5,
+      "heightWorld": 1.5,
+      "spriteStyle": "slime_orb",
+      "ringColor": [
+        1,
+        0.56,
+        0.24
+      ]
+    }
+  ],
+  "gameplay": {
+    "gridSize": 1,
+    "walkableCells": [
+      {
+        "x": -2,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": -1,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "z": 1,
+        "y": 0
+      },
+      {
+        "x": -3,
+        "z": -2,
+        "y": 0.6,
+        "tag": "stairs_l"
+      },
+      {
+        "x": 3,
+        "z": -2,
+        "y": 0.6,
+        "tag": "stairs_r"
+      },
+      {
+        "x": -1,
+        "z": -3,
+        "y": 1.25,
+        "tag": "boss_deck"
+      },
+      {
+        "x": 0,
+        "z": -3,
+        "y": 1.25,
+        "tag": "boss_deck"
+      },
+      {
+        "x": 1,
+        "z": -3,
+        "y": 1.25,
+        "tag": "boss_deck"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "boss_trigger",
+        "pos": [
+          0,
+          1.25,
+          -3.2
+        ],
+        "radius": 1.8,
+        "event": "START_FORGE_BOSS"
+      }
+    ]
+  }
+}

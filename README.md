@@ -21,17 +21,18 @@
    - ピクセル PBR タイルアトラス（Albedo ＋ 法線マップ ＋ 光沢）とニアレスト補間ドット絵ビルボード
    - 最大 8 灯の動的ポイントライト・ゴッドレイ（光柱）・霧・深度ボケ浮遊パーティクル
    - 被写界深度（DoF）・選択的 HDR ブルーム・Filmic トーンマップ・ビネット・床映り込み反射
-2. **10 種のビルトインプリセット**
-   - 4:3 戦闘ジオラマ 7 種（洞窟・劇場・地下礼拝堂・大理石舞踏室・大聖堂・メトロノームの間・星奏聖域）
-   - 他ゲーム向け汎用 16:9 プリセット 2 種（RPG 石畳広場・タクティカル遺跡段差＋歩行グリッド）
+2. **13 種のビルトインプリセット**
+   - 4:3 戦闘ジオラマ 9 種（洞窟・劇場・地下礼拝堂・大理石舞踏室・大聖堂・メトロノームの間・星奏聖域・**黄昏の港町桟橋**・**氷結の沈没神殿**）
+   - 他ゲーム向け汎用 16:9 プリセット 3 種（RPG 石畳広場・タクティカル遺跡段差＋歩行グリッド・**深紅の時計塔溶岩パイプ工房**）
    - 4:3 月夜ビスタ背景 1 種
+   - 単体ステージプレビュー・ヘッドレス画像書き出し用 `render.html?stage=<id>` 付属
 3. **Mac の容量を食わない保存・連携ワークフロー**
    - **File System Access API（Chrome / Edge）**: ブラウザから直接ローカルのゲームフォルダへ上書き保存
    - **GitHub REST API 直接コミット**: Mac にクローンせず GitHub 上のステージ JSON を直接更新
    - **ブラウザ内 Sobel 法線マップ工房**: 2D タイル画像から法線マップ PNG を即時生成（0 CU）
    - **Google Colab GPU 連携**: 商用安全モデル（Apache-2.0 `FLUX.2-klein-4B` 等）用 `colab_jobs.json` 書き出し
 4. **マルチエンジン書き出し＆導入アダプタ**
-   - **`stage.diorama.json`（v1）＆ 静的プリセット URL**: 全 10 プリセットを `https://tsubasa220325.github.io/diorama-stage-studio/presets/json/<id>.diorama.json` として配信。リズモディア Web 版は `?stage=sample_arena` または `?stage=https://...` でそのまま読み込めます。
+   - **`stage.diorama.json`（v1）＆ 静的プリセット URL**: 全 13 プリセットを `https://tsubasa220325.github.io/diorama-stage-studio/presets/json/<id>.diorama.json` として配信。リズモディア Web 版は `?stage=sample_arena` または `?stage=https://...` でそのまま読み込めます。
    - **Blockbench Web `.glb` 外部プロップ読込**: 依存ゼロの純 JS `.glb` インポータで、Blockbench Web 製 3D 小物をステージ内へ直接配置（影投影・動的ライト・DoF 対応）。
    - **バイナリ glTF 2.0（`.glb`）書き出し**: ブラウザ内で直接生成。`NEAREST` サンプラ、`KHR_lights_punctual` 光源、`extras.dioramaStage`（DoF・ブルーム・霧・アンカー・歩行グリッド）を完全埋め込み
    - **Unity 6 URP 用 UPM パッケージ**: `https://github.com/tsubasa220325/diorama-stage-studio.git?path=adapters/unity-urp` から直接導入（`glTFast >= 6.21.0` 対応、`FilterMode.Point` & `anisoLevel = 0` 自動強制）
