@@ -480,6 +480,19 @@ function renderInspector() {
       numField('幅 / 半径', item.width ?? item.radius ?? 0.5, 0.1, v => { item.width = v; item.radius = v; }),
     );
     card.append(typeWrap, rP, rS, tileSelect('主タイル', item.tile ?? 'STONE_PILLAR', v => item.tile = v));
+    if (item.type === 'crystal_cluster') {
+      const animWrap = document.createElement('label'); animWrap.className = 'field'; animWrap.textContent = '拍同期モーション';
+      const animSel = document.createElement('select');
+      for (const [val, lbl] of [['', '固定 (静止)'], ['bob', '拍同期浮遊 (Beat Bob)']]) {
+        const o = document.createElement('option'); o.value = val; o.textContent = lbl; if ((item.beatAnim ?? '') === val) o.selected = true;
+        animSel.appendChild(o);
+      }
+      animSel.onchange = () => { pushUndo(); item.beatAnim = animSel.value || undefined; rebuildGeometry(); };
+      animWrap.appendChild(animSel);
+      card.append(animWrap);
+    } else if (item.type === 'clock_pendulum') {
+      card.append(sliderField('拍同期振子スイング幅 (rad)', item.swingAmp ?? 0.42, 0, 0.85, 0.02, v => item.swingAmp = v));
+    }
   } else if (group === 'externalModels') {
     const rP = document.createElement('div'); rP.className = 'row-3';
     rP.append(
@@ -611,7 +624,14 @@ function renderEnvInspector() {
   vistaWrap.className = 'field';
   vistaWrap.textContent = 'プロシージャル遠景スタイル';
   const vistaSel = document.createElement('select');
-  for (const [val, lbl] of [['default', '標準 (月夜ゴシック)'], ['sunset', '夕暮れ海・水平線 (Sunset)'], ['aurora', '極光オーロラ雪山 (Aurora)'], ['clocktower', '時計塔・大歯車 (Clocktower)']]) {
+  for (const [val, lbl] of [
+    ['default', '標準 (月夜ゴシック)'],
+    ['sunset', '夕暮れ海・水平線 (Sunset)'],
+    ['aurora', '極光オーロラ雪山 (Aurora)'],
+    ['clocktower', '時計塔・大歯車 (Clocktower)'],
+    ['carnival', '星屑サーカス三日月 (Carnival)'],
+    ['belfry', '満月のゴシック鐘楼 (Belfry)'],
+  ]) {
     const o = document.createElement('option'); o.value = val; o.textContent = lbl;
     if ((s.backdrop.vistaStyle ?? 'default') === val) o.selected = true;
     vistaSel.appendChild(o);

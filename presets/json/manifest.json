@@ -130,6 +130,26 @@
         3
       ],
       "file": "sunset_grand_amphitheater.diorama.json"
+    },
+    {
+      "id": "quint_clockwork_carnival",
+      "name": "14. [リズモディア変拍子5拍子] 星屑サーカス・五拍子の大時計広場（五拍子の道化師戦）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "quint_clockwork_carnival.diorama.json"
+    },
+    {
+      "id": "sept_seven_bells_belfry",
+      "name": "15. [リズモディア変拍子7拍子] 月光ゴシック鐘楼・七連大鐘の聖堂（七拍子の番人戦）",
+      "preset": "battle-4:3",
+      "aspect": [
+        4,
+        3
+      ],
+      "file": "sept_seven_bells_belfry.diorama.json"
     }
   ]
 }

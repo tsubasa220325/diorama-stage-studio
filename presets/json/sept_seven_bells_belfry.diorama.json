@@ -1,0 +1,833 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "sept_seven_bells_belfry",
+    "name": "15. [リズモディア変拍子7拍子] 月光ゴシック鐘楼・七連大鐘の聖堂（七拍子の番人戦）",
+    "preset": "battle-4:3",
+    "aspect": [
+      4,
+      3
+    ],
+    "worldScalePpu": 64,
+    "tags": [
+      "rhysmodia",
+      "sept",
+      "odd-meter",
+      "7-4",
+      "belfry",
+      "bells",
+      "gothic",
+      "water",
+      "4:3"
+    ]
+  },
+  "camera": {
+    "fovDeg": 30.698299428963676,
+    "pitchDeg": 14.5,
+    "distance": 13.5,
+    "target": [
+      0,
+      0.6455626951235535,
+      0
+    ],
+    "focusZ": 0,
+    "sway": {
+      "x": 0.44,
+      "y": 0.06
+    }
+  },
+  "atlas": {
+    "source": "builtin-v1",
+    "tileSizePx": 64,
+    "grid": [
+      4,
+      4
+    ],
+    "normalStrength": 2.5
+  },
+  "backdrop": {
+    "mode": "vista",
+    "vistaStyle": "belfry",
+    "imageRef": null,
+    "colorTop": [
+      0.025,
+      0.04,
+      0.13
+    ],
+    "colorBottom": [
+      0.11,
+      0.16,
+      0.3
+    ],
+    "accentColor": [
+      0.84,
+      0.92,
+      1
+    ],
+    "floorV": 0.65,
+    "wallShade": 0.94,
+    "z": -7.4
+  },
+  "geometry": {
+    "floors": [
+      {
+        "id": "rain_courtyard",
+        "x": [
+          -10.4,
+          10.4
+        ],
+        "y": -0.32,
+        "z": [
+          -7.2,
+          6.8
+        ],
+        "tile": "WATER_TRENCH",
+        "surface": "water",
+        "repeat": [
+          9,
+          6
+        ],
+        "gloss": 0.96,
+        "receiveRings": false
+      },
+      {
+        "id": "belfry_stone_bridge",
+        "x": [
+          -3.96,
+          3.96
+        ],
+        "y": 0,
+        "z": [
+          -1.78,
+          2.55
+        ],
+        "tile": "CRYPT_COBBLE",
+        "repeat": [
+          5,
+          3
+        ],
+        "gloss": 0.74,
+        "receiveRings": true
+      },
+      {
+        "id": "belfry_nave_inlay",
+        "x": [
+          -1.32,
+          1.32
+        ],
+        "y": 0.008,
+        "z": [
+          -1.78,
+          2.35
+        ],
+        "tile": "CATHEDRAL_FLOOR",
+        "repeat": [
+          2,
+          3
+        ],
+        "gloss": 0.8,
+        "receiveRings": true
+      },
+      {
+        "id": "belfry_terrace",
+        "x": [
+          -6.6,
+          6.6
+        ],
+        "y": 0.84,
+        "z": [
+          -5.4,
+          -3.02
+        ],
+        "tile": "CATHEDRAL_FLOOR",
+        "repeat": [
+          7,
+          2
+        ],
+        "gloss": 0.62,
+        "receiveRings": false
+      }
+    ],
+    "boxes": [
+      {
+        "id": "bridge_curb_f",
+        "x": [
+          -4.14,
+          4.14
+        ],
+        "y": [
+          -0.32,
+          0.04
+        ],
+        "z": [
+          2.5,
+          2.8
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "DARK_IRON",
+        "gloss": 0.5
+      },
+      {
+        "id": "bridge_curb_l",
+        "x": [
+          -4.14,
+          -3.94
+        ],
+        "y": [
+          -0.32,
+          0.12
+        ],
+        "z": [
+          -1.88,
+          2.8
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.48
+      },
+      {
+        "id": "bridge_curb_r",
+        "x": [
+          3.94,
+          4.14
+        ],
+        "y": [
+          -0.32,
+          0.12
+        ],
+        "z": [
+          -1.88,
+          2.8
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.48
+      },
+      {
+        "id": "bridge_curb_b",
+        "x": [
+          -4.14,
+          4.14
+        ],
+        "y": [
+          -0.32,
+          0.04
+        ],
+        "z": [
+          -1.92,
+          -1.74
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.44
+      },
+      {
+        "id": "belfry_wall_c",
+        "x": [
+          -2.05,
+          2.05
+        ],
+        "y": [
+          -0.32,
+          0.84
+        ],
+        "z": [
+          -3.32,
+          -2.96
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "DARK_IRON",
+        "gloss": 0.44
+      },
+      {
+        "id": "belfry_wall_l",
+        "x": [
+          -6.6,
+          -3.45
+        ],
+        "y": [
+          -0.32,
+          0.84
+        ],
+        "z": [
+          -3.32,
+          -2.96
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.4
+      },
+      {
+        "id": "belfry_wall_r",
+        "x": [
+          3.45,
+          6.6
+        ],
+        "y": [
+          -0.32,
+          0.84
+        ],
+        "z": [
+          -3.32,
+          -2.96
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.4
+      },
+      {
+        "id": "crypt_grate",
+        "x": [
+          -1.18,
+          1.18
+        ],
+        "y": [
+          0.14,
+          0.62
+        ],
+        "z": [
+          -2.99,
+          -2.92
+        ],
+        "sideTile": "RUNE_GLASS",
+        "topTile": "RUNE_GLASS",
+        "gloss": 0.8,
+        "emissive": 0.72
+      },
+      {
+        "id": "belfry_beam",
+        "x": [
+          -6.2,
+          6.2
+        ],
+        "y": [
+          4.62,
+          5.05
+        ],
+        "z": [
+          -4.55,
+          -3.8
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.46
+      },
+      {
+        "id": "fore_stone_l",
+        "x": [
+          -5.6,
+          -4.75
+        ],
+        "y": [
+          -0.32,
+          0.92
+        ],
+        "z": [
+          3.08,
+          3.88
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.3,
+        "dofTag": 1
+      },
+      {
+        "id": "fore_stone_r",
+        "x": [
+          4.75,
+          5.6
+        ],
+        "y": [
+          -0.32,
+          0.92
+        ],
+        "z": [
+          3.08,
+          3.88
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "ASHLAR_BLOCK",
+        "gloss": 0.3,
+        "dofTag": 1
+      }
+    ],
+    "slopes": [
+      {
+        "id": "belfry_stairs_l",
+        "x": [
+          -3.45,
+          -2.05
+        ],
+        "y": [
+          0,
+          0.84
+        ],
+        "z": [
+          -3.08,
+          -1.78
+        ],
+        "direction": "-z",
+        "steps": 5,
+        "tile": "ASHLAR_BLOCK",
+        "gloss": 0.46
+      },
+      {
+        "id": "belfry_stairs_r",
+        "x": [
+          2.05,
+          3.45
+        ],
+        "y": [
+          0,
+          0.84
+        ],
+        "z": [
+          -3.08,
+          -1.78
+        ],
+        "direction": "-z",
+        "steps": 5,
+        "tile": "ASHLAR_BLOCK",
+        "gloss": 0.46
+      }
+    ],
+    "props": [
+      {
+        "id": "belfry_arch",
+        "type": "arch_gate",
+        "pos": [
+          0,
+          0.84,
+          -4.48
+        ],
+        "width": 4.1,
+        "height": 3.56,
+        "depth": 0.48,
+        "tile": "ASHLAR_BLOCK",
+        "capTile": "DARK_IRON",
+        "gloss": 0.48
+      },
+      {
+        "id": "belfry_bell_1",
+        "type": "hanging_bell",
+        "pos": [
+          -3.55,
+          2.66,
+          -3.95
+        ],
+        "scale": 0.68
+      },
+      {
+        "id": "belfry_bell_2",
+        "type": "hanging_bell",
+        "pos": [
+          -2.45,
+          2.76,
+          -3.95
+        ],
+        "scale": 0.74
+      },
+      {
+        "id": "belfry_bell_3",
+        "type": "hanging_bell",
+        "pos": [
+          -1.2,
+          2.52,
+          -4.12
+        ],
+        "scale": 0.84
+      },
+      {
+        "id": "belfry_bell_4",
+        "type": "hanging_bell",
+        "pos": [
+          0,
+          2.26,
+          -4.18
+        ],
+        "scale": 1
+      },
+      {
+        "id": "belfry_bell_5",
+        "type": "hanging_bell",
+        "pos": [
+          1.2,
+          2.52,
+          -4.12
+        ],
+        "scale": 0.84
+      },
+      {
+        "id": "belfry_bell_6",
+        "type": "hanging_bell",
+        "pos": [
+          2.45,
+          2.76,
+          -3.95
+        ],
+        "scale": 0.74
+      },
+      {
+        "id": "belfry_bell_7",
+        "type": "hanging_bell",
+        "pos": [
+          3.55,
+          2.66,
+          -3.95
+        ],
+        "scale": 0.68
+      },
+      {
+        "id": "belfry_pillar_fl",
+        "type": "pillar",
+        "pos": [
+          -4.95,
+          0.84,
+          -3.28
+        ],
+        "radius": 0.38,
+        "height": 4.4,
+        "tile": "STONE_PILLAR",
+        "capTile": "ASHLAR_BLOCK",
+        "gloss": 0.46
+      },
+      {
+        "id": "belfry_pillar_fr",
+        "type": "pillar",
+        "pos": [
+          4.95,
+          0.84,
+          -3.28
+        ],
+        "radius": 0.38,
+        "height": 4.4,
+        "tile": "STONE_PILLAR",
+        "capTile": "ASHLAR_BLOCK",
+        "gloss": 0.46
+      },
+      {
+        "id": "belfry_lancet_l",
+        "type": "rune_glass",
+        "pos": [
+          -3.05,
+          0.84,
+          -4.85
+        ],
+        "width": 0.92,
+        "height": 2.05
+      },
+      {
+        "id": "belfry_lancet_r",
+        "type": "rune_glass",
+        "pos": [
+          3.05,
+          0.84,
+          -4.85
+        ],
+        "width": 0.92,
+        "height": 1.72
+      },
+      {
+        "id": "brazier_bl",
+        "type": "brazier",
+        "pos": [
+          -4.1,
+          0.84,
+          -3.12
+        ],
+        "height": 1.18
+      },
+      {
+        "id": "brazier_br",
+        "type": "brazier",
+        "pos": [
+          4.1,
+          0.84,
+          -3.12
+        ],
+        "height": 1.18
+      },
+      {
+        "id": "brazier_fl",
+        "type": "brazier",
+        "pos": [
+          -3.68,
+          0,
+          1.32
+        ],
+        "height": 1.08
+      },
+      {
+        "id": "brazier_fr",
+        "type": "brazier",
+        "pos": [
+          3.68,
+          0,
+          1.32
+        ],
+        "height": 1.08
+      }
+    ]
+  },
+  "lighting": {
+    "ambient": [
+      0.13,
+      0.16,
+      0.28
+    ],
+    "keyLight": {
+      "dir": [
+        0.24,
+        0.84,
+        0.48
+      ],
+      "color": [
+        0.76,
+        0.86,
+        1
+      ],
+      "shadowSkew": [
+        -0.28,
+        -0.56
+      ]
+    },
+    "floorGloss": 0.78,
+    "floorSpecTint": [
+      0.84,
+      0.9,
+      1
+    ],
+    "pillarTint": [
+      0.42,
+      0.48,
+      0.66
+    ],
+    "curbTint": [
+      0.46,
+      0.52,
+      0.68
+    ],
+    "sconceColor": [
+      1,
+      0.66,
+      0.24
+    ],
+    "pointLights": [
+      {
+        "id": "moon_arch",
+        "pos": [
+          0,
+          3.15,
+          -3.85
+        ],
+        "color": [
+          0.74,
+          0.88,
+          1
+        ],
+        "intensity": 2.35,
+        "radius": 11.2,
+        "flicker": 0.03,
+        "phase": 0
+      },
+      {
+        "id": "brazier_amber_fl",
+        "pos": [
+          -3.68,
+          1.45,
+          1.25
+        ],
+        "color": [
+          1,
+          0.62,
+          0.22
+        ],
+        "intensity": 2.25,
+        "radius": 7.8,
+        "flicker": 0.16,
+        "phase": 0.7
+      },
+      {
+        "id": "brazier_amber_fr",
+        "pos": [
+          3.68,
+          1.45,
+          1.25
+        ],
+        "color": [
+          1,
+          0.62,
+          0.22
+        ],
+        "intensity": 2.2,
+        "radius": 7.6,
+        "flicker": 0.16,
+        "phase": 2.3
+      },
+      {
+        "id": "brazier_amber_bl",
+        "pos": [
+          -4.1,
+          2.25,
+          -3.05
+        ],
+        "color": [
+          1,
+          0.6,
+          0.2
+        ],
+        "intensity": 1.75,
+        "radius": 7,
+        "flicker": 0.14,
+        "phase": 3.6
+      },
+      {
+        "id": "brazier_amber_br",
+        "pos": [
+          4.1,
+          2.25,
+          -3.05
+        ],
+        "color": [
+          1,
+          0.6,
+          0.2
+        ],
+        "intensity": 1.5,
+        "radius": 6.5,
+        "flicker": 0.14,
+        "phase": 5
+      },
+      {
+        "id": "crypt_azure",
+        "pos": [
+          0,
+          0.85,
+          -2.25
+        ],
+        "color": [
+          0.46,
+          0.76,
+          1
+        ],
+        "intensity": 1.55,
+        "radius": 7.2,
+        "flicker": 0.06,
+        "phase": 1.4
+      }
+    ],
+    "lightRays": [
+      {
+        "id": "belfry_moon_c",
+        "top": [
+          0,
+          5.9
+        ],
+        "bot": [
+          0,
+          0
+        ],
+        "z": -3.5,
+        "width": 2.6,
+        "color": [
+          0.76,
+          0.88,
+          1
+        ],
+        "alpha": 0.15
+      },
+      {
+        "id": "belfry_moon_l",
+        "top": [
+          -2.2,
+          5.6
+        ],
+        "bot": [
+          -1.1,
+          0
+        ],
+        "z": -2.8,
+        "width": 1.4,
+        "color": [
+          0.64,
+          0.78,
+          1
+        ],
+        "alpha": 0.1
+      }
+    ]
+  },
+  "atmosphere": {
+    "fogColor": [
+      0.04,
+      0.06,
+      0.16
+    ],
+    "fogDensity": 0.046,
+    "particles": {
+      "primary": [
+        1,
+        0.78,
+        0.36
+      ],
+      "secondary": [
+        0.62,
+        0.84,
+        1
+      ],
+      "rise": 0.2,
+      "count": 56
+    }
+  },
+  "postProcess": {
+    "bloomStrength": 0.45,
+    "dofStrength": 0.6,
+    "vignette": 0.48,
+    "grade": [
+      0.98,
+      1,
+      1.07
+    ]
+  },
+  "anchors": [
+    {
+      "id": "hero",
+      "role": "player",
+      "pos": [
+        -2.0625,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 1.75,
+      "spriteStyle": "adventurer",
+      "ringColor": [
+        0.36,
+        0.96,
+        0.66
+      ]
+    },
+    {
+      "id": "enemy",
+      "role": "enemy",
+      "pos": [
+        2.28125,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 2,
+      "spriteStyle": "golem_knight",
+      "ringColor": [
+        0.44,
+        0.72,
+        1
+      ]
+    }
+  ],
+  "gameplay": {
+    "gridSize": 1,
+    "walkableCells": [],
+    "triggers": []
+  }
+}

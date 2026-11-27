@@ -202,7 +202,8 @@ function pushProp(interleaved, gltf, prop) {
 
   if (prop.type === 'crystal_cluster') {
     const tile = prop.tile ?? 'CRYSTAL_GLOW';
-    const glow = [3, 0.88, prop.emissive ?? 1.15, dofTag];
+    const animTag = prop.beatAnim === 'bob' ? -3.0 : dofTag;
+    const glow = [3, 0.88, prop.emissive ?? 1.15, animTag];
     pushCrystalSpire(interleaved, gltf, cx, y0, cz, 0.22 * s, 1.36 * s, 0.02, -0.02, tile, glow);
     pushCrystalSpire(interleaved, gltf, cx - 0.26 * s, y0, cz + 0.08 * s, 0.15 * s, 0.88 * s, -0.24, 0.06, tile, glow);
     pushCrystalSpire(interleaved, gltf, cx + 0.25 * s, y0, cz - 0.06 * s, 0.16 * s, 0.98 * s, 0.22, -0.05, tile, glow);
@@ -319,17 +320,16 @@ function pushProp(interleaved, gltf, prop) {
     pushHand(Math.PI * 0.80, rIn * 0.56, 0.068 * s, 0.10 * s);
     pushHand(Math.PI * 0.22, rIn * 0.78, 0.048 * s, 0.12 * s);
     pushBox(interleaved, gltf, cx - 0.10 * s, cx + 0.10 * s, dialY - 0.10 * s, dialY + 0.10 * s, cz + 0.08 * s, cz + 0.18 * s, 'GOLD_PIPES', 'GOLD_PIPES', gold);
-    // Grand brass pendulum rod & glowing diamond bob
-    const swing = (prop.swing ?? 0.26) * s;
-    const bobY = y0 + 0.42 * s;
-    const rodTop = dialY - r * 0.40;
-    pushQuad(interleaved, gltf,
-      [cx + swing - 0.055 * s, bobY, cz + 0.20 * s], [cx + swing + 0.055 * s, bobY, cz + 0.20 * s],
-      [cx + 0.055 * s, rodTop, cz + 0.20 * s], [cx - 0.055 * s, rodTop, cz + 0.20 * s],
-      [0, 0, 1], 'GOLD_PIPES', gold, true, 0.9, 1.0);
-    pushPolygonPrism(interleaved, gltf, cx + swing, bobY - 0.28 * s, bobY + 0.04 * s, cz + 0.22 * s, 0.06 * s, 0.35 * s, 8, 'GOLD_PIPES', 'GOLD_PIPES', gold);
-    pushPolygonPrism(interleaved, gltf, cx + swing, bobY + 0.04 * s, bobY + 0.34 * s, cz + 0.22 * s, 0.35 * s, 0.06 * s, 8, 'GOLD_PIPES', 'GOLD_PIPES', gold);
-    pushBox(interleaved, gltf, cx + swing - 0.11 * s, cx + swing + 0.11 * s, bobY - 0.06 * s, bobY + 0.14 * s, cz + 0.40 * s, cz + 0.56 * s, 'FLAME_CORE', 'FLAME_CORE', [3, 0.2, 1.22, dofTag]);
+    // Grand brass pendulum rod & glowing diamond bob (built vertically; GPU-swung live on BGM beat via aMat.w = -2)
+    const bobY = y0 + 0.36 * s;
+    const rodTop = dialY - r * 0.94;
+    const goldPend = [1, 0.84, 0, -2.0];
+    const bobTile = prop.bobTile ?? 'FLAME_CORE';
+    const emberPend = [3, 0.2, 1.32, -2.0];
+    pushBox(interleaved, gltf, cx - 0.055 * s, cx + 0.055 * s, bobY, rodTop, cz - 0.14 * s, cz - 0.05 * s, 'GOLD_PIPES', 'GOLD_PIPES', goldPend);
+    pushPolygonPrism(interleaved, gltf, cx, bobY - 0.28 * s, bobY + 0.04 * s, cz - 0.02 * s, 0.06 * s, 0.36 * s, 8, 'GOLD_PIPES', 'GOLD_PIPES', goldPend);
+    pushPolygonPrism(interleaved, gltf, cx, bobY + 0.04 * s, bobY + 0.34 * s, cz - 0.02 * s, 0.36 * s, 0.06 * s, 8, 'GOLD_PIPES', 'GOLD_PIPES', goldPend);
+    pushBox(interleaved, gltf, cx - 0.12 * s, cx + 0.12 * s, bobY - 0.06 * s, bobY + 0.16 * s, cz + 0.16 * s, cz + 0.32 * s, bobTile, bobTile, emberPend);
     return;
   }
 
@@ -407,8 +407,9 @@ function pushProp(interleaved, gltf, prop) {
   }
 
   if (prop.type === 'footlight') {
-    pushBox(interleaved, gltf, cx - 0.18 * s, cx + 0.18 * s, y0, y0 + 0.16 * s, cz - 0.14 * s, cz + 0.14 * s, 'DARK_IRON', 'DARK_IRON', [1, 0.35, 0, dofTag || 1]);
-    pushBox(interleaved, gltf, cx - 0.10 * s, cx + 0.10 * s, y0 + 0.10 * s, y0 + 0.20 * s, cz - 0.20 * s, cz - 0.10 * s, 'FLAME_CORE', 'FLAME_CORE', [3, 0.2, 1.35, dofTag || 1]);
+    const flTag = prop.dofTag ?? 1;
+    pushBox(interleaved, gltf, cx - 0.18 * s, cx + 0.18 * s, y0, y0 + 0.14 * s, cz - 0.14 * s, cz + 0.14 * s, 'DARK_IRON', 'DARK_IRON', [1, 0.35, 0, flTag]);
+    pushBox(interleaved, gltf, cx - 0.11 * s, cx + 0.11 * s, y0 + 0.11 * s, y0 + 0.25 * s, cz - 0.14 * s, cz + 0.10 * s, 'FLAME_CORE', 'FLAME_CORE', [3, 0.2, 1.38, flTag]);
     return;
   }
 
@@ -424,8 +425,9 @@ function pushProp(interleaved, gltf, prop) {
   }
 
   if (prop.type === 'hanging_bell') {
-    pushBox(interleaved, gltf, cx - 0.05 * s, cx + 0.05 * s, y0 + 0.65 * s, y0 + 2.25 * s, cz - 0.05 * s, cz + 0.05 * s, 'DARK_IRON', 'DARK_IRON', [1, 0.3, 0, dofTag]);
-    pushPolygonPrism(interleaved, gltf, cx, y0, y0 + 0.68 * s, cz, 0.36 * s, 0.20 * s, 8, 'GOLD_PIPES', 'GOLD_PIPES', [1, 0.76, 0, dofTag]);
+    const bellTag = dofTag || -4.0;
+    pushBox(interleaved, gltf, cx - 0.05 * s, cx + 0.05 * s, y0 + 0.65 * s, y0 + 2.25 * s, cz - 0.05 * s, cz + 0.05 * s, 'DARK_IRON', 'DARK_IRON', [1, 0.3, 0, bellTag]);
+    pushPolygonPrism(interleaved, gltf, cx, y0, y0 + 0.68 * s, cz, 0.36 * s, 0.20 * s, 8, 'GOLD_PIPES', 'GOLD_PIPES', [1, 0.76, 0, bellTag]);
     return;
   }
 
@@ -500,15 +502,21 @@ export function buildStageMesh(stage) {
     pushSlope(interleaved, gltf, slope);
   }
 
+  let animPivot = [0, 0, 0, 0];
   for (const prop of stage.geometry?.props ?? []) {
     if (prop.hidden) continue;
     pushProp(interleaved, gltf, prop);
+    if (prop.type === 'clock_pendulum' && animPivot[3] === 0) {
+      const s = prop.scale ?? 1;
+      animPivot = [prop.pos[0], prop.pos[1] + (prop.height ?? 2.35) * s, prop.pos[2], prop.swingAmp ?? 0.42];
+    }
   }
 
   const data = new Float32Array(interleaved);
   return {
     data,
     vertexCount: data.length / 12,
+    animPivot,
     gltf: {
       positions: new Float32Array(gltf.positions),
       normals: new Float32Array(gltf.normals),

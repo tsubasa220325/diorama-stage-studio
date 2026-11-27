@@ -23,6 +23,7 @@
     const params = new URLSearchParams(location.search);
     const id = params.get('stage') || 'clocktower_pendulum_forge';
     const time = Number(params.get('t') ?? 1.8);
+    const beats = params.has('beats') ? Number(params.get('beats')) : time * 2;
     const showHud = params.get('hud') === '1';
     const stage = normalizeStage(presetById(id));
     const canvas = document.getElementById('gl-canvas');
@@ -35,7 +36,7 @@
     const renderer = createStudioRenderer(canvas);
     renderer.updateAtlas(stage.atlas?.normalStrength ?? 2.2);
     renderer.uploadStageGeometry(stage);
-    renderer.render(stage, { time, beats: time * 2, beatSync: true, swayEnabled: false });
+    renderer.render(stage, { time, beats, beatSync: true, swayEnabled: false });
 
     if (showHud && aw === 4 && ah === 3) {
       const ctx = hudCanvas.getContext('2d');

@@ -19,18 +19,24 @@ import { buildExternalModelVertices, parseGlb } from '../core/glbImporter.js';
 import { PRESETS } from '../presets/index.js';
 
 test('all built-in presets pass schema validation and compile to valid 3D meshes', () => {
-  assert.ok(PRESETS.length >= 10, 'at least 10 presets');
+  assert.ok(PRESETS.length >= 15, 'at least 15 presets');
+  const animTags = new Set();
   for (const preset of PRESETS) {
     const check = validateStage(preset);
     assert.equal(check.valid, true, `${preset.meta.id}: ${check.errors.join(', ')}`);
     const mesh = buildStageMesh(preset);
     assert.ok(mesh.vertexCount >= 36, `${preset.meta.id} vertexCount`);
     assert.equal(mesh.data.length, mesh.vertexCount * 12);
+    assert.equal(mesh.animPivot.length, 4);
     assert.ok(mesh.gltf.positions.length > 0 && mesh.gltf.positions.length % 9 === 0);
     for (let i = 0; i < mesh.data.length; i++) {
       assert.ok(Number.isFinite(mesh.data[i]), `${preset.meta.id} finite vertex float`);
     }
+    for (let i = 11; i < mesh.data.length; i += 12) {
+      if (mesh.data[i] <= -1.5) animTags.add(Math.round(mesh.data[i]));
+    }
   }
+  assert.ok(animTags.has(-2) && animTags.has(-3) && animTags.has(-4), 'beat-sync tags (-2/-3/-4) present');
 });
 
 test('Rhysmodia 4:3 battle preset projects hero and enemy anchors to exact 640x480 battle coordinates', () => {

@@ -14,12 +14,26 @@ precision highp float;
 layout(location = 0) in vec3 aPos;
 layout(location = 3) in vec4 aMat;
 uniform mat4 uLightVP;
+uniform float uBeats;
+uniform vec4 uAnimPivot;
 void main() {
   if ((aMat.x > 1.5 && aMat.x < 2.5) || aMat.x > 3.5 || aMat.w > 0.5) {
     gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
     return;
   }
-  gl_Position = uLightVP * vec4(aPos, 1.0);
+  vec3 pos = aPos;
+  if (aMat.w < -1.5 && aMat.w > -2.5 && uAnimPivot.w > 0.001) {
+    float ang = cos(uBeats * 3.14159265) * uAnimPivot.w;
+    float ca = cos(ang);
+    float sa = sin(ang);
+    vec2 rel = pos.xy - uAnimPivot.xy;
+    pos.xy = uAnimPivot.xy + vec2(rel.x * ca - rel.y * sa, rel.x * sa + rel.y * ca);
+  } else if (aMat.w < -2.5 && aMat.w > -3.5) {
+    pos.y += sin(uBeats * 1.5707963 + pos.x * 1.15) * 0.13;
+  } else if (aMat.w < -3.5 && aMat.w > -4.5) {
+    pos.x += sin(uBeats * 3.14159265 + pos.x * 0.92) * 0.13 * clamp((4.85 - pos.y) * 0.40, 0.0, 1.0);
+  }
+  gl_Position = uLightVP * vec4(pos, 1.0);
 }`;
 
 const SHADOW_DEPTH_FRAG = `#version 300 es
@@ -56,19 +70,34 @@ layout(location = 2) in vec2 aUv;
 layout(location = 3) in vec4 aMat;
 uniform mat4 uViewProj;
 uniform mat4 uLightVP;
+uniform float uBeats;
+uniform vec4 uAnimPivot;
 out vec3 vWorld;
 out vec3 vNorm;
 out vec2 vUv;
 out vec4 vMat;
 out vec4 vLightClip;
 void main() {
+  vec3 pos = aPos;
   vec3 n = normalize(aNorm);
-  vWorld = aPos;
+  if (aMat.w < -1.5 && aMat.w > -2.5 && uAnimPivot.w > 0.001) {
+    float ang = cos(uBeats * 3.14159265) * uAnimPivot.w;
+    float ca = cos(ang);
+    float sa = sin(ang);
+    vec2 rel = pos.xy - uAnimPivot.xy;
+    pos.xy = uAnimPivot.xy + vec2(rel.x * ca - rel.y * sa, rel.x * sa + rel.y * ca);
+    n.xy = vec2(n.x * ca - n.y * sa, n.x * sa + n.y * ca);
+  } else if (aMat.w < -2.5 && aMat.w > -3.5) {
+    pos.y += sin(uBeats * 1.5707963 + pos.x * 1.15) * 0.13;
+  } else if (aMat.w < -3.5 && aMat.w > -4.5) {
+    pos.x += sin(uBeats * 3.14159265 + pos.x * 0.92) * 0.13 * clamp((4.85 - pos.y) * 0.40, 0.0, 1.0);
+  }
+  vWorld = pos;
   vNorm = n;
   vUv = aUv;
   vMat = aMat;
-  vLightClip = uLightVP * vec4(aPos + n * 0.032, 1.0);
-  gl_Position = uViewProj * vec4(aPos, 1.0);
+  vLightClip = uLightVP * vec4(pos + n * 0.032, 1.0);
+  gl_Position = uViewProj * vec4(pos, 1.0);
 }`;
 
 const STAGE_FRAG = `#version 300 es
@@ -91,6 +120,7 @@ uniform float uVistaStyle;
 uniform float uUseShadows;
 uniform float uShadowTexel;
 uniform float uTime;
+uniform float uBeatPulse;
 uniform float uFloorV;
 uniform vec3 uCamPos;
 uniform vec3 uAmbient;
@@ -180,7 +210,7 @@ vec3 proceduralVista(vec2 uv) {
     }
     return sky;
   }
-  if (uVistaStyle > 2.5) {
+  if (uVistaStyle > 2.5 && uVistaStyle < 3.5) {
     // Crimson clocktower giant gear vault
     vec2 gc = (uv - vec2(0.50, 0.46)) * vec2(1.33, 1.0);
     float r = length(gc);
@@ -195,6 +225,50 @@ vec3 proceduralVista(vec2 uv) {
     sky = mix(sky, vec3(0.05, 0.015, 0.025), gearMask * 0.72);
     float archX = abs(fract(uv.x * 4.0) - 0.5) * 2.0;
     sky = mix(sky, sky * 0.58, smoothstep(0.76, 0.84, archX) * 0.55);
+    return sky;
+  }
+  if (uVistaStyle > 3.5 && uVistaStyle < 4.5) {
+    // Midnight starlight carnival sky (crescent moon left, tent skyline, dark top-right for HUD)
+    float ribbon = exp(-pow((h - (0.37 + 0.08 * sin(uv.x * 5.2 + uTime * 0.24))) * 6.0, 2.0));
+    float ribbonMask = smoothstep(0.86, 0.30, uv.x);
+    sky += mix(vec3(0.24, 0.88, 0.74), vec3(0.72, 0.36, 0.96), uv.x) * ribbon * ribbonMask * 0.28;
+    float tent = 0.16 + 0.08 * pow(max(0.0, 1.0 - abs(fract(uv.x * 4.5 + 0.15) - 0.5) * 2.6), 1.6);
+    float skyline = smoothstep(tent + 0.012, tent - 0.012, h);
+    sky = mix(sky, vec3(0.05, 0.03, 0.12), skyline * 0.84);
+    vec2 mPos = (uv - vec2(0.32, 0.57)) * vec2(1.33, 1.0);
+    float mOut = smoothstep(0.068, 0.056, length(mPos));
+    float mCut = smoothstep(0.060, 0.048, length(mPos - vec2(0.026, -0.012)));
+    float crescent = clamp(mOut - mCut, 0.0, 1.0);
+    sky += uBgAccent * (exp(-dot(mPos, mPos) * 30.0) * 0.44 + crescent * 0.96);
+    vec2 sg = floor(uv * vec2(124.0, 72.0));
+    float starH = fract(sin(dot(sg, vec2(127.1, 311.7))) * 43758.5453);
+    if (starH > 0.985 && h > 0.20) {
+      float tw = 0.48 + 0.52 * sin(uTime * 3.1 + starH * 90.0);
+      vec3 sCol = starH > 0.992 ? vec3(0.45, 1.0, 0.84) : uBgAccent;
+      sky += sCol * tw * (uv.x > 0.52 && h > 0.38 ? 0.30 : 0.90);
+    }
+    return sky;
+  }
+  if (uVistaStyle > 4.5) {
+    // Moonlit gothic belfry sky (giant silver moon centered inside the 7-bell arch)
+    float mist = sin(uv.x * 8.5 + uTime * 0.14 + sin(uv.y * 12.0) * 1.1) * 0.5 + 0.5;
+    float cloudBand = smoothstep(0.36, 0.78, mist) * smoothstep(0.16, 0.38, h) * (1.0 - smoothstep(0.52, 0.76, h));
+    sky = mix(sky, mix(uBgBottom, uBgAccent, 0.25), cloudBand * 0.28);
+    vec2 mc = (uv - vec2(0.50, 0.60)) * vec2(1.33, 1.0);
+    float mr = length(mc);
+    float moonDisk = smoothstep(0.122, 0.110, mr);
+    float crater = 0.88 + 0.12 * sin(mc.x * 52.0 + 1.0) * cos(mc.y * 48.0 - 0.5);
+    sky += uBgAccent * (exp(-mr * mr * 14.0) * 0.54 + moonDisk * crater * 0.80);
+    float spireL = smoothstep(0.24, 0.16, uv.x) * smoothstep(0.42, 0.14, h + abs(uv.x - 0.11) * 2.4);
+    float spireR = smoothstep(0.76, 0.84, uv.x) * smoothstep(0.40, 0.14, h + abs(uv.x - 0.89) * 2.4);
+    float ridge = smoothstep(0.18 + 0.04 * sin(uv.x * 13.0), 0.15, h);
+    sky = mix(sky, vec3(0.03, 0.04, 0.10), clamp(spireL + spireR + ridge * 0.78, 0.0, 1.0));
+    vec2 sg = floor(uv * vec2(128.0, 72.0));
+    float starH = fract(sin(dot(sg, vec2(127.1, 311.7))) * 43758.5453);
+    if (starH > 0.990 && h > 0.28 && mr > 0.15) {
+      float tw = 0.5 + 0.5 * sin(uTime * 2.4 + starH * 75.0);
+      sky += uBgAccent * tw * (uv.x > 0.50 && h > 0.36 ? 0.26 : 0.74);
+    }
     return sky;
   }
   float archX = abs(fract(uv.x * 5.0) - 0.5) * 2.0;
@@ -255,7 +329,7 @@ void main() {
   }
 
   if (matType > 2.5 && matType < 3.5) {
-    float pulse = 0.90 + 0.14 * sin(uTime * 5.8 + vWorld.x * 2.1 + vWorld.z);
+    float pulse = (0.88 + 0.12 * sin(uTime * 5.8 + vWorld.x * 2.1 + vWorld.z)) * (0.94 + uBeatPulse * 0.22);
     vec3 em = albedo * vMat.z * pulse;
     if (uEnraged > 0.5) em = mix(em, em * vec3(1.22, 0.72, 0.78), 0.35);
     float cocEm = smoothstep(0.85, 4.2, abs(vWorld.z - uFocusZ)) * uDofStrength;
@@ -690,15 +764,19 @@ export function createStudioRenderer(canvas) {
   const compProg = createProgram(gl, QUAD_VERT, COMPOSITE_FRAG);
 
   const stageLoc = Object.fromEntries([
-    'uViewProj', 'uLightVP', 'uBgTex', 'uAtlasAlbedo', 'uAtlasNormal', 'uShadowMap',
+    'uViewProj', 'uLightVP', 'uBeats', 'uAnimPivot', 'uBgTex', 'uAtlasAlbedo', 'uAtlasNormal', 'uShadowMap',
     'uHasBgTex', 'uBgSize', 'uBgTop', 'uBgBottom', 'uBgAccent', 'uVistaStyle',
-    'uUseShadows', 'uShadowTexel', 'uTime', 'uFloorV', 'uCamPos', 'uAmbient', 'uKeyDir',
+    'uUseShadows', 'uShadowTexel', 'uTime', 'uBeatPulse', 'uFloorV', 'uCamPos', 'uAmbient', 'uKeyDir',
     'uKeyColor', 'uFloorSpecTint', 'uWallShade', 'uFogColor', 'uFogDensity', 'uPillarTint',
     'uCurbTint', 'uEnraged', 'uDofStrength', 'uFocusZ', 'uHeroRing', 'uHeroRingCol',
     'uEnemyRing', 'uEnemyRingCol', 'uLightPos', 'uLightCol', 'uLightCount',
   ].map(n => [n, gl.getUniformLocation(stageProg, n)]));
 
-  const shadowMeshLoc = { uLightVP: gl.getUniformLocation(shadowMeshProg, 'uLightVP') };
+  const shadowMeshLoc = {
+    uLightVP: gl.getUniformLocation(shadowMeshProg, 'uLightVP'),
+    uBeats: gl.getUniformLocation(shadowMeshProg, 'uBeats'),
+    uAnimPivot: gl.getUniformLocation(shadowMeshProg, 'uAnimPivot'),
+  };
   const shadowSpriteLoc = {
     uLightVP: gl.getUniformLocation(shadowSpriteProg, 'uLightVP'),
     uAnchor: gl.getUniformLocation(shadowSpriteProg, 'uAnchor'),
@@ -783,6 +861,7 @@ export function createStudioRenderer(canvas) {
   gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 48, 32);
   gl.bindVertexArray(null);
   let meshVertexCount = 0;
+  let meshAnimPivot = [0, 0, 0, 0];
 
   let outW = 1280;
   let outH = 960;
@@ -870,6 +949,7 @@ export function createStudioRenderer(canvas) {
     gl.bindBuffer(gl.ARRAY_BUFFER, meshVbo);
     gl.bufferData(gl.ARRAY_BUFFER, built.data, gl.DYNAMIC_DRAW);
     meshVertexCount = built.vertexCount;
+    meshAnimPivot = built.animPivot ?? [0, 0, 0, 0];
     rebuildExternalDraws(stage);
     return built;
   }
@@ -966,6 +1046,8 @@ export function createStudioRenderer(canvas) {
     }
 
     const anchors = stage.anchors ?? [];
+    const beats = state.beats ?? 0;
+    const beatPulse = state.beatSync ? Math.exp(-(beats - Math.floor(beats)) * 5.0) : 0.35;
 
     // 1. Shadow Pass
     if (shadowTarget.ok) {
@@ -981,6 +1063,8 @@ export function createStudioRenderer(canvas) {
 
       gl.useProgram(shadowMeshProg);
       gl.uniformMatrix4fv(shadowMeshLoc.uLightVP, false, lightVP);
+      gl.uniform1f(shadowMeshLoc.uBeats, beats);
+      gl.uniform4fv(shadowMeshLoc.uAnimPivot, meshAnimPivot);
       gl.bindVertexArray(meshVao);
       gl.drawArrays(gl.TRIANGLES, 0, meshVertexCount);
       for (const ext of externalDrawList) {
@@ -1015,9 +1099,6 @@ export function createStudioRenderer(canvas) {
     gl.clearColor(fogColor[0], fogColor[1], fogColor[2], 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const beats = state.beats ?? 0;
-    const beatPulse = state.beatSync ? Math.exp(-(beats - Math.floor(beats)) * 5.0) : 0.35;
-
     gl.useProgram(stageProg);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, customBg ? customBg.tex : dummyBg.tex);
@@ -1037,11 +1118,14 @@ export function createStudioRenderer(canvas) {
     gl.uniform3fv(stageLoc.uBgTop, stage.backdrop?.colorTop ?? [0.06, 0.05, 0.16]);
     gl.uniform3fv(stageLoc.uBgBottom, stage.backdrop?.colorBottom ?? [0.16, 0.10, 0.28]);
     gl.uniform3fv(stageLoc.uBgAccent, stage.backdrop?.accentColor ?? [0.95, 0.85, 1.0]);
-    const vistaStyleMap = { default: 0, sunset: 1, aurora: 2, clocktower: 3 };
+    const vistaStyleMap = { default: 0, sunset: 1, aurora: 2, clocktower: 3, carnival: 4, belfry: 5 };
     gl.uniform1f(stageLoc.uVistaStyle, vistaStyleMap[stage.backdrop?.vistaStyle] ?? 0);
     gl.uniform1f(stageLoc.uUseShadows, shadowTarget.ok ? 1 : 0);
     gl.uniform1f(stageLoc.uShadowTexel, 1 / shadowTarget.size);
     gl.uniform1f(stageLoc.uTime, state.time ?? 0);
+    gl.uniform1f(stageLoc.uBeats, beats);
+    gl.uniform1f(stageLoc.uBeatPulse, beatPulse);
+    gl.uniform4fv(stageLoc.uAnimPivot, meshAnimPivot);
     gl.uniformMatrix4fv(stageLoc.uViewProj, false, cam.viewProj);
     gl.uniformMatrix4fv(stageLoc.uLightVP, false, lightVP);
     gl.uniform1f(stageLoc.uFloorV, stage.backdrop?.floorV ?? 0.65);

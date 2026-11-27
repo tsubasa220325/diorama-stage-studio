@@ -6,6 +6,7 @@ import { buildStageMesh } from '../core/meshBuilder.js';
  */
 export function toRhysmodiaRuntime(stage) {
   const built = buildStageMesh(stage);
+  const vistaMap = { default: 0, sunset: 1, aurora: 2, clocktower: 3, carnival: 4, belfry: 5 };
   const biome = {
     floorV: stage.backdrop?.floorV ?? 0.642,
     ambient: [...(stage.lighting?.ambient ?? [0.24, 0.18, 0.34])],
@@ -24,6 +25,8 @@ export function toRhysmodiaRuntime(stage) {
     pillarTint: [...(stage.lighting?.pillarTint ?? [0.42, 0.30, 0.58])],
     curbTint: [...(stage.lighting?.curbTint ?? [0.52, 0.38, 0.68])],
     sconceColor: [...(stage.lighting?.sconceColor ?? [1.0, 0.64, 0.22])],
+    vistaStyle: vistaMap[stage.backdrop?.vistaStyle] ?? 0,
+    animPivot: [...(built.animPivot ?? [0, 0, 0, 0])],
     moteColor: [...(stage.atmosphere?.particles?.primary ?? [1.0, 0.78, 0.36])],
     moteSecondary: [...(stage.atmosphere?.particles?.secondary ?? [0.78, 0.46, 1.0])],
     moteRise: stage.atmosphere?.particles?.rise ?? 0.24,

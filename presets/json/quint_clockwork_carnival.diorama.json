@@ -1,0 +1,949 @@
+{
+  "schemaVersion": "1.0.0",
+  "meta": {
+    "id": "quint_clockwork_carnival",
+    "name": "14. [リズモディア変拍子5拍子] 星屑サーカス・五拍子の大時計広場（五拍子の道化師戦）",
+    "preset": "battle-4:3",
+    "aspect": [
+      4,
+      3
+    ],
+    "worldScalePpu": 64,
+    "tags": [
+      "rhysmodia",
+      "quint",
+      "odd-meter",
+      "5-4",
+      "carnival",
+      "clockwork",
+      "water",
+      "4:3"
+    ]
+  },
+  "camera": {
+    "fovDeg": 30.698299428963676,
+    "pitchDeg": 14.5,
+    "distance": 13.5,
+    "target": [
+      0,
+      0.6455626951235535,
+      0
+    ],
+    "focusZ": 0,
+    "sway": {
+      "x": 0.48,
+      "y": 0.07
+    }
+  },
+  "atlas": {
+    "source": "builtin-v1",
+    "tileSizePx": 64,
+    "grid": [
+      4,
+      4
+    ],
+    "normalStrength": 2.3
+  },
+  "backdrop": {
+    "mode": "vista",
+    "vistaStyle": "carnival",
+    "imageRef": null,
+    "colorTop": [
+      0.06,
+      0.03,
+      0.16
+    ],
+    "colorBottom": [
+      0.24,
+      0.11,
+      0.36
+    ],
+    "accentColor": [
+      1,
+      0.86,
+      0.44
+    ],
+    "floorV": 0.65,
+    "wallShade": 0.92,
+    "z": -7.4
+  },
+  "geometry": {
+    "floors": [
+      {
+        "id": "carnival_canal",
+        "x": [
+          -10.4,
+          10.4
+        ],
+        "y": -0.3,
+        "z": [
+          -7.2,
+          6.8
+        ],
+        "tile": "WATER_TRENCH",
+        "surface": "water",
+        "repeat": [
+          9,
+          6
+        ],
+        "gloss": 0.95,
+        "receiveRings": false
+      },
+      {
+        "id": "carnival_deck",
+        "x": [
+          -3.98,
+          3.98
+        ],
+        "y": 0,
+        "z": [
+          -1.78,
+          2.55
+        ],
+        "tile": "OAK_STAGE",
+        "repeat": [
+          5,
+          3
+        ],
+        "gloss": 0.48,
+        "receiveRings": true
+      },
+      {
+        "id": "jester_runner",
+        "x": [
+          -1.2,
+          1.2
+        ],
+        "y": 0.008,
+        "z": [
+          -1.78,
+          2.35
+        ],
+        "tile": "CARPET_RUNNER",
+        "repeat": [
+          1,
+          3
+        ],
+        "gloss": 0.2,
+        "receiveRings": true
+      },
+      {
+        "id": "carnival_terrace",
+        "x": [
+          -6.6,
+          6.6
+        ],
+        "y": 0.78,
+        "z": [
+          -5.4,
+          -3
+        ],
+        "tile": "CATHEDRAL_FLOOR",
+        "repeat": [
+          7,
+          2
+        ],
+        "gloss": 0.5,
+        "receiveRings": false
+      }
+    ],
+    "boxes": [
+      {
+        "id": "deck_rim_f",
+        "x": [
+          -4.16,
+          4.16
+        ],
+        "y": [
+          -0.3,
+          0.04
+        ],
+        "z": [
+          2.5,
+          2.8
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.52
+      },
+      {
+        "id": "deck_rim_l",
+        "x": [
+          -4.16,
+          -3.96
+        ],
+        "y": [
+          -0.3,
+          0.11
+        ],
+        "z": [
+          -1.88,
+          2.8
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.5
+      },
+      {
+        "id": "deck_rim_r",
+        "x": [
+          3.96,
+          4.16
+        ],
+        "y": [
+          -0.3,
+          0.11
+        ],
+        "z": [
+          -1.88,
+          2.8
+        ],
+        "sideTile": "OAK_STAGE",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.5
+      },
+      {
+        "id": "deck_rim_b",
+        "x": [
+          -4.16,
+          4.16
+        ],
+        "y": [
+          -0.3,
+          0.04
+        ],
+        "z": [
+          -1.92,
+          -1.74
+        ],
+        "sideTile": "DARK_IRON",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.48
+      },
+      {
+        "id": "terrace_wall_c",
+        "x": [
+          -1.65,
+          1.65
+        ],
+        "y": [
+          -0.3,
+          0.78
+        ],
+        "z": [
+          -3.28,
+          -2.92
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.44
+      },
+      {
+        "id": "terrace_wall_l",
+        "x": [
+          -6.6,
+          -3.25
+        ],
+        "y": [
+          -0.3,
+          0.78
+        ],
+        "z": [
+          -3.28,
+          -2.92
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "MARBLE_FLOOR",
+        "gloss": 0.36
+      },
+      {
+        "id": "terrace_wall_r",
+        "x": [
+          3.25,
+          6.6
+        ],
+        "y": [
+          -0.3,
+          0.78
+        ],
+        "z": [
+          -3.28,
+          -2.92
+        ],
+        "sideTile": "ASHLAR_BLOCK",
+        "topTile": "MARBLE_FLOOR",
+        "gloss": 0.36
+      },
+      {
+        "id": "stage_emblem_1",
+        "x": [
+          -1.3,
+          -0.92
+        ],
+        "y": [
+          0.16,
+          0.56
+        ],
+        "z": [
+          -2.95,
+          -2.88
+        ],
+        "sideTile": "CRYSTAL_GLOW",
+        "topTile": "CRYSTAL_GLOW",
+        "gloss": 0.8,
+        "emissive": 0.92
+      },
+      {
+        "id": "stage_emblem_2",
+        "x": [
+          -0.74,
+          -0.36
+        ],
+        "y": [
+          0.16,
+          0.56
+        ],
+        "z": [
+          -2.95,
+          -2.88
+        ],
+        "sideTile": "FLAME_CORE",
+        "topTile": "FLAME_CORE",
+        "gloss": 0.8,
+        "emissive": 0.86
+      },
+      {
+        "id": "stage_emblem_3",
+        "x": [
+          -0.19,
+          0.19
+        ],
+        "y": [
+          0.16,
+          0.56
+        ],
+        "z": [
+          -2.95,
+          -2.88
+        ],
+        "sideTile": "CRYSTAL_GLOW",
+        "topTile": "CRYSTAL_GLOW",
+        "gloss": 0.8,
+        "emissive": 0.98
+      },
+      {
+        "id": "stage_emblem_4",
+        "x": [
+          0.36,
+          0.74
+        ],
+        "y": [
+          0.16,
+          0.56
+        ],
+        "z": [
+          -2.95,
+          -2.88
+        ],
+        "sideTile": "FLAME_CORE",
+        "topTile": "FLAME_CORE",
+        "gloss": 0.8,
+        "emissive": 0.86
+      },
+      {
+        "id": "stage_emblem_5",
+        "x": [
+          0.92,
+          1.3
+        ],
+        "y": [
+          0.16,
+          0.56
+        ],
+        "z": [
+          -2.95,
+          -2.88
+        ],
+        "sideTile": "CRYSTAL_GLOW",
+        "topTile": "CRYSTAL_GLOW",
+        "gloss": 0.8,
+        "emissive": 0.92
+      },
+      {
+        "id": "fore_post_l",
+        "x": [
+          -5.6,
+          -4.75
+        ],
+        "y": [
+          -0.3,
+          0.9
+        ],
+        "z": [
+          3.1,
+          3.9
+        ],
+        "sideTile": "VELVET_BANNER",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.32,
+        "dofTag": 1
+      },
+      {
+        "id": "fore_post_r",
+        "x": [
+          4.75,
+          5.6
+        ],
+        "y": [
+          -0.3,
+          0.9
+        ],
+        "z": [
+          3.1,
+          3.9
+        ],
+        "sideTile": "VELVET_BANNER",
+        "topTile": "GOLD_PIPES",
+        "gloss": 0.32,
+        "dofTag": 1
+      }
+    ],
+    "slopes": [
+      {
+        "id": "carnival_stairs_l",
+        "x": [
+          -3.25,
+          -1.65
+        ],
+        "y": [
+          0,
+          0.78
+        ],
+        "z": [
+          -3.05,
+          -1.78
+        ],
+        "direction": "-z",
+        "steps": 5,
+        "tile": "OAK_STAGE",
+        "gloss": 0.42
+      },
+      {
+        "id": "carnival_stairs_r",
+        "x": [
+          1.65,
+          3.25
+        ],
+        "y": [
+          0,
+          0.78
+        ],
+        "z": [
+          -3.05,
+          -1.78
+        ],
+        "direction": "-z",
+        "steps": 5,
+        "tile": "OAK_STAGE",
+        "gloss": 0.42
+      }
+    ],
+    "props": [
+      {
+        "id": "carnival_arch",
+        "type": "arch_gate",
+        "pos": [
+          0,
+          0.78,
+          -4.35
+        ],
+        "width": 3.16,
+        "height": 2.86,
+        "depth": 0.42,
+        "tile": "MARBLE_PILLAR",
+        "capTile": "GOLD_PIPES",
+        "gloss": 0.56
+      },
+      {
+        "id": "jester_pendulum",
+        "type": "clock_pendulum",
+        "pos": [
+          0,
+          0.84,
+          -4.3
+        ],
+        "radius": 0.8,
+        "height": 1.66,
+        "swingAmp": 0.46,
+        "bobTile": "CRYSTAL_GLOW"
+      },
+      {
+        "id": "puppet_booth",
+        "type": "gable_pavilion",
+        "pos": [
+          -4.95,
+          0.78,
+          -4.18
+        ],
+        "width": 2.38,
+        "height": 1.68,
+        "depth": 1.56,
+        "tile": "ASHLAR_BLOCK",
+        "capTile": "VELVET_BANNER"
+      },
+      {
+        "id": "curtain_l",
+        "type": "velvet_curtain",
+        "pos": [
+          -6.1,
+          0.78,
+          -3.35
+        ],
+        "width": 1.15,
+        "height": 4.15
+      },
+      {
+        "id": "curtain_r",
+        "type": "velvet_curtain",
+        "pos": [
+          5.95,
+          0.78,
+          -3.35
+        ],
+        "width": 1.15,
+        "height": 4.15
+      },
+      {
+        "id": "balustrade_l",
+        "type": "balustrade",
+        "pos": [
+          -4.6,
+          0.78,
+          -2.95
+        ],
+        "width": 2.9
+      },
+      {
+        "id": "balustrade_r",
+        "type": "balustrade",
+        "pos": [
+          4.6,
+          0.78,
+          -2.95
+        ],
+        "width": 2.9
+      },
+      {
+        "id": "star_orb_1",
+        "type": "crystal_cluster",
+        "pos": [
+          -3.48,
+          1.5,
+          -3.82
+        ],
+        "scale": 0.58,
+        "tile": "CRYSTAL_GLOW",
+        "emissive": 1.18,
+        "beatAnim": "bob"
+      },
+      {
+        "id": "star_orb_2",
+        "type": "crystal_cluster",
+        "pos": [
+          -2.12,
+          2.25,
+          -4.22
+        ],
+        "scale": 0.62,
+        "tile": "RUNE_GLASS",
+        "emissive": 1.22,
+        "beatAnim": "bob"
+      },
+      {
+        "id": "star_orb_3",
+        "type": "crystal_cluster",
+        "pos": [
+          0,
+          3.44,
+          -4.12
+        ],
+        "scale": 0.44,
+        "tile": "CRYSTAL_GLOW",
+        "emissive": 1.28,
+        "beatAnim": "bob"
+      },
+      {
+        "id": "star_orb_4",
+        "type": "crystal_cluster",
+        "pos": [
+          2.25,
+          1.04,
+          -3.55
+        ],
+        "scale": 0.56,
+        "tile": "RUNE_GLASS",
+        "emissive": 1.16,
+        "beatAnim": "bob"
+      },
+      {
+        "id": "star_orb_5",
+        "type": "crystal_cluster",
+        "pos": [
+          3.95,
+          1.06,
+          -3.35
+        ],
+        "scale": 0.54,
+        "tile": "CRYSTAL_GLOW",
+        "emissive": 1.14,
+        "beatAnim": "bob"
+      },
+      {
+        "id": "footlight_1",
+        "type": "footlight",
+        "pos": [
+          -2.8,
+          0,
+          -1.68
+        ],
+        "scale": 0.92,
+        "dofTag": 0
+      },
+      {
+        "id": "footlight_2",
+        "type": "footlight",
+        "pos": [
+          -1.4,
+          0,
+          -1.68
+        ],
+        "scale": 0.92,
+        "dofTag": 0
+      },
+      {
+        "id": "footlight_3",
+        "type": "footlight",
+        "pos": [
+          0,
+          0,
+          -1.68
+        ],
+        "scale": 0.98,
+        "dofTag": 0
+      },
+      {
+        "id": "footlight_4",
+        "type": "footlight",
+        "pos": [
+          1.4,
+          0,
+          -1.68
+        ],
+        "scale": 0.92,
+        "dofTag": 0
+      },
+      {
+        "id": "footlight_5",
+        "type": "footlight",
+        "pos": [
+          2.8,
+          0,
+          -1.68
+        ],
+        "scale": 0.92,
+        "dofTag": 0
+      },
+      {
+        "id": "lantern_l",
+        "type": "lantern_post",
+        "pos": [
+          -3.78,
+          0,
+          1.25
+        ],
+        "height": 1.55
+      },
+      {
+        "id": "lantern_r",
+        "type": "lantern_post",
+        "pos": [
+          3.78,
+          0,
+          1.25
+        ],
+        "height": 1.38
+      },
+      {
+        "id": "lantern_back_l",
+        "type": "lantern_post",
+        "pos": [
+          -1.72,
+          0.78,
+          -2.95
+        ],
+        "height": 1.5
+      }
+    ]
+  },
+  "lighting": {
+    "ambient": [
+      0.19,
+      0.13,
+      0.3
+    ],
+    "keyLight": {
+      "dir": [
+        -0.36,
+        0.8,
+        0.48
+      ],
+      "color": [
+        1,
+        0.8,
+        0.52
+      ],
+      "shadowSkew": [
+        0.4,
+        -0.54
+      ]
+    },
+    "floorGloss": 0.54,
+    "floorSpecTint": [
+      1,
+      0.78,
+      0.46
+    ],
+    "pillarTint": [
+      0.54,
+      0.36,
+      0.66
+    ],
+    "curbTint": [
+      0.6,
+      0.44,
+      0.72
+    ],
+    "sconceColor": [
+      1,
+      0.76,
+      0.34
+    ],
+    "pointLights": [
+      {
+        "id": "jester_clock",
+        "pos": [
+          0,
+          2.65,
+          -3.55
+        ],
+        "color": [
+          0.52,
+          0.96,
+          0.84
+        ],
+        "intensity": 2.35,
+        "radius": 10.2,
+        "flicker": 0.06,
+        "phase": 0
+      },
+      {
+        "id": "carnival_gold_l",
+        "pos": [
+          -3.75,
+          1.85,
+          1.15
+        ],
+        "color": [
+          1,
+          0.72,
+          0.28
+        ],
+        "intensity": 1.95,
+        "radius": 7.4,
+        "flicker": 0.12,
+        "phase": 0.8
+      },
+      {
+        "id": "carnival_gold_r",
+        "pos": [
+          3.75,
+          1.65,
+          1.15
+        ],
+        "color": [
+          1,
+          0.72,
+          0.28
+        ],
+        "intensity": 1.8,
+        "radius": 7.2,
+        "flicker": 0.12,
+        "phase": 2.4
+      },
+      {
+        "id": "booth_glow",
+        "pos": [
+          -4.65,
+          2.2,
+          -3.2
+        ],
+        "color": [
+          1,
+          0.6,
+          0.28
+        ],
+        "intensity": 1.9,
+        "radius": 7.6,
+        "flicker": 0.08,
+        "phase": 1.6
+      },
+      {
+        "id": "star_violet",
+        "pos": [
+          0,
+          1.3,
+          -2.15
+        ],
+        "color": [
+          0.8,
+          0.46,
+          1
+        ],
+        "intensity": 1.75,
+        "radius": 8.2,
+        "flicker": 0.05,
+        "phase": 3.1
+      },
+      {
+        "id": "canal_r",
+        "pos": [
+          4.8,
+          0.85,
+          0.2
+        ],
+        "color": [
+          0.42,
+          0.88,
+          0.92
+        ],
+        "intensity": 1.35,
+        "radius": 7,
+        "flicker": 0.04,
+        "phase": 4.5
+      }
+    ],
+    "lightRays": [
+      {
+        "id": "carnival_ray_l",
+        "top": [
+          -2.6,
+          5.8
+        ],
+        "bot": [
+          -1,
+          0
+        ],
+        "z": -3,
+        "width": 2,
+        "color": [
+          1,
+          0.82,
+          0.46
+        ],
+        "alpha": 0.13
+      },
+      {
+        "id": "carnival_ray_c",
+        "top": [
+          0,
+          5.8
+        ],
+        "bot": [
+          0,
+          0
+        ],
+        "z": -3.4,
+        "width": 1.8,
+        "color": [
+          0.48,
+          0.96,
+          0.84
+        ],
+        "alpha": 0.12
+      }
+    ]
+  },
+  "atmosphere": {
+    "fogColor": [
+      0.1,
+      0.05,
+      0.2
+    ],
+    "fogDensity": 0.044,
+    "particles": {
+      "primary": [
+        1,
+        0.86,
+        0.44
+      ],
+      "secondary": [
+        0.44,
+        0.98,
+        0.82
+      ],
+      "rise": 0.22,
+      "count": 56
+    }
+  },
+  "postProcess": {
+    "bloomStrength": 0.45,
+    "dofStrength": 0.62,
+    "vignette": 0.45,
+    "grade": [
+      1.04,
+      1,
+      1.05
+    ]
+  },
+  "anchors": [
+    {
+      "id": "hero",
+      "role": "player",
+      "pos": [
+        -2.0625,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 1.75,
+      "spriteStyle": "adventurer",
+      "ringColor": [
+        0.36,
+        0.96,
+        0.66
+      ]
+    },
+    {
+      "id": "enemy",
+      "role": "enemy",
+      "pos": [
+        2.28125,
+        0,
+        0
+      ],
+      "widthWorld": 2,
+      "heightWorld": 2,
+      "spriteStyle": "slime_orb",
+      "ringColor": [
+        0.34,
+        0.98,
+        0.78
+      ]
+    }
+  ],
+  "gameplay": {
+    "gridSize": 1,
+    "walkableCells": [],
+    "triggers": []
+  }
+}
