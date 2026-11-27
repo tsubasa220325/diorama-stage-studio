@@ -9,9 +9,9 @@ import {
   buildFrameLights, invertMat4, neutralViewProj, projectPoint, sampleParticles,
   screenToWorldX, STAGE_H, STAGE_W, unprojectRayToPlaneY,
 } from '../core/math.js';
-import { buildStageMesh } from '../core/meshBuilder.js';
+import { buildArtDioramaMesh, buildStageMesh } from '../core/meshBuilder.js';
 import { buildSampleSpriteRgba, SAMPLE_SPRITE_STYLES } from '../core/sampleSprites.js';
-import { validateStage } from '../core/validator.js';
+import { normalizeStage, validateStage } from '../core/validator.js';
 import { buildColabStageJob } from '../exporters/colabJobExporter.js';
 import { exportStageToGlb } from '../exporters/glbExporter.js';
 import { toRhysmodiaRuntime } from '../exporters/rhysmodiaAdapter.js';
@@ -162,6 +162,43 @@ test('Rhysmodia runtime adapter and Colab GPU job exporter produce valid outputs
     assert.equal(sp.width, 32);
     assert.equal(sp.height, 32);
   }
+});
+
+test('v0.7.0 Art-First concave bay mesh, 2.5D cutouts schema, and Rhysmodia adapter forwarding', () => {
+  const artMesh = buildArtDioramaMesh();
+  assert.ok(artMesh.vertexCount >= 400, 'subdivided floor + 5-segment concave bay');
+  assert.equal(artMesh.data.length, artMesh.vertexCount * 12);
+  assert.ok([...artMesh.data].every(Number.isFinite));
+
+  const custom = normalizeStage({
+    ...PRESETS[0],
+    backdrop: { ...PRESETS[0].backdrop, artFirst: true, imageUrl: 'assets/stages/bg_clocktower_forge.webp' },
+    atlas: { normalStrength: 2.4, imageUrl: 'assets/stages/atlas_diorama.webp' },
+    geometry: {
+      ...PRESETS[0].geometry,
+      cutouts: [
+        {
+          id: 'pendulum_center',
+          imageUrl: 'assets/stages/prop_clock_pendulum.webp',
+          pos: [0, 2.95, -2.9],
+          size: [1.55, 2.55],
+          pivotUv: [0.5, 0.06],
+          beatAnim: 'pendulum',
+          swingAmp: 0.42,
+          castShadow: true,
+        },
+      ],
+    },
+  });
+  const check = validateStage(custom);
+  assert.equal(check.valid, true, check.errors.join(', '));
+  const rt = toRhysmodiaRuntime(custom);
+  assert.equal(rt.biome.artFirst, true);
+  assert.equal(rt.biome.bgImageUrl, 'assets/stages/bg_clocktower_forge.webp');
+  assert.equal(rt.biome.atlasImageUrl, 'assets/stages/atlas_diorama.webp');
+  assert.equal(rt.cutouts.length, 1);
+  assert.equal(rt.cutouts[0].beatAnim, 'pendulum');
+  assert.deepEqual(rt.cutouts[0].pivotUv, [0.5, 0.06]);
 });
 
 test('public code and UI contain no standalone trademarked "HD-2D" / "HD2D" strings', () => {

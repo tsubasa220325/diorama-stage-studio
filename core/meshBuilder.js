@@ -525,6 +525,64 @@ export function buildStageMesh(stage) {
   };
 }
 
+export function buildArtDioramaMesh() {
+  const interleaved = [];
+  const gltf = { positions: [], normals: [], uvs: [] };
+  const wallZ = -3.35;
+  const floorFrontZ = 6.8;
+  const floorCols = 12;
+  const floorRows = 6;
+  const fx0 = -11.0;
+  const fx1 = 11.0;
+  const dx = (fx1 - fx0) / floorCols;
+  const dz = (floorFrontZ - wallZ) / floorRows;
+  for (let r = 0; r < floorRows; r++) {
+    const za = wallZ + r * dz;
+    const zb = za + dz;
+    for (let c = 0; c < floorCols; c++) {
+      const xa = fx0 + c * dx;
+      const xb = xa + dx;
+      pushQuad(
+        interleaved, gltf,
+        [xa, 0, zb], [xb, 0, zb], [xb, 0, za], [xa, 0, za],
+        [0, 1, 0], null, [0, 0.35, 1.0, -1], false,
+      );
+    }
+  }
+  const bayPts = [
+    [-11.0, -2.75],
+    [-5.4, -3.35],
+    [-3.3, -4.2],
+    [3.3, -4.2],
+    [5.4, -3.35],
+    [11.0, -2.75],
+  ];
+  for (let i = 0; i < bayPts.length - 1; i++) {
+    const [ax, az] = bayPts[i];
+    const [bx, bz] = bayPts[i + 1];
+    const ex = bx - ax;
+    const ez = bz - az;
+    const nl = Math.hypot(-ez, ex) || 1;
+    const norm = [-ez / nl, 0, ex / nl];
+    pushQuad(
+      interleaved, gltf,
+      [ax, -0.02, az], [bx, -0.02, bz], [bx, 8.6, bz], [ax, 8.6, az],
+      norm, null, [1, 0.14, 1.0, 0], false,
+    );
+  }
+  const data = new Float32Array(interleaved);
+  return {
+    data,
+    vertexCount: data.length / 12,
+    animPivot: [0, 0, 0, 0],
+    gltf: {
+      positions: new Float32Array(gltf.positions),
+      normals: new Float32Array(gltf.normals),
+      uvs: new Float32Array(gltf.uvs),
+    },
+  };
+}
+
 export const PROP_TYPES = Object.freeze([
   { type: 'pillar', label: '八角柱 (Pillar)' },
   { type: 'arch_gate', label: '石造アーチ門 (Arch Gate)' },

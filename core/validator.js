@@ -45,6 +45,15 @@ export function validateStage(stage) {
     for (const p of stage.geometry.props) {
       if (!isVec(p.pos, 3) || !VALID_PROP_TYPES.has(p.type)) errors.push(`invalid prop ${p.id} (${p.type})`);
     }
+    if (stage.geometry.cutouts !== undefined) {
+      if (!Array.isArray(stage.geometry.cutouts)) {
+        errors.push('geometry.cutouts must be an array');
+      } else {
+        for (const c of stage.geometry.cutouts) {
+          if (!isVec(c.pos, 3) || !isVec(c.size, 2)) errors.push(`invalid cutout ${c.id}`);
+        }
+      }
+    }
   }
   if (!stage.lighting || !isVec(stage.lighting.ambient, 3) || !isVec(stage.lighting.keyLight?.dir, 3) || !isVec(stage.lighting.keyLight?.color, 3)) {
     errors.push('lighting requires ambient and keyLight.{dir,color}');
@@ -73,7 +82,10 @@ export function normalizeStage(raw) {
   s.geometry.boxes = s.geometry.boxes ?? [];
   s.geometry.slopes = s.geometry.slopes ?? [];
   s.geometry.props = s.geometry.props ?? [];
+  s.geometry.cutouts = s.geometry.cutouts ?? [];
   s.geometry.externalModels = s.geometry.externalModels ?? [];
+  s.backdrop = s.backdrop ?? {};
+  s.atlas = s.atlas ?? { normalStrength: 2.2 };
   s.lighting = s.lighting ?? {};
   s.lighting.pointLights = (s.lighting.pointLights ?? []).slice(0, 8);
   s.lighting.lightRays = s.lighting.lightRays ?? [];

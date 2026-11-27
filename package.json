@@ -1,6 +1,6 @@
 {
   "name": "diorama-stage-studio",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Zero-install browser-based 2.5D pixel diorama stage editor and multi-engine exporter (WebGL2 / Unity URP / Godot 4 / Three.js).",
   "type": "module",
   "license": "MIT",

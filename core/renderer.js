@@ -1,10 +1,10 @@
-import { buildDioramaAtlasData } from './atlasBuilder.js';
+import { buildDioramaAtlasData, generateNormalFromRgba } from './atlasBuilder.js';
 import { buildExternalModelVertices } from './glbImporter.js';
 import {
   buildFrameLights, computeLightViewProj, computeStageCamera,
   neutralViewProj, sampleParticles, STAGE_H, STAGE_W,
 } from './math.js';
-import { buildStageMesh } from './meshBuilder.js';
+import { buildArtDioramaMesh, buildStageMesh } from './meshBuilder.js';
 import { buildSampleSpriteRgba, SAMPLE_SPRITE_STYLES } from './sampleSprites.js';
 
 const MAX_LIGHTS = 8;
@@ -46,12 +46,18 @@ layout(location = 0) in vec2 aQuad;
 uniform mat4 uLightVP;
 uniform vec3 uAnchor;
 uniform vec2 uSize;
+uniform float uRotRad;
+uniform vec2 uPivotUv;
 out vec2 vUv;
 void main() {
-  float lx = (aQuad.x - 0.5) * uSize.x;
-  float ly = (1.0 - aQuad.y) * uSize.y;
+  float lx = (aQuad.x - uPivotUv.x) * uSize.x;
+  float ly = (uPivotUv.y - aQuad.y) * uSize.y;
+  float ca = cos(uRotRad);
+  float sa = sin(uRotRad);
+  float rx = lx * ca - ly * sa;
+  float ry = lx * sa + ly * ca;
   vUv = aQuad;
-  gl_Position = uLightVP * vec4(uAnchor.x + lx, uAnchor.y + ly, uAnchor.z, 1.0);
+  gl_Position = uLightVP * vec4(uAnchor.x + rx, uAnchor.y + ry, uAnchor.z, 1.0);
 }`;
 
 const SHADOW_SPRITE_FRAG = `#version 300 es
@@ -69,6 +75,7 @@ layout(location = 1) in vec3 aNorm;
 layout(location = 2) in vec2 aUv;
 layout(location = 3) in vec4 aMat;
 uniform mat4 uViewProj;
+uniform mat4 uNeutralVP;
 uniform mat4 uLightVP;
 uniform float uBeats;
 uniform vec4 uAnimPivot;
@@ -77,6 +84,7 @@ out vec3 vNorm;
 out vec2 vUv;
 out vec4 vMat;
 out vec4 vLightClip;
+out vec4 vNeutralClip;
 void main() {
   vec3 pos = aPos;
   vec3 n = normalize(aNorm);
@@ -97,6 +105,7 @@ void main() {
   vUv = aUv;
   vMat = aMat;
   vLightClip = uLightVP * vec4(pos + n * 0.032, 1.0);
+  vNeutralClip = uNeutralVP * vec4(pos, 1.0);
   gl_Position = uViewProj * vec4(pos, 1.0);
 }`;
 
@@ -107,11 +116,13 @@ in vec3 vNorm;
 in vec2 vUv;
 in vec4 vMat;
 in vec4 vLightClip;
+in vec4 vNeutralClip;
 uniform sampler2D uBgTex;
 uniform sampler2D uAtlasAlbedo;
 uniform sampler2D uAtlasNormal;
 uniform sampler2D uShadowMap;
 uniform float uHasBgTex;
+uniform float uStageMode;
 uniform vec2 uBgSize;
 uniform vec3 uBgTop;
 uniform vec3 uBgBottom;
@@ -122,6 +133,8 @@ uniform float uShadowTexel;
 uniform float uTime;
 uniform float uBeatPulse;
 uniform float uFloorV;
+uniform float uWallHorizonSy;
+uniform float uFloorGloss;
 uniform vec3 uCamPos;
 uniform vec3 uAmbient;
 uniform vec3 uKeyDir;
@@ -143,6 +156,11 @@ uniform vec4 uLightPos[${MAX_LIGHTS}];
 uniform vec4 uLightCol[${MAX_LIGHTS}];
 uniform int uLightCount;
 out vec4 fragColor;
+
+float mirror01(float x) {
+  float t = mod(abs(x), 2.0);
+  return t > 1.0 ? 2.0 - t : t;
+}
 
 float luma(vec3 c) {
   return dot(c, vec3(0.299, 0.587, 0.114));
@@ -292,6 +310,100 @@ void main() {
   float matType = vMat.x;
   vec3 fogCol = mix(uFogColor, vec3(0.28, 0.04, 0.09), uEnraged * 0.48);
 
+  if (uStageMode < 0.5) {
+    vec2 ndc = vNeutralClip.xy / max(0.0001, vNeutralClip.w);
+    float nsx = (ndc.x * 0.5 + 0.5) * 640.0;
+    float nsy = (0.5 - ndc.y * 0.5) * 480.0;
+    float uProj = mirror01(nsx / 640.0);
+    float vProj = nsy <= uWallHorizonSy
+      ? (nsy / max(1.0, uWallHorizonSy)) * uFloorV
+      : uFloorV + ((nsy - uWallHorizonSy) / max(1.0, 480.0 - uWallHorizonSy)) * (1.0 - uFloorV);
+    vec2 texUv = matType < 0.5
+      ? vec2(clamp(uProj, 0.002, 0.998), clamp(vProj, uFloorV + 0.002, 0.998))
+      : vec2(clamp(uProj, 0.002, 0.998), clamp(vProj, 0.002, 0.998));
+
+    vec3 albedo = sampleSharp(uBgTex, texUv, uBgSize);
+    vec2 stepUv = 1.0 / max(uBgSize, vec2(64.0));
+    float hL = luma(texture(uBgTex, texUv - vec2(stepUv.x, 0.0)).rgb);
+    float hR = luma(texture(uBgTex, texUv + vec2(stepUv.x, 0.0)).rgb);
+    float hD = luma(texture(uBgTex, texUv - vec2(0.0, stepUv.y)).rgb);
+    float hU = luma(texture(uBgTex, texUv + vec2(0.0, stepUv.y)).rgb);
+    float hTL = luma(texture(uBgTex, texUv + vec2(-stepUv.x, -stepUv.y)).rgb);
+    float hTR = luma(texture(uBgTex, texUv + vec2(stepUv.x, -stepUv.y)).rgb);
+    float hBL = luma(texture(uBgTex, texUv + vec2(-stepUv.x, stepUv.y)).rgb);
+    float hBR = luma(texture(uBgTex, texUv + vec2(stepUv.x, stepUv.y)).rgb);
+    float gx = (hL * 2.0 + hTL + hBL) - (hR * 2.0 + hTR + hBR);
+    float gy = (hD * 2.0 + hTL + hTR) - (hU * 2.0 + hBL + hBR);
+    vec3 fn = normalize(vNorm);
+    vec3 N = matType < 0.5 ? normalize(vec3(gx * 0.62, 1.0, gy * 0.62)) : normalize(vec3(gx * 0.34, -gy * 0.34, 1.0));
+
+    vec3 V = normalize(uCamPos - vWorld);
+    vec3 Lkey = normalize(uKeyDir);
+    float shadow = matType < 0.5 ? sampleShadow(fn) : 1.0;
+    float keyDiff = max(dot(N, Lkey), 0.0);
+    vec3 shadowTint = mix(uAmbient * 0.42 + uFogColor * 0.48 + vec3(0.05, 0.04, 0.12), vec3(1.0), shadow);
+    vec3 lightSum = uAmbient * 0.70 + vec3(0.26) + uKeyColor * (0.18 + 0.58 * keyDiff) * shadowTint;
+    vec3 specSum = vec3(0.0);
+    float gloss = matType < 0.5 ? uFloorGloss : vMat.y;
+    if (gloss > 0.12 && keyDiff > 0.0) {
+      vec3 Hk = normalize(Lkey + V);
+      float spk = pow(max(dot(N, Hk), 0.0), 18.0 + gloss * 44.0);
+      specSum += uKeyColor * spk * gloss * 0.42 * shadow;
+    }
+    if (matType < 0.5 && gloss > 0.24) {
+      float fres = pow(1.0 - max(dot(N, V), 0.0), 2.5);
+      float shimmer = pow(clamp(abs(gx) + abs(gy), 0.0, 1.0), 1.35)
+        * (0.58 + 0.42 * sin(vWorld.x * 8.5 + vWorld.z * 6.5 + uTime * 1.9));
+      specSum += (uKeyColor * 0.48 + uFloorSpecTint * 0.52) * fres * gloss * (0.14 + shimmer * 0.28) * shadow;
+    }
+    for (int i = 0; i < ${MAX_LIGHTS}; i++) {
+      if (i >= uLightCount) break;
+      vec3 toL = uLightPos[i].xyz - vWorld;
+      float dist = length(toL);
+      float rad = max(0.5, uLightPos[i].w);
+      float att = clamp(1.0 - dist / rad, 0.0, 1.0);
+      att = att * att / (1.0 + 0.14 * dist * dist);
+      vec3 L = toL / max(0.001, dist);
+      float ndl = max(dot(N, L), 0.0);
+      lightSum += uLightCol[i].rgb * uLightCol[i].a * att * (0.26 + 0.80 * ndl);
+      if (gloss > 0.05) {
+        vec3 H = normalize(L + V);
+        float sp = pow(max(dot(N, H), 0.0), 18.0 + gloss * 44.0);
+        specSum += uLightCol[i].rgb * uLightCol[i].a * att * sp * gloss * 1.05;
+      }
+    }
+    float brightSrc = smoothstep(0.68, 0.95, luma(albedo));
+    float shadeMul = matType >= 0.5 ? uWallShade : 0.96;
+    vec3 lit = albedo * lightSum * shadeMul + specSum * uFloorSpecTint * (0.34 + 0.66 * luma(albedo));
+    lit += albedo * brightSrc * (matType >= 0.5 ? 0.68 : 0.22) * (0.94 + uBeatPulse * 0.16);
+    if (matType < 0.5 && vMat.w < -0.5) {
+      if (uHeroRing.w > 0.01) {
+        float hd = length(vWorld.xz - uHeroRing.xy) / max(0.25, uHeroRing.z);
+        float hr = exp(-pow((hd - 0.92) * 14.0, 2.0)) * 0.44 + exp(-pow((hd - 0.62) * 16.0, 2.0)) * 0.16;
+        lit += uHeroRingCol * hr * uHeroRing.w;
+      }
+      if (uEnemyRing.w > 0.01) {
+        float ed = length(vWorld.xz - uEnemyRing.xy) / max(0.25, uEnemyRing.z);
+        float er = exp(-pow((ed - 0.94) * 13.0, 2.0)) * 0.48 + exp(-ed * ed * 2.4) * 0.12;
+        lit += uEnemyRingCol * er * uEnemyRing.w;
+      }
+    }
+    if (matType < 0.5) {
+      float foreDark = smoothstep(1.85, 5.4, vWorld.z);
+      lit *= mix(1.0, 0.46, foreDark);
+      float backCrease = 1.0 - smoothstep(0.0, 0.72, vWorld.z + 3.35);
+      lit *= mix(1.0, 0.76, backCrease);
+    }
+    float fogDist = max(0.0, -vWorld.z - 1.2);
+    float fogAmt = 1.0 - exp(-fogDist * uFogDensity * 1.45);
+    float mist = matType < 0.5 ? (1.0 - smoothstep(-4.2, -1.2, vWorld.z)) * 0.14 : exp(-max(0.0, vWorld.y) * 1.25) * 0.18;
+    lit = mix(lit, fogCol, clamp(fogAmt + mist * 0.35, 0.0, 0.38));
+    float coc = smoothstep(0.95, 4.4, abs(vWorld.z - uFocusZ)) * uDofStrength;
+    if (matType >= 0.5) coc *= 0.42;
+    fragColor = vec4(lit, clamp(coc, 0.0, 1.0));
+    return;
+  }
+
   if (matType > 1.5 && matType < 2.5) {
     vec3 bg;
     if (uHasBgTex > 0.5) {
@@ -366,7 +478,8 @@ void main() {
   vec3 Lkey = normalize(uKeyDir);
   float shadow = isWater ? 1.0 : sampleShadow(fn);
   float keyDiff = max(dot(N, Lkey), 0.0);
-  vec3 lightSum = uAmbient * 0.92 * ao + uKeyColor * (0.16 * ao + 0.68 * keyDiff * shadow * mix(0.55, 1.0, ao));
+  vec3 shadowTint = mix(uAmbient * 0.42 + uFogColor * 0.48 + vec3(0.05, 0.04, 0.12), vec3(1.0), shadow);
+  vec3 lightSum = uAmbient * 0.90 * ao + uKeyColor * (0.16 * ao + 0.68 * keyDiff * mix(0.55, 1.0, ao)) * shadowTint;
   vec3 specSum = vec3(0.0);
   float gloss = isWater ? max(0.88, vMat.y) : vMat.y;
   if (gloss > 0.08 && keyDiff > 0.0) {
@@ -466,13 +579,19 @@ uniform mat4 uViewProj;
 uniform vec3 uAnchor;
 uniform vec2 uSize;
 uniform float uFlipY;
+uniform float uRotRad;
+uniform vec2 uPivotUv;
 out vec2 vUv;
 out vec2 vLocal;
 out vec3 vWorld;
 void main() {
-  float lx = (aQuad.x - 0.5) * uSize.x;
-  float ly = uFlipY > 0.5 ? -(1.0 - aQuad.y) * uSize.y : (1.0 - aQuad.y) * uSize.y;
-  vec3 worldPos = vec3(uAnchor.x + lx, uAnchor.y + ly, uAnchor.z);
+  float lx = (aQuad.x - uPivotUv.x) * uSize.x;
+  float ly = uFlipY > 0.5 ? -(1.0 - aQuad.y) * uSize.y : (uPivotUv.y - aQuad.y) * uSize.y;
+  float ca = cos(uRotRad);
+  float sa = sin(uRotRad);
+  float rx = lx * ca - ly * sa;
+  float ry = lx * sa + ly * ca;
+  vec3 worldPos = vec3(uAnchor.x + rx, uAnchor.y + ry, uAnchor.z);
   vWorld = worldPos;
   vLocal = aQuad;
   vUv = aQuad;
@@ -495,12 +614,19 @@ uniform int uLightCount;
 uniform float uReflectAlpha;
 uniform float uRimBoost;
 uniform vec3 uRimColor;
+uniform float uEmissive;
+uniform float uBrightness;
+uniform float uDofAmount;
 out vec4 fragColor;
 
 void main() {
   vec4 tex = texture(uTex, vUv);
   if (tex.a < 0.15) discard;
   vec3 base = tex.rgb;
+  if (uEmissive > 0.5) {
+    fragColor = vec4(base * uBrightness, clamp(uDofAmount, 0.0, 1.0));
+    return;
+  }
   if (uReflectAlpha > 0.005) {
     float fade = pow(vLocal.y, 1.45) * uReflectAlpha;
     fragColor = vec4(base * uKeyColor * 0.72, tex.a * fade);
@@ -533,7 +659,8 @@ void main() {
   float outlineKeep = smoothstep(0.08, 0.24, lum);
   vec3 lit = base * mix(vec3(0.76), min(lightSum, vec3(1.18)), outlineKeep);
   lit += rimLight * outlineKeep * 0.42 + uRimColor * rimMask * uRimBoost;
-  fragColor = vec4(lit, 0.0);
+  lit *= uBrightness;
+  fragColor = vec4(lit, clamp(uDofAmount, 0.0, 1.0));
 }`;
 
 const ADDITIVE_VERT = `#version 300 es
@@ -619,6 +746,7 @@ in vec2 vUv;
 uniform sampler2D uSceneTex;
 uniform sampler2D uDofTex;
 uniform sampler2D uBloomTex;
+uniform sampler2D uBloomWideTex;
 uniform float uBloomStrength;
 uniform float uVignette;
 uniform vec3 uGrade;
@@ -636,8 +764,9 @@ void main() {
   vec4 scene = texture(uSceneTex, vUv);
   vec3 dof = texture(uDofTex, vUv).rgb;
   vec3 bloom = texture(uBloomTex, vUv).rgb;
+  vec3 bloomWide = texture(uBloomWideTex, vUv).rgb;
   vec3 col = mix(scene.rgb, dof, clamp(scene.a, 0.0, 0.88));
-  col += bloom * uBloomStrength;
+  col += (bloom * 0.54 + bloomWide * 0.44) * uBloomStrength;
   col *= uGrade;
   if (uEnraged > 0.5) {
     col = mix(col, col * vec3(1.16, 0.88, 0.92), 0.42);
@@ -764,9 +893,9 @@ export function createStudioRenderer(canvas) {
   const compProg = createProgram(gl, QUAD_VERT, COMPOSITE_FRAG);
 
   const stageLoc = Object.fromEntries([
-    'uViewProj', 'uLightVP', 'uBeats', 'uAnimPivot', 'uBgTex', 'uAtlasAlbedo', 'uAtlasNormal', 'uShadowMap',
-    'uHasBgTex', 'uBgSize', 'uBgTop', 'uBgBottom', 'uBgAccent', 'uVistaStyle',
-    'uUseShadows', 'uShadowTexel', 'uTime', 'uBeatPulse', 'uFloorV', 'uCamPos', 'uAmbient', 'uKeyDir',
+    'uViewProj', 'uNeutralVP', 'uLightVP', 'uBeats', 'uAnimPivot', 'uBgTex', 'uAtlasAlbedo', 'uAtlasNormal', 'uShadowMap',
+    'uHasBgTex', 'uStageMode', 'uBgSize', 'uBgTop', 'uBgBottom', 'uBgAccent', 'uVistaStyle',
+    'uUseShadows', 'uShadowTexel', 'uTime', 'uBeatPulse', 'uFloorV', 'uWallHorizonSy', 'uFloorGloss', 'uCamPos', 'uAmbient', 'uKeyDir',
     'uKeyColor', 'uFloorSpecTint', 'uWallShade', 'uFogColor', 'uFogDensity', 'uPillarTint',
     'uCurbTint', 'uEnraged', 'uDofStrength', 'uFocusZ', 'uHeroRing', 'uHeroRingCol',
     'uEnemyRing', 'uEnemyRingCol', 'uLightPos', 'uLightCol', 'uLightCount',
@@ -781,6 +910,8 @@ export function createStudioRenderer(canvas) {
     uLightVP: gl.getUniformLocation(shadowSpriteProg, 'uLightVP'),
     uAnchor: gl.getUniformLocation(shadowSpriteProg, 'uAnchor'),
     uSize: gl.getUniformLocation(shadowSpriteProg, 'uSize'),
+    uRotRad: gl.getUniformLocation(shadowSpriteProg, 'uRotRad'),
+    uPivotUv: gl.getUniformLocation(shadowSpriteProg, 'uPivotUv'),
     uTex: gl.getUniformLocation(shadowSpriteProg, 'uTex'),
   };
   const contactLoc = {
@@ -790,9 +921,9 @@ export function createStudioRenderer(canvas) {
     uAlpha: gl.getUniformLocation(contactProg, 'uAlpha'),
   };
   const spriteLoc = Object.fromEntries([
-    'uViewProj', 'uAnchor', 'uSize', 'uFlipY', 'uTex', 'uTexSize', 'uAmbient',
+    'uViewProj', 'uAnchor', 'uSize', 'uFlipY', 'uRotRad', 'uPivotUv', 'uTex', 'uTexSize', 'uAmbient',
     'uKeyDir', 'uKeyColor', 'uLightPos', 'uLightCol', 'uLightCount',
-    'uReflectAlpha', 'uRimBoost', 'uRimColor',
+    'uReflectAlpha', 'uRimBoost', 'uRimColor', 'uEmissive', 'uBrightness', 'uDofAmount',
   ].map(n => [n, gl.getUniformLocation(spriteProg, n)]));
   const addLoc = { uViewProj: gl.getUniformLocation(additiveProg, 'uViewProj') };
   const blurLoc = {
@@ -801,7 +932,7 @@ export function createStudioRenderer(canvas) {
     uBrightOnly: gl.getUniformLocation(blurProg, 'uBrightOnly'),
   };
   const compLoc = Object.fromEntries([
-    'uSceneTex', 'uDofTex', 'uBloomTex', 'uBloomStrength', 'uVignette', 'uGrade', 'uEnraged', 'uImpactFlash',
+    'uSceneTex', 'uDofTex', 'uBloomTex', 'uBloomWideTex', 'uBloomStrength', 'uVignette', 'uGrade', 'uEnraged', 'uImpactFlash',
   ].map(n => [n, gl.getUniformLocation(compProg, n)]));
 
   let atlasData = buildDioramaAtlasData(2.2);
@@ -821,6 +952,20 @@ export function createStudioRenderer(canvas) {
     sampleSprites.set(style, uploadRgbaTex(gl, s.width, s.height, s.rgba, false));
   }
   const customSprites = new Map();
+  const cutoutTextures = new Map();
+
+  const artBuilt = buildArtDioramaMesh();
+  const artMeshVao = gl.createVertexArray();
+  const artMeshVbo = gl.createBuffer();
+  gl.bindVertexArray(artMeshVao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, artMeshVbo);
+  gl.bufferData(gl.ARRAY_BUFFER, artBuilt.data, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 48, 0);
+  gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 48, 12);
+  gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 48, 24);
+  gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 48, 32);
+  gl.bindVertexArray(null);
+  const artMeshVertexCount = artBuilt.vertexCount;
 
   const unitQuadVao = gl.createVertexArray();
   gl.bindVertexArray(unitQuadVao);
@@ -866,7 +1011,7 @@ export function createStudioRenderer(canvas) {
   let outW = 1280;
   let outH = 960;
   let sceneTarget = null;
-  let dofA = null, dofB = null, bloomA = null, bloomB = null;
+  let dofA = null, dofB = null, bloomA = null, bloomB = null, bloomWideA = null, bloomWideB = null;
   const shadowTarget = createShadowTarget(gl, 1024);
 
   function ensureSize(w, h) {
@@ -880,11 +1025,15 @@ export function createStudioRenderer(canvas) {
     destroyTarget(gl, dofB);
     destroyTarget(gl, bloomA);
     destroyTarget(gl, bloomB);
+    destroyTarget(gl, bloomWideA);
+    destroyTarget(gl, bloomWideB);
     sceneTarget = createTarget(gl, w, h, true);
     dofA = createTarget(gl, Math.round(w / 2), Math.round(h / 2), false);
     dofB = createTarget(gl, Math.round(w / 2), Math.round(h / 2), false);
     bloomA = createTarget(gl, Math.round(w / 4), Math.round(h / 4), false);
     bloomB = createTarget(gl, Math.round(w / 4), Math.round(h / 4), false);
+    bloomWideA = createTarget(gl, Math.max(40, Math.round(w / 8)), Math.max(30, Math.round(h / 8)), false);
+    bloomWideB = createTarget(gl, Math.max(40, Math.round(w / 8)), Math.max(30, Math.round(h / 8)), false);
   }
   ensureSize(1280, 960);
 
@@ -982,6 +1131,45 @@ export function createStudioRenderer(canvas) {
     customBg = { tex, w: img.naturalWidth || img.width, h: img.naturalHeight || img.height };
   }
 
+  function setCustomAtlasImage(img, normalStrength = 2.4) {
+    if (!img) {
+      updateAtlas(normalStrength);
+      return;
+    }
+    const w = img.naturalWidth || img.width || 256;
+    const h = img.naturalHeight || img.height || 256;
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    const rgba = new Uint8Array(ctx.getImageData(0, 0, w, h).data);
+    const norm = generateNormalFromRgba(rgba, w, h, normalStrength, true);
+    atlasData = { width: w, height: h, albedo: rgba, normal: norm };
+    gl.deleteTexture(atlasAlbedo.tex);
+    gl.deleteTexture(atlasNormal.tex);
+    atlasAlbedo = uploadRgbaTex(gl, w, h, rgba, true);
+    atlasNormal = uploadRgbaTex(gl, w, h, norm, false);
+  }
+
+  function setCutoutImage(cutoutId, img) {
+    const prev = cutoutTextures.get(cutoutId);
+    if (prev) {
+      gl.deleteTexture(prev.tex);
+      cutoutTextures.delete(cutoutId);
+    }
+    if (!img) return;
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    cutoutTextures.set(cutoutId, { tex, w: img.naturalWidth || img.width || 64, h: img.naturalHeight || img.height || 64 });
+  }
+
   function setAnchorSpriteImage(anchorId, img) {
     const prev = customSprites.get(anchorId);
     if (prev) {
@@ -1046,8 +1234,30 @@ export function createStudioRenderer(canvas) {
     }
 
     const anchors = stage.anchors ?? [];
+    const cutouts = (stage.geometry?.cutouts ?? []).filter(c => !c.hidden);
     const beats = state.beats ?? 0;
     const beatPulse = state.beatSync ? Math.exp(-(beats - Math.floor(beats)) * 5.0) : 0.35;
+    const useArtProjection = Boolean(stage.backdrop?.artFirst && customBg);
+    const nvp = neutralViewProj(stage);
+    const wallZ = -3.35;
+    const wallBaseClipY = (nvp[9] * wallZ + nvp[13]) / (nvp[11] * wallZ + nvp[15]);
+    const wallHorizonSy = (0.5 - wallBaseClipY * 0.5) * STAGE_H;
+
+    function cutoutTransform(c) {
+      let y = c.pos[1];
+      let rot = 0;
+      const ph = c.phase ?? 0;
+      const amp = c.swingAmp ?? 0.36;
+      if (state.beatSync) {
+        if (c.beatAnim === 'pendulum') rot = Math.cos(beats * Math.PI + ph) * amp;
+        else if (c.beatAnim === 'sway') rot = Math.sin(beats * Math.PI + ph) * amp;
+        else if (c.beatAnim === 'bob') y += Math.sin(beats * Math.PI * 0.5 + ph) * 0.13;
+      }
+      return { x: c.pos[0], y, z: c.pos[2], rot };
+    }
+    function cutoutEntryFor(c) {
+      return cutoutTextures.get(c.id) ?? sampleSprites.get('slime_orb');
+    }
 
     // 1. Shadow Pass
     if (shadowTarget.ok) {
@@ -1061,15 +1271,17 @@ export function createStudioRenderer(canvas) {
       gl.disable(gl.BLEND);
       gl.clear(gl.DEPTH_BUFFER_BIT);
 
-      gl.useProgram(shadowMeshProg);
-      gl.uniformMatrix4fv(shadowMeshLoc.uLightVP, false, lightVP);
-      gl.uniform1f(shadowMeshLoc.uBeats, beats);
-      gl.uniform4fv(shadowMeshLoc.uAnimPivot, meshAnimPivot);
-      gl.bindVertexArray(meshVao);
-      gl.drawArrays(gl.TRIANGLES, 0, meshVertexCount);
-      for (const ext of externalDrawList) {
-        gl.bindVertexArray(ext.vao);
-        gl.drawArrays(gl.TRIANGLES, 0, ext.count);
+      if (!useArtProjection) {
+        gl.useProgram(shadowMeshProg);
+        gl.uniformMatrix4fv(shadowMeshLoc.uLightVP, false, lightVP);
+        gl.uniform1f(shadowMeshLoc.uBeats, beats);
+        gl.uniform4fv(shadowMeshLoc.uAnimPivot, meshAnimPivot);
+        gl.bindVertexArray(meshVao);
+        gl.drawArrays(gl.TRIANGLES, 0, meshVertexCount);
+        for (const ext of externalDrawList) {
+          gl.bindVertexArray(ext.vao);
+          gl.drawArrays(gl.TRIANGLES, 0, ext.count);
+        }
       }
 
       gl.useProgram(shadowSpriteProg);
@@ -1084,6 +1296,23 @@ export function createStudioRenderer(canvas) {
         gl.uniform1i(shadowSpriteLoc.uTex, 0);
         gl.uniform3f(shadowSpriteLoc.uAnchor, anchor.pos[0], anchor.pos[1], anchor.pos[2]);
         gl.uniform2f(shadowSpriteLoc.uSize, anchor.widthWorld ?? 1.8, anchor.heightWorld ?? 1.8);
+        gl.uniform1f(shadowSpriteLoc.uRotRad, 0);
+        gl.uniform2f(shadowSpriteLoc.uPivotUv, 0.5, 1.0);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+      for (const c of cutouts) {
+        if (c.castShadow === false) continue;
+        const cEntry = cutoutEntryFor(c);
+        if (!cEntry) continue;
+        const tr = cutoutTransform(c);
+        const pv = c.pivotUv ?? [0.5, 1.0];
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, cEntry.tex);
+        gl.uniform1i(shadowSpriteLoc.uTex, 0);
+        gl.uniform3f(shadowSpriteLoc.uAnchor, tr.x, tr.y, tr.z);
+        gl.uniform2f(shadowSpriteLoc.uSize, c.size[0], c.size[1]);
+        gl.uniform1f(shadowSpriteLoc.uRotRad, tr.rot);
+        gl.uniform2f(shadowSpriteLoc.uPivotUv, pv[0], pv[1]);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
     }
@@ -1114,6 +1343,7 @@ export function createStudioRenderer(canvas) {
     gl.uniform1i(stageLoc.uShadowMap, 3);
 
     gl.uniform1f(stageLoc.uHasBgTex, customBg ? 1 : 0);
+    gl.uniform1f(stageLoc.uStageMode, useArtProjection ? 0 : 1);
     gl.uniform2f(stageLoc.uBgSize, customBg ? customBg.w : 256, customBg ? customBg.h : 256);
     gl.uniform3fv(stageLoc.uBgTop, stage.backdrop?.colorTop ?? [0.06, 0.05, 0.16]);
     gl.uniform3fv(stageLoc.uBgBottom, stage.backdrop?.colorBottom ?? [0.16, 0.10, 0.28]);
@@ -1127,8 +1357,11 @@ export function createStudioRenderer(canvas) {
     gl.uniform1f(stageLoc.uBeatPulse, beatPulse);
     gl.uniform4fv(stageLoc.uAnimPivot, meshAnimPivot);
     gl.uniformMatrix4fv(stageLoc.uViewProj, false, cam.viewProj);
+    gl.uniformMatrix4fv(stageLoc.uNeutralVP, false, nvp);
     gl.uniformMatrix4fv(stageLoc.uLightVP, false, lightVP);
     gl.uniform1f(stageLoc.uFloorV, stage.backdrop?.floorV ?? 0.65);
+    gl.uniform1f(stageLoc.uWallHorizonSy, wallHorizonSy);
+    gl.uniform1f(stageLoc.uFloorGloss, stage.lighting?.floorGloss ?? 0.4);
     gl.uniform3fv(stageLoc.uCamPos, cam.eye);
     gl.uniform3fv(stageLoc.uAmbient, stage.lighting?.ambient ?? [0.22, 0.18, 0.34]);
     gl.uniform3fv(stageLoc.uKeyDir, keyDir);
@@ -1163,9 +1396,9 @@ export function createStudioRenderer(canvas) {
     gl.uniform4fv(stageLoc.uLightPos, lightPosArr);
     gl.uniform4fv(stageLoc.uLightCol, lightColArr);
     gl.uniform1i(stageLoc.uLightCount, lightCount);
-    gl.bindVertexArray(meshVao);
-    gl.drawArrays(gl.TRIANGLES, 0, meshVertexCount);
-    if (externalDrawList.length > 0) {
+    gl.bindVertexArray(useArtProjection ? artMeshVao : meshVao);
+    gl.drawArrays(gl.TRIANGLES, 0, useArtProjection ? artMeshVertexCount : meshVertexCount);
+    if (!useArtProjection && externalDrawList.length > 0) {
       gl.activeTexture(gl.TEXTURE2);
       gl.bindTexture(gl.TEXTURE_2D, flatNormal.tex);
       for (const ext of externalDrawList) {
@@ -1247,6 +1480,46 @@ export function createStudioRenderer(canvas) {
     gl.bindVertexArray(unitQuadVao);
 
     const floorGloss = stage.lighting?.floorGloss ?? 0.4;
+    const dofStrength = stage.postProcess?.dofStrength ?? 0.78;
+    const focusZ = stage.camera?.focusZ ?? 0;
+
+    function drawCutoutLayer(foreground) {
+      gl.enable(gl.DEPTH_TEST);
+      gl.disable(gl.BLEND);
+      gl.depthMask(true);
+      for (const c of cutouts) {
+        const isFg = c.pos[2] > 0.1;
+        if (isFg !== foreground) continue;
+        const cEntry = cutoutEntryFor(c);
+        if (!cEntry) continue;
+        const tr = cutoutTransform(c);
+        const pv = c.pivotUv ?? [0.5, 1.0];
+        const zDist = Math.abs(tr.z - focusZ);
+        const dof = foreground
+          ? Math.min(0.96, Math.max(0.42, (zDist - 0.8) / 2.6) * dofStrength + (c.dofBoost ?? 0))
+          : Math.min(0.94, Math.max(0, (zDist - 0.95) / 3.45) * dofStrength * 0.72 + (c.dofBoost ?? 0));
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, cEntry.tex);
+        gl.uniform1i(spriteLoc.uTex, 0);
+        gl.uniform2f(spriteLoc.uTexSize, cEntry.w, cEntry.h);
+        gl.uniform3f(spriteLoc.uAnchor, tr.x, tr.y, tr.z);
+        gl.uniform2f(spriteLoc.uSize, c.size[0], c.size[1]);
+        gl.uniform1f(spriteLoc.uFlipY, 0);
+        gl.uniform1f(spriteLoc.uRotRad, tr.rot);
+        gl.uniform2f(spriteLoc.uPivotUv, pv[0], pv[1]);
+        gl.uniform1f(spriteLoc.uReflectAlpha, 0);
+        gl.uniform1f(spriteLoc.uEmissive, c.emissive ? 1 : 0);
+        gl.uniform1f(spriteLoc.uBrightness, (c.brightness ?? 1) * (foreground ? 0.72 : 1.0));
+        gl.uniform1f(spriteLoc.uDofAmount, dof);
+        const isSel = c.id === state.selectedId;
+        gl.uniform1f(spriteLoc.uRimBoost, isSel ? 0.55 : 0.08);
+        gl.uniform3fv(spriteLoc.uRimColor, isSel ? [0.28, 0.86, 1.0] : [1.0, 0.9, 0.72]);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+    }
+
+    drawCutoutLayer(false);
+
     if (floorGloss >= 0.48) {
       const refAlpha = Math.min(0.28, (floorGloss - 0.34) * 0.42);
       gl.disable(gl.DEPTH_TEST);
@@ -1264,7 +1537,12 @@ export function createStudioRenderer(canvas) {
         gl.uniform3f(spriteLoc.uAnchor, anchor.pos[0], anchor.pos[1] - 0.01, anchor.pos[2]);
         gl.uniform2f(spriteLoc.uSize, anchor.widthWorld ?? 1.8, (anchor.heightWorld ?? 1.8) * 0.65);
         gl.uniform1f(spriteLoc.uFlipY, 1);
+        gl.uniform1f(spriteLoc.uRotRad, 0);
+        gl.uniform2f(spriteLoc.uPivotUv, 0.5, 1.0);
         gl.uniform1f(spriteLoc.uReflectAlpha, refAlpha);
+        gl.uniform1f(spriteLoc.uEmissive, 0);
+        gl.uniform1f(spriteLoc.uBrightness, 1);
+        gl.uniform1f(spriteLoc.uDofAmount, 0);
         gl.uniform1f(spriteLoc.uRimBoost, 0);
         gl.uniform3f(spriteLoc.uRimColor, 1, 1, 1);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -1285,13 +1563,20 @@ export function createStudioRenderer(canvas) {
       gl.uniform3f(spriteLoc.uAnchor, anchor.pos[0], anchor.pos[1], anchor.pos[2]);
       gl.uniform2f(spriteLoc.uSize, anchor.widthWorld ?? 1.8, anchor.heightWorld ?? 1.8);
       gl.uniform1f(spriteLoc.uFlipY, 0);
+      gl.uniform1f(spriteLoc.uRotRad, 0);
+      gl.uniform2f(spriteLoc.uPivotUv, 0.5, 1.0);
       gl.uniform1f(spriteLoc.uReflectAlpha, 0);
+      gl.uniform1f(spriteLoc.uEmissive, 0);
+      gl.uniform1f(spriteLoc.uBrightness, 1);
+      gl.uniform1f(spriteLoc.uDofAmount, 0);
       gl.uniform1f(spriteLoc.uRimBoost, anchor.id === state.selectedId ? 0.55 : 0.12);
       gl.uniform3fv(spriteLoc.uRimColor, anchor.id === state.selectedId ? [0.28, 0.86, 1.0] : (anchor.ringColor ?? [1, 0.9, 0.7]));
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
-    // 6. Brazier glows + Depth-Bokeh Particles
+    drawCutoutLayer(true);
+
+    // 6. Brazier glows + Foreground Depth-Bokeh Orbs + Floating Particles
     addVerts = 0;
     const sconcePulse = 0.84 + 0.16 * Math.sin((state.time ?? 0) * 7.2);
     const sconceColor = stage.lighting?.sconceColor ?? [1.0, 0.68, 0.28];
@@ -1308,6 +1593,22 @@ export function createStudioRenderer(canvas) {
           sconceColor, 0.74 * sconcePulse, 0.55,
         );
       }
+    }
+    const mc1 = stage.atmosphere?.particles?.primary ?? [1.0, 0.82, 0.42];
+    const mc2 = stage.atmosphere?.particles?.secondary ?? [0.68, 0.82, 1.0];
+    const tSec = state.time ?? 0;
+    for (let i = 0; i < 10; i++) {
+      const bx = Math.sin(i * 2.37 + tSec * (0.18 + (i % 3) * 0.05)) * 4.9;
+      const by = ((i * 0.61 + tSec * (0.14 + (i % 4) * 0.03)) % 3.6) + 0.2;
+      const bz = 2.25 + (i % 4) * 0.34;
+      const bs = 0.22 + (i % 3) * 0.11;
+      const col = i % 2 === 0 ? mc1 : mc2;
+      const ba = (0.11 + 0.05 * Math.sin(tSec * 1.4 + i * 1.7)) * (0.85 + beatPulse * 0.3);
+      pushAddQuad(
+        [bx - bs, by + bs, bz], [bx + bs, by + bs, bz],
+        [bx + bs, by - bs, bz], [bx - bs, by - bs, bz],
+        col, ba, 0.98,
+      );
     }
     const particles = sampleParticles(stage, state);
     for (const p of particles) {
@@ -1332,13 +1633,15 @@ export function createStudioRenderer(canvas) {
       gl.drawArrays(gl.TRIANGLES, 0, addVerts);
     }
 
-    // 7. Post-process DoF + Selective Bloom + Filmic Composite
+    // 7. Post-process DoF + Dual-Scale Selective HDR Bloom + Filmic Composite
     gl.disable(gl.DEPTH_TEST);
     gl.disable(gl.BLEND);
     runBlur(sceneTarget.tex, dofA, 1.85 / dofA.w, 0, false);
     runBlur(dofA.tex, dofB, 0, 1.85 / dofB.h, false);
-    runBlur(sceneTarget.tex, bloomA, 2.0 / bloomA.w, 0, true);
-    runBlur(bloomA.tex, bloomB, 0, 2.0 / bloomB.h, false);
+    runBlur(sceneTarget.tex, bloomA, 1.8 / bloomA.w, 0, true);
+    runBlur(bloomA.tex, bloomB, 0, 1.8 / bloomB.h, false);
+    runBlur(bloomB.tex, bloomWideA, 2.6 / bloomWideA.w, 0, false);
+    runBlur(bloomWideA.tex, bloomWideB, 0, 2.6 / bloomWideB.h, false);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, outW, outH);
@@ -1346,6 +1649,7 @@ export function createStudioRenderer(canvas) {
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, sceneTarget.tex); gl.uniform1i(compLoc.uSceneTex, 0);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, dofB.tex); gl.uniform1i(compLoc.uDofTex, 1);
     gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, bloomB.tex); gl.uniform1i(compLoc.uBloomTex, 2);
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, bloomWideB.tex); gl.uniform1i(compLoc.uBloomWideTex, 3);
     gl.uniform1f(compLoc.uBloomStrength, stage.postProcess?.bloomStrength ?? 0.42);
     gl.uniform1f(compLoc.uVignette, stage.postProcess?.vignette ?? 0.48);
     gl.uniform3fv(compLoc.uGrade, stage.postProcess?.grade ?? [1, 1, 1]);
@@ -1355,7 +1659,7 @@ export function createStudioRenderer(canvas) {
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     gl.bindVertexArray(null);
 
-    return { cam, width: outW, height: outH, vertexCount: meshVertexCount, lightCount };
+    return { cam, width: outW, height: outH, vertexCount: useArtProjection ? artMeshVertexCount : meshVertexCount, lightCount };
   }
 
   return {
@@ -1363,7 +1667,9 @@ export function createStudioRenderer(canvas) {
     uploadStageGeometry,
     registerExternalModelAsset,
     updateAtlas,
+    setCustomAtlasImage,
     setBackdropImage,
+    setCutoutImage,
     setAnchorSpriteImage,
     getAtlasData: () => atlasData,
     neutralViewProj: stage => neutralViewProj(stage),

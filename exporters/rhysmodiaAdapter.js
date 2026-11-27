@@ -26,6 +26,9 @@ export function toRhysmodiaRuntime(stage) {
     curbTint: [...(stage.lighting?.curbTint ?? [0.52, 0.38, 0.68])],
     sconceColor: [...(stage.lighting?.sconceColor ?? [1.0, 0.64, 0.22])],
     vistaStyle: vistaMap[stage.backdrop?.vistaStyle] ?? 0,
+    artFirst: Boolean(stage.backdrop?.artFirst),
+    bgImageUrl: typeof stage.backdrop?.imageUrl === 'string' && stage.backdrop.imageUrl.trim() ? stage.backdrop.imageUrl.trim() : null,
+    atlasImageUrl: typeof stage.atlas?.imageUrl === 'string' && stage.atlas.imageUrl.trim() ? stage.atlas.imageUrl.trim() : null,
     animPivot: [...(built.animPivot ?? [0, 0, 0, 0])],
     moteColor: [...(stage.atmosphere?.particles?.primary ?? [1.0, 0.78, 0.36])],
     moteSecondary: [...(stage.atmosphere?.particles?.secondary ?? [0.78, 0.46, 1.0])],
@@ -52,10 +55,26 @@ export function toRhysmodiaRuntime(stage) {
     })),
   };
 
+  const cutouts = (stage.geometry?.cutouts ?? []).filter(c => !c.hidden).map(c => ({
+    id: c.id ?? 'cutout',
+    imageUrl: typeof c.imageUrl === 'string' && c.imageUrl.trim() ? c.imageUrl.trim() : null,
+    pos: [...(c.pos ?? [0, 0, -2.6])],
+    size: [...(c.size ?? [1.6, 2.4])],
+    pivotUv: [...(c.pivotUv ?? [0.5, 1.0])],
+    beatAnim: c.beatAnim ?? '',
+    swingAmp: c.swingAmp ?? 0.36,
+    phase: c.phase ?? 0,
+    castShadow: c.castShadow !== false,
+    emissive: Boolean(c.emissive),
+    brightness: c.brightness ?? 1.0,
+    dofBoost: c.dofBoost ?? 0,
+  }));
+
   return {
     id: stage.meta?.id ?? 'custom_stage',
     biome,
     meshData: built.data,
     vertexCount: built.vertexCount,
+    cutouts,
   };
 }

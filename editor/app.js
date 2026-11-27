@@ -154,6 +154,7 @@ function getCollection(group) {
   if (group === 'boxes') return state.stage.geometry.boxes;
   if (group === 'slopes') return state.stage.geometry.slopes;
   if (group === 'props') return state.stage.geometry.props;
+  if (group === 'cutouts') return state.stage.geometry.cutouts;
   if (group === 'externalModels') return state.stage.geometry.externalModels;
   if (group === 'pointLights') return state.stage.lighting.pointLights;
   if (group === 'lightRays') return state.stage.lighting.lightRays;
@@ -173,6 +174,21 @@ function addItem(group) {
     list.push({ id: `stairs_${n}`, x: [-1, 1], y: [0, 1], z: [-2, -0.5], direction: '-z', steps: 5, tile: 'ASHLAR_BLOCK', gloss: 0.3 });
   } else if (group === 'props') {
     list.push({ id: `prop_${n}`, type: 'brazier', pos: [0, 0, -2.2], scale: 1, height: 1.3, radius: 0.4, width: 1.5, tile: 'STONE_PILLAR', capTile: 'ASHLAR_BLOCK' });
+  } else if (group === 'cutouts') {
+    list.push({
+      id: `cutout_${n}`,
+      imageUrl: '',
+      pos: [0, 0, -2.6],
+      size: [1.6, 2.4],
+      pivotUv: [0.5, 1.0],
+      beatAnim: '',
+      swingAmp: 0.36,
+      phase: 0,
+      castShadow: true,
+      emissive: false,
+      brightness: 1.0,
+      dofBoost: 0,
+    });
   } else if (group === 'externalModels') {
     $('input-glb-model').click();
     return;
@@ -202,6 +218,7 @@ function renderOutliner() {
     { key: 'boxes', title: 'ブロック / 段差 (Boxes)' },
     { key: 'slopes', title: '階段 / スロープ (Slopes)' },
     { key: 'props', title: '建築プロップ (Props)' },
+    { key: 'cutouts', title: '2.5D 切り抜き小物 (Cutouts)' },
     { key: 'externalModels', title: '外部 .glb モデル (Blockbench等)' },
     { key: 'pointLights', title: 'ポイントライト (最大8)' },
     { key: 'lightRays', title: 'ゴッドレイ光柱 (Rays)' },
@@ -493,6 +510,56 @@ function renderInspector() {
     } else if (item.type === 'clock_pendulum') {
       card.append(sliderField('拍同期振子スイング幅 (rad)', item.swingAmp ?? 0.42, 0, 0.85, 0.02, v => item.swingAmp = v));
     }
+  } else if (group === 'cutouts') {
+    const rP = document.createElement('div'); rP.className = 'row-3';
+    rP.append(
+      numField('位置 X', item.pos[0], 0.2, v => item.pos[0] = v),
+      numField('位置 Y', item.pos[1], 0.1, v => item.pos[1] = v),
+      numField('位置 Z', item.pos[2], 0.2, v => item.pos[2] = v),
+    );
+    const rSz = document.createElement('div'); rSz.className = 'row-2';
+    rSz.append(
+      numField('幅 (World)', item.size[0], 0.1, v => item.size[0] = Math.max(0.2, v)),
+      numField('高さ (World)', item.size[1], 0.1, v => item.size[1] = Math.max(0.2, v)),
+    );
+    const pv = item.pivotUv ?? [0.5, 1.0];
+    const rPv = document.createElement('div'); rPv.className = 'row-2';
+    rPv.append(
+      numField('回転中心 U (0-1)', pv[0], 0.05, v => { item.pivotUv = [Math.max(0, Math.min(1, v)), item.pivotUv?.[1] ?? 1.0]; }),
+      numField('回転中心 V (0=上/1=下)', pv[1], 0.05, v => { item.pivotUv = [item.pivotUv?.[0] ?? 0.5, Math.max(0, Math.min(1, v))]; }),
+    );
+    const animWrap = document.createElement('label'); animWrap.className = 'field'; animWrap.textContent = '拍同期モーション';
+    const animSel = document.createElement('select');
+    for (const [val, lbl] of [['', '静止'], ['pendulum', '大振子スイング (Pendulum)'], ['sway', '吊り鐘スウェイ (Sway)'], ['bob', '拍同期浮遊 (Bob)']]) {
+      const o = document.createElement('option'); o.value = val; o.textContent = lbl; if ((item.beatAnim ?? '') === val) o.selected = true;
+      animSel.appendChild(o);
+    }
+    animSel.onchange = () => { pushUndo(); item.beatAnim = animSel.value; renderOutliner(); };
+    animWrap.appendChild(animSel);
+    const urlWrap = document.createElement('label'); urlWrap.className = 'field'; urlWrap.textContent = '画像URL (例: assets/stages/prop_clock_pendulum.webp)';
+    const urlInput = document.createElement('input'); urlInput.type = 'text'; urlInput.value = item.imageUrl ?? '';
+    urlInput.onchange = () => { pushUndo(); item.imageUrl = urlInput.value.trim(); };
+    urlWrap.appendChild(urlInput);
+    const flags = document.createElement('div'); flags.className = 'asset-btns';
+    const shadowBtn = document.createElement('button');
+    shadowBtn.textContent = item.castShadow !== false ? '影投影: ON' : '影投影: OFF';
+    shadowBtn.onclick = () => { pushUndo(); item.castShadow = item.castShadow === false; renderInspector(); };
+    const emBtn = document.createElement('button');
+    emBtn.textContent = item.emissive ? '自己発光: ON' : '自己発光: OFF';
+    emBtn.onclick = () => { pushUndo(); item.emissive = !item.emissive; renderInspector(); };
+    const uploadBtn = document.createElement('button');
+    uploadBtn.className = 'primary';
+    uploadBtn.textContent = 'ローカル画像読込';
+    uploadBtn.onclick = () => $('input-cutout-img').click();
+    flags.append(shadowBtn, emBtn, uploadBtn);
+    card.append(
+      rP, rSz, rPv, animWrap,
+      sliderField('スイング振幅 (rad)', item.swingAmp ?? 0.36, 0, 0.9, 0.02, v => item.swingAmp = v),
+      sliderField('位相オフセット (rad)', item.phase ?? 0, 0, 6.28, 0.1, v => item.phase = v),
+      sliderField('明度 (Brightness)', item.brightness ?? 1.0, 0.4, 2.0, 0.05, v => item.brightness = v),
+      sliderField('DoFボケ加算', item.dofBoost ?? 0, 0, 0.8, 0.02, v => item.dofBoost = v),
+      urlWrap, flags,
+    );
   } else if (group === 'externalModels') {
     const rP = document.createElement('div'); rP.className = 'row-3';
     rP.append(
@@ -638,11 +705,43 @@ function renderEnvInspector() {
   }
   vistaSel.onchange = () => { pushUndo(); s.backdrop.vistaStyle = vistaSel.value; };
   vistaWrap.appendChild(vistaSel);
+  const artFirstWrap = document.createElement('label');
+  artFirstWrap.className = 'field';
+  artFirstWrap.textContent = 'Art-First 3D 湾曲投影モード（背景美術を主役に）';
+  const artFirstBtn = document.createElement('button');
+  artFirstBtn.type = 'button';
+  artFirstBtn.textContent = s.backdrop.artFirst ? 'ON — 湾曲アート投影（背景画像適用時）' : 'OFF — 標準 3D ボクセル／建築メッシュ';
+  artFirstBtn.onclick = () => {
+    pushUndo();
+    s.backdrop.artFirst = !s.backdrop.artFirst;
+    renderEnvInspector();
+    setStatus(s.backdrop.artFirst ? 'Art-First 3D 湾曲投影モードを有効化しました（背景画像を読み込むと反映）' : '標準 3D 建築メッシュモードへ切り替えました');
+  };
+  artFirstWrap.appendChild(artFirstBtn);
+  const bgUrlWrap = document.createElement('label');
+  bgUrlWrap.className = 'field';
+  bgUrlWrap.textContent = '外部背景画像URL (backdrop.imageUrl)';
+  const bgUrlIn = document.createElement('input');
+  bgUrlIn.type = 'text';
+  bgUrlIn.value = s.backdrop.imageUrl ?? '';
+  bgUrlIn.onchange = () => { pushUndo(); s.backdrop.imageUrl = bgUrlIn.value.trim() || undefined; };
+  bgUrlWrap.appendChild(bgUrlIn);
+  const atlasUrlWrap = document.createElement('label');
+  atlasUrlWrap.className = 'field';
+  atlasUrlWrap.textContent = '外部PBRアトラスURL (atlas.imageUrl)';
+  const atlasUrlIn = document.createElement('input');
+  atlasUrlIn.type = 'text';
+  atlasUrlIn.value = s.atlas?.imageUrl ?? '';
+  atlasUrlIn.onchange = () => { pushUndo(); s.atlas = { ...(s.atlas || {}), imageUrl: atlasUrlIn.value.trim() || undefined }; };
+  atlasUrlWrap.appendChild(atlasUrlIn);
   lightCard.append(
     colRow,
     bgRow,
     vistaWrap,
-    sliderField('選択的ブルーム強度', s.postProcess.bloomStrength ?? 0.42, 0, 1.2, 0.02, v => s.postProcess.bloomStrength = v),
+    artFirstWrap,
+    bgUrlWrap,
+    atlasUrlWrap,
+    sliderField('デュアルスケールHDRブルーム強度', s.postProcess.bloomStrength ?? 0.42, 0, 1.2, 0.02, v => s.postProcess.bloomStrength = v),
     sliderField('ビネット (周辺減光)', s.postProcess.vignette ?? 0.48, 0, 1.0, 0.02, v => s.postProcess.vignette = v),
     sliderField('霧の密度 (Fog)', s.atmosphere.fogDensity ?? 0.06, 0, 0.18, 0.002, v => s.atmosphere.fogDensity = v),
     sliderField('床映り込み光沢閾値', s.lighting.floorGloss ?? 0.4, 0, 1, 0.02, v => s.lighting.floorGloss = v),
@@ -773,6 +872,30 @@ function drawGuides(cam, width, height) {
     }
   }
 
+  // Cutout pins (clickable in viewport)
+  for (let i = 0; i < (state.stage.geometry?.cutouts?.length ?? 0); i++) {
+    const c = state.stage.geometry.cutouts[i];
+    if (c.hidden) continue;
+    const isSel = state.selection.group === 'cutouts' && state.selection.index === i;
+    const pt = projectPoint(vp, c.pos[0], c.pos[1] + c.size[1] * 0.4, c.pos[2], width, height);
+    guideCtx.fillStyle = isSel ? '#38bdf8' : 'rgba(52, 211, 153, 0.9)';
+    guideCtx.strokeStyle = '#ffffff';
+    guideCtx.lineWidth = isSel ? 2.5 : 1.5;
+    guideCtx.beginPath();
+    guideCtx.moveTo(pt.x, pt.y - 7);
+    guideCtx.lineTo(pt.x + 7, pt.y);
+    guideCtx.lineTo(pt.x, pt.y + 7);
+    guideCtx.lineTo(pt.x - 7, pt.y);
+    guideCtx.closePath();
+    guideCtx.fill();
+    guideCtx.stroke();
+    if (isSel) {
+      guideCtx.fillStyle = '#a7f3d0';
+      guideCtx.font = 'bold 12px monospace';
+      guideCtx.fillText(`${c.id} [${c.pos[0].toFixed(2)}, ${c.pos[2].toFixed(2)}]`, pt.x + 11, pt.y + 4);
+    }
+  }
+
   // Light pins
   for (let i = 0; i < (state.stage.lighting?.pointLights?.length ?? 0); i++) {
     const pl = state.stage.lighting.pointLights[i];
@@ -839,6 +962,11 @@ function pickViewportHandle(px, py) {
     if (p.hidden) return;
     const pt = projectPoint(cam.viewProj, p.pos[0], p.pos[1] + 0.35, p.pos[2], width, height);
     candidates.push({ group: 'props', index, item: p, dist: Math.hypot(pt.x - px, pt.y - py) });
+  });
+  (state.stage.geometry?.cutouts ?? []).forEach((c, index) => {
+    if (c.hidden) return;
+    const pt = projectPoint(cam.viewProj, c.pos[0], c.pos[1] + c.size[1] * 0.4, c.pos[2], width, height);
+    candidates.push({ group: 'cutouts', index, item: c, dist: Math.hypot(pt.x - px, pt.y - py) });
   });
   (state.stage.geometry?.externalModels ?? []).forEach((m, index) => {
     if (m.hidden) return;
@@ -1109,6 +1237,37 @@ $('input-sprite-img').onchange = e => {
   img.src = URL.createObjectURL(file);
 };
 
+$('input-cutout-img').onchange = e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  let cutout = state.selection.group === 'cutouts'
+    ? state.stage.geometry.cutouts[state.selection.index]
+    : state.stage.geometry.cutouts[0];
+  if (!cutout) {
+    addItem('cutouts');
+    cutout = state.stage.geometry.cutouts[state.stage.geometry.cutouts.length - 1];
+  }
+  const img = new Image();
+  img.onload = () => {
+    renderer?.setCutoutImage(cutout.id, img);
+    setStatus(`2.5D 切り抜き小物 "${cutout.id}" に画像を適用: ${file.name}`);
+  };
+  img.src = URL.createObjectURL(file);
+  e.target.value = '';
+};
+
+$('input-atlas-img').onchange = e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    renderer?.setCustomAtlasImage(img, state.stage.atlas?.normalStrength ?? 2.4);
+    setStatus(`外部PBRアトラス画像と自動Sobel法線マップを適用: ${file.name}`);
+  };
+  img.src = URL.createObjectURL(file);
+  e.target.value = '';
+};
+
 $('input-glb-model').onchange = async e => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -1282,9 +1441,11 @@ if (!renderer) {
     if (state.impactFlash > 0) state.impactFlash = Math.max(0, state.impactFlash - dt * 5.0);
 
     const t0 = performance.now();
-    const selectedAnchorId = state.selection.group === 'anchors'
+    const selectedId = state.selection.group === 'anchors'
       ? state.stage.anchors[state.selection.index]?.id
-      : null;
+      : state.selection.group === 'cutouts'
+        ? state.stage.geometry.cutouts[state.selection.index]?.id
+        : null;
     const info = renderer.render(state.stage, {
       time,
       beats,
@@ -1292,7 +1453,7 @@ if (!renderer) {
       enraged: state.enraged,
       impactFlash: state.impactFlash,
       orbit: state.cameraMode === 'orbit' ? state.orbit : null,
-      selectedId: selectedAnchorId,
+      selectedId,
     });
     const renderMs = performance.now() - t0;
     smoothFrameMs = smoothFrameMs * 0.92 + renderMs * 0.08;
